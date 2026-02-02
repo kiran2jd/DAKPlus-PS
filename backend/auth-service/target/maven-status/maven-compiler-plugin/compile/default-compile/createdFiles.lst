@@ -1,0 +1,16 @@
+com\mockanytime\authservice\service\AuthService.class
+com\mockanytime\authservice\controller\AuthController$RegisterRequest.class
+com\mockanytime\authservice\config\DataInitializer.class
+com\mockanytime\authservice\util\JwtUtil.class
+com\mockanytime\authservice\controller\AuthController.class
+com\mockanytime\authservice\model\User.class
+com\mockanytime\authservice\controller\AuthController$VerifyOtpRequest.class
+com\mockanytime\authservice\controller\AuthController$UpdateProfileRequest.class
+com\mockanytime\authservice\controller\AuthController$SendOtpRequest.class
+com\mockanytime\authservice\model\Otp.class
+com\mockanytime\authservice\repository\OtpRepository.class
+com\mockanytime\authservice\service\OtpService.class
+com\mockanytime\authservice\repository\UserRepository.class
+com\mockanytime\authservice\config\SecurityConfig.class
+com\mockanytime\authservice\controller\AuthController$LoginRequest.class
+com\mockanytime\authservice\AuthServiceApplication.class

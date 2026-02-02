@@ -1,0 +1,85 @@
+package com.mockanytime.assessmentservice.model;
+
+import java.util.List;
+import java.util.UUID;
+
+public class Question {
+    private String id;
+    private String text;
+    private String type; // mcq, true_false
+    private List<String> options;
+    private String correctAnswer;
+    private String explanation;
+    private int points;
+
+    public Question() {
+        this.id = UUID.randomUUID().toString();
+    }
+
+    public Question(String text, String type, List<String> options, String correctAnswer, String explanation,
+            int points) {
+        this.id = UUID.randomUUID().toString();
+        this.text = text;
+        this.type = type;
+        this.options = options;
+        this.correctAnswer = correctAnswer;
+        this.explanation = explanation;
+        this.points = points;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public List<String> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<String> options) {
+        this.options = options;
+    }
+
+    public String getCorrectAnswer() {
+        return correctAnswer;
+    }
+
+    public void setCorrectAnswer(String correctAnswer) {
+        this.correctAnswer = correctAnswer;
+    }
+
+    public String getExplanation() {
+        return explanation;
+    }
+
+    public void setExplanation(String explanation) {
+        this.explanation = explanation;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+}

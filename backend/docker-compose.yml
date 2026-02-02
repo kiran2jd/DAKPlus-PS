@@ -1,0 +1,123 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: mockanytime-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: mockanytime
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - mockanytime-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/mockanytime --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  discovery-server:
+    build:
+      context: ./discovery-server
+      dockerfile: Dockerfile
+    container_name: mockanytime-discovery
+    ports:
+      - "8761:8761"
+    networks:
+      - mockanytime-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: mockanytime-auth
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI:mongodb://mongodb:27017/mockanytime}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - mockanytime-network
+
+  assessment-service:
+    build:
+      context: ./assessment-service
+      dockerfile: Dockerfile
+    container_name: mockanytime-assessment
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI:mongodb://mongodb:27017/mockanytime}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - mockanytime-network
+
+  scoring-service:
+    build:
+      context: ./scoring-service
+      dockerfile: Dockerfile
+    container_name: mockanytime-scoring
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI:mongodb://mongodb:27017/mockanytime}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - mockanytime-network
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: mockanytime-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:*}
+    depends_on:
+      - discovery-server
+      - auth-service
+      - assessment-service
+      - scoring-service
+    networks:
+      - mockanytime-network
+
+  frontend:
+    build:
+      context: ../MockAnyTime/frontend
+      dockerfile: Dockerfile
+    container_name: mockanytime-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - mockanytime-network
+
+networks:
+  mockanytime-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

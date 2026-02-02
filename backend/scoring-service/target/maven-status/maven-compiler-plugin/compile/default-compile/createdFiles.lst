@@ -1,0 +1,13 @@
+com\mockanytime\scoringservice\controller\ChatController.class
+com\mockanytime\scoringservice\dto\ChatRequest.class
+com\mockanytime\scoringservice\service\ResultService.class
+com\mockanytime\scoringservice\ScoringServiceApplication.class
+com\mockanytime\scoringservice\service\ChatService.class
+com\mockanytime\scoringservice\controller\ResultController.class
+com\mockanytime\scoringservice\repository\ResultRepository.class
+com\mockanytime\scoringservice\dto\QuestionDto.class
+com\mockanytime\scoringservice\model\Result.class
+com\mockanytime\scoringservice\dto\TestDto.class
+com\mockanytime\scoringservice\model\Result$AnswerDetail.class
+com\mockanytime\scoringservice\client\AssessmentClient.class
+com\mockanytime\scoringservice\controller\ResultController$SubmitRequest.class

@@ -1,0 +1,9 @@
+com\mockanytime\assessmentservice\service\QuestionExtractionService$QuestionList.class
+com\mockanytime\assessmentservice\model\Question.class
+com\mockanytime\assessmentservice\service\TestService.class
+com\mockanytime\assessmentservice\service\QuestionExtractionService.class
+com\mockanytime\assessmentservice\controller\TestController.class
+com\mockanytime\assessmentservice\model\Test.class
+com\mockanytime\assessmentservice\service\DocumentParsingService.class
+com\mockanytime\assessmentservice\AssessmentServiceApplication.class
+com\mockanytime\assessmentservice\repository\TestRepository.class

@@ -1,0 +1,66 @@
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Navbar from './components/Navbar';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import ProfilePage from './pages/ProfilePage';
+
+import DashboardLayout from './components/DashboardLayout';
+import TeacherDashboard from './pages/TeacherDashboard';
+import StudentDashboard from './pages/StudentDashboard';
+import CreateTestPage from './pages/CreateTestPage';
+import TakeTestPage from './pages/TakeTestPage';
+import ResultPage from './pages/ResultPage';
+import PaymentPage from './pages/PaymentPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import DashboardRedirect from './components/DashboardRedirect';
+import ChatWidget from './components/ChatWidget';
+import { authService } from './services/auth';
+
+function App() {
+  return (
+    <div className="min-h-screen flex flex-col font-sans bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<><Navbar /><LoginPage /></>} />
+        <Route path="/signup" element={<><Navbar /><SignupPage /></>} />
+
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<DashboardRedirect />} />
+          <Route path="student" element={<StudentDashboard />} />
+          <Route path="create-test" element={<CreateTestPage />} />
+          <Route path="my-tests" element={<TeacherDashboard />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
+
+        <Route path="/payment" element={
+          <ProtectedRoute>
+            <PaymentPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/dashboard/take-test/:testId" element={
+          <ProtectedRoute allowedRoles={['student', 'teacher', 'admin', 'TEACHER', 'STUDENT']}>
+            <TakeTestPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/dashboard/result/:resultId" element={
+          <ProtectedRoute>
+            <ResultPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path="*" element={<div className="p-8 text-center">404 - Not Found</div>} />
+      </Routes>
+      <ChatWidget />
+    </div>
+  );
+}
+
+export default App;
