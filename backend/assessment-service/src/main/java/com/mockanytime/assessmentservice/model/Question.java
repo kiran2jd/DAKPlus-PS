@@ -11,6 +11,8 @@ public class Question {
     private String correctAnswer;
     private String explanation;
     private int points;
+    private String topicId;
+    private String subtopicId;
 
     public Question() {
         this.id = UUID.randomUUID().toString();
@@ -81,5 +83,21 @@ public class Question {
 
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    public String getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(String topicId) {
+        this.topicId = topicId;
+    }
+
+    public String getSubtopicId() {
+        return subtopicId;
+    }
+
+    public void setSubtopicId(String subtopicId) {
+        this.subtopicId = subtopicId;
     }
 }

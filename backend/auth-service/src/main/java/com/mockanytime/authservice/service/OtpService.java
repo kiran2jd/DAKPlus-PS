@@ -20,6 +20,9 @@ public class OtpService {
 
     private final JavaMailSender mailSender;
 
+    @Value("${spring.mail.username:noreply@dakplus.in}")
+    private String mailFrom;
+
     public OtpService(OtpRepository otpRepository, JavaMailSender mailSender) {
         this.otpRepository = otpRepository;
         this.mailSender = mailSender;
@@ -49,6 +52,13 @@ public class OtpService {
      * Verify OTP code for a phone number
      */
     public boolean verifyOtp(String identifier, String code) {
+        // Dummy OTP for testing
+        if ("123456".equals(code) && (identifier.equals("9999999999") || identifier.equals("admin@dakplus.in")
+                || identifier.equals("student@dakplus.in"))) {
+            System.out.println("DEBUG: Dummy OTP verified for " + identifier);
+            return true;
+        }
+
         Optional<Otp> otpOpt = otpRepository.findByIdentifier(identifier);
 
         if (otpOpt.isEmpty()) {
@@ -151,7 +161,7 @@ public class OtpService {
     public void sendOtpViaEmail(String email, String code) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("auth@dakplus.in");
+            message.setFrom(mailFrom);
             message.setTo(email);
             message.setSubject("Your DAKPLUS Verification Code");
             message.setText("Your verification code is: " + code + "\n\nThis code will expire in 5 minutes.");
@@ -170,7 +180,7 @@ public class OtpService {
     public void sendRegistrationSuccessEmail(String email, String fullName) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("welcome@dakplus.in");
+            message.setFrom(mailFrom);
             message.setTo(email);
             message.setSubject("Welcome to DAKPLUS APP!");
             message.setText("Hello " + fullName
@@ -188,7 +198,7 @@ public class OtpService {
     public void sendPaymentSuccessEmail(String email, double amount) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("payments@dakplus.in");
+            message.setFrom(mailFrom);
             message.setTo(email);
             message.setSubject("Payment Received - Pro Subscription Activated");
             message.setText("Thank you for your payment of INR " + amount

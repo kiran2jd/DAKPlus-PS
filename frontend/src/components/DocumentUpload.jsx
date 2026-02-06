@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { testService } from '../services/test';
 
-export default function DocumentUpload({ onQuestionsExtracted }) {
+export default function DocumentUpload({ onQuestionsExtracted, topicId, subtopicId }) {
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState('');
@@ -29,7 +29,7 @@ export default function DocumentUpload({ onQuestionsExtracted }) {
         setUploading(true);
         setError('');
         try {
-            const questions = await testService.extractQuestions(file);
+            const questions = await testService.extractQuestions(file, topicId, subtopicId);
             onQuestionsExtracted(questions);
             setSuccess(true);
             setFile(null);

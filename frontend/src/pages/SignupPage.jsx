@@ -9,7 +9,8 @@ export default function SignupPage() {
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
-        password: ''
+        password: '',
+        notificationsEnabled: true
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -66,7 +67,8 @@ export default function SignupPage() {
                 fullName: formData.fullName,
                 email: formData.email,
                 role: 'student',
-                password: formData.password
+                password: formData.password,
+                notificationsEnabled: formData.notificationsEnabled
             });
             // Auto-login: Token is already saved by authService.register
             navigate('/dashboard');
@@ -167,6 +169,19 @@ export default function SignupPage() {
                             />
                         </div>
 
+                        <div className="flex items-center mb-4">
+                            <input
+                                id="notificationsEnabled"
+                                name="notificationsEnabled"
+                                type="checkbox"
+                                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                                checked={formData.notificationsEnabled}
+                                onChange={(e) => setFormData({ ...formData, notificationsEnabled: e.target.checked })}
+                            />
+                            <label htmlFor="notificationsEnabled" className="ml-2 block text-sm text-gray-900">
+                                Send me exam notifications and updates via email
+                            </label>
+                        </div>
                     </div>
 
                     <div>

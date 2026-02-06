@@ -42,11 +42,13 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime lastLogin;
     private String activeSessionId; // For single session enforcement
+    private boolean notificationsEnabled;
 
     public User() {
         this.createdAt = LocalDateTime.now();
         this.subscriptionTier = "FREE";
         this.emailVerified = false;
+        this.notificationsEnabled = true;
     }
 
     public User(String fullName, String email, String phoneNumber, String role) {
@@ -175,5 +177,13 @@ public class User {
 
     public void setActiveSessionId(String activeSessionId) {
         this.activeSessionId = activeSessionId;
+    }
+
+    public boolean isNotificationsEnabled() {
+        return notificationsEnabled;
+    }
+
+    public void setNotificationsEnabled(boolean notificationsEnabled) {
+        this.notificationsEnabled = notificationsEnabled;
     }
 }

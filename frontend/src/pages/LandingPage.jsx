@@ -83,6 +83,51 @@ export default function LandingPage() {
                 </div>
             </div>
 
+            {/* Download App Section */}
+            <div className="bg-gradient-to-r from-red-600 to-red-800 py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row items-center justify-between">
+                        <div className="text-center md:text-left mb-8 md:mb-0 md:max-w-xl">
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">Take DAKPlus Anywhere</h2>
+                            <p className="text-red-100 text-lg mb-6 leading-relaxed">
+                                Join thousands of postal aspirants who are preparing on the go. Get the DAKPlus mobile app for a seamless offline experience and real-time notifications.
+                            </p>
+                            <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-4">
+                                <a href="#" className="flex items-center bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-900 transition border border-gray-800">
+                                    <div className="mr-3">
+                                        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M17.523 15.3414L20.355 13.706C20.932 13.373 20.932 12.527 20.355 12.194L17.523 10.5586L15.334 12.9194L17.523 15.3414ZM16.326 16.6664L14.004 14.1024L11.5 16.8144V21.4194C11.5 21.6034 11.604 21.7714 11.769 21.8514C11.838 21.8844 11.912 21.9014 11.986 21.9014C12.102 21.9014 12.217 21.8594 12.308 21.7764L16.326 18.0674V16.6664ZM11.5 7.11438V2.48038C11.5 2.29638 11.396 2.12838 11.231 2.04838C11.066 1.96838 10.87 1.99138 10.728 2.10538L6.44 5.56438L8.799 8.17638L11.5 7.11438ZM14.004 11.7374L16.326 9.23338V7.83238L12.308 4.12338C12.164 3.99138 11.95 3.97238 11.785 4.07538C11.611 4.18438 11.503 4.37538 11.5 4.58238V19.3174C11.5 19.4974 11.601 19.6614 11.761 19.7424C11.829 19.7764 11.903 19.7924 11.977 19.7924C12.096 19.7924 12.214 19.7474 12.305 19.6644L16.326 16.0644V14.6644L14.004 12.0994L11.5 14.8114V9.02538L14.004 11.7374ZM5.485 6.32438L3.296 8.68538L5.485 11.1074L8.317 9.47238C8.894 9.13938 8.894 8.29338 8.317 7.96038L5.485 6.32538V6.32438Z" />
+                                        </svg>
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-[10px] uppercase font-bold text-gray-400">Get it on</div>
+                                        <div className="text-sm font-bold">Google Play</div>
+                                    </div>
+                                </a>
+                                <a href="#" className="flex items-center bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-900 transition border border-gray-800">
+                                    <div className="mr-3">
+                                        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M18.71,19.5C17.88,20.74,17,21.95,15.66,21.97C14.32,22,13.89,21.18,12.37,21.18C10.84,21.18,10.37,21.95,9.1,22C7.79,22.05,6.8,20.68,5.96,19.47C4.25,17,2.94,12.45,4.7,9.39C5.57,7.87,7.13,6.91,8.82,6.88C10.1,6.86,11.32,7.75,12.11,7.75C12.89,7.75,14.37,6.68,15.92,6.84C16.57,6.87,18.39,7.1,19.56,8.82C19.47,8.88,17.39,10.1,17.41,12.63C17.44,15.65,20.06,16.66,20.09,16.67C20.07,16.74,19.67,18.11,18.71,19.5M13,3.5C13.73,2.67,14.94,2.04,15.94,2C16.07,3.17,15.6,4.35,14.9,5.19C14.21,6.04,13.07,6.7,11.95,6.61C11.8,5.46,12.36,4.26,13,3.5Z" />
+                                        </svg>
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-[10px] uppercase font-bold text-gray-400">Download on the</div>
+                                        <div className="text-sm font-bold">App Store</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div className="hidden md:block relative">
+                            <div className="w-64 h-[500px] bg-red-900/50 rounded-[3rem] border-8 border-gray-800 shadow-2xl overflow-hidden transform rotate-6 scale-105">
+                                <div className="absolute inset-0 bg-red-600 flex items-center justify-center p-4">
+                                    <Zap className="w-20 h-20 text-white opacity-20" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Features Grid */}
             <div className="bg-gray-50 py-24" id="features">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

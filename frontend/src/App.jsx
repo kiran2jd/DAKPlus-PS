@@ -13,6 +13,8 @@ import CreateTestPage from './pages/CreateTestPage';
 import TakeTestPage from './pages/TakeTestPage';
 import ResultPage from './pages/ResultPage';
 import PaymentPage from './pages/PaymentPage';
+import SyllabusPage from './pages/SyllabusPage';
+import TopicManagementPage from './pages/TopicManagementPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardRedirect from './components/DashboardRedirect';
 import ChatWidget from './components/ChatWidget';
@@ -33,6 +35,8 @@ function App() {
         }>
           <Route index element={<DashboardRedirect />} />
           <Route path="student" element={<StudentDashboard />} />
+          <Route path="student/syllabus" element={<SyllabusPage />} />
+          <Route path="manage-topics" element={<TopicManagementPage />} />
           <Route path="create-test" element={<CreateTestPage />} />
           <Route path="my-tests" element={<TeacherDashboard />} />
           <Route path="profile" element={<ProfilePage />} />

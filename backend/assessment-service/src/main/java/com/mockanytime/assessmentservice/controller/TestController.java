@@ -79,8 +79,11 @@ public class TestController {
     }
 
     @PostMapping("/extract-questions")
-    public List<Question> extractQuestions(@RequestParam("file") MultipartFile file) throws Exception {
+    public List<Question> extractQuestions(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "topicId", required = false) String topicId,
+            @RequestParam(value = "subtopicId", required = false) String subtopicId) throws Exception {
         String text = documentParsingService.extractText(file);
-        return questionExtractionService.extractQuestions(text);
+        return questionExtractionService.extractQuestions(text, topicId, subtopicId);
     }
 }

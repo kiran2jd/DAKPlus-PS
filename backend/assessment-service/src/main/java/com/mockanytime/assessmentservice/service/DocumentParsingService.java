@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 @Service
 public class DocumentParsingService {
@@ -35,8 +36,9 @@ public class DocumentParsingService {
     }
 
     private String extractFromWord(MultipartFile file) throws IOException {
-        try (XWPFDocument doc = new XWPFDocument(file.getInputStream())) {
-            XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
+        try (InputStream inputStream = file.getInputStream();
+                XWPFDocument doc = new XWPFDocument(inputStream);
+                XWPFWordExtractor extractor = new XWPFWordExtractor(doc)) {
             return extractor.getText();
         }
     }

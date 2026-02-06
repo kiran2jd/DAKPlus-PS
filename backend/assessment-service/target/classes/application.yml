@@ -14,6 +14,10 @@ spring:
       chat:
         options:
           model: gpt-3.5-turbo
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 eureka:
   instance:

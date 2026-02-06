@@ -23,7 +23,7 @@ public class DataInitializer {
                 User admin = new User();
                 admin.setFullName("Admin User");
                 admin.setEmail(adminEmail);
-                admin.setPhoneNumber("9999999999");
+                admin.setPhoneNumber("0000000000");
                 admin.setRole("ADMIN");
                 admin.setPassword(encoder.encode("admin123")); // Secure hashed password
                 admin.setSubscriptionTier("PREMIUM");

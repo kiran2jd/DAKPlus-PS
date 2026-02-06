@@ -2,12 +2,17 @@ import { useEffect, useState } from 'react';
 import { testService } from '../services/test';
 import { authService } from '../services/auth';
 import { Link, useNavigate } from 'react-router-dom';
-import { PlayCircle, Clock, BarChart2, BookOpen, Search, History } from 'lucide-react';
+import { PlayCircle, Clock, BarChart2, BookOpen, Search, History, Bell, GraduationCap, FileText, ClipboardList } from 'lucide-react';
 import { resultService } from '../services/result';
+import { topicService } from '../services/topic';
 
 export default function StudentDashboard() {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
     const [tests, setTests] = useState([]);
+    const [topics, setTopics] = useState([]);
+    const [selectedTopic, setSelectedTopic] = useState(null);
+    const [subtopics, setSubtopics] = useState([]);
+    const [selectedSubtopic, setSelectedSubtopic] = useState(null);
     const [history, setHistory] = useState([]);
     const [overallAccuracy, setOverallAccuracy] = useState(0);
     const [totalPoints, setTotalPoints] = useState(0);
@@ -24,6 +29,9 @@ export default function StudentDashboard() {
 
                 const data = await testService.getAvailableTests();
                 setTests(data);
+
+                const topicsData = await topicService.getAllTopics();
+                setTopics(topicsData);
             } catch (err) {
                 console.error("Failed to load tests", err);
             } finally {
@@ -54,6 +62,19 @@ export default function StudentDashboard() {
         loadAnalytics();
     }, []);
 
+    const handleTopicClick = async (topicId) => {
+        if (selectedTopic === topicId) {
+            setSelectedTopic(null);
+            setSubtopics([]);
+            setSelectedSubtopic(null);
+        } else {
+            setSelectedTopic(topicId);
+            const subData = await topicService.getSubtopics(topicId);
+            setSubtopics(subData);
+            setSelectedSubtopic(null);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Gradient Header matching mobile app */}
@@ -76,18 +97,44 @@ export default function StudentDashboard() {
                     </div>
 
                     {/* Stats Cards with glassmorphism */}
-                    <div className="grid grid-cols-3 gap-3 md:gap-4">
-                        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
-                            <p className="text-white/70 text-xs uppercase tracking-wide font-semibold mb-1">Tests Attended</p>
-                            <p className="text-white text-2xl md:text-3xl font-bold">{history.length}</p>
+                    <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8">
+                        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 text-center">
+                            <span className="block text-white/70 text-xs font-bold uppercase tracking-wider mb-1">Avg Accuracy</span>
+                            <span className="text-2xl md:text-3xl font-black text-white">{overallAccuracy}%</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
-                            <p className="text-white/70 text-xs uppercase tracking-wide font-semibold mb-1">Avg Accuracy</p>
-                            <p className="text-white text-2xl md:text-3xl font-bold">{overallAccuracy}%</p>
+                        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 text-center">
+                            <span className="block text-white/70 text-xs font-bold uppercase tracking-wider mb-1">Tests Taken</span>
+                            <span className="text-2xl md:text-3xl font-black text-white">{history.length}</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
-                            <p className="text-white/70 text-xs uppercase tracking-wide font-semibold mb-1">Total Points</p>
-                            <p className="text-white text-2xl md:text-3xl font-bold">{totalPoints}</p>
+                        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20 text-center">
+                            <span className="block text-white/70 text-xs font-bold uppercase tracking-wider mb-1">Total Points</span>
+                            <span className="text-2xl md:text-3xl font-black text-white">{totalPoints}</span>
+                        </div>
+                    </div>
+
+                    {/* Quick Access Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-white/30 transition border border-white/20">
+                            <Bell className="text-white h-8 w-8 mb-2" />
+                            <span className="text-white font-bold text-sm">Exam Notification</span>
+                        </div>
+                        <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-white/30 transition border border-white/20">
+                            <GraduationCap className="text-white h-8 w-8 mb-2" />
+                            <span className="text-white font-bold text-sm">Classes</span>
+                        </div>
+                        <div
+                            onClick={() => document.getElementById('tests-section')?.scrollIntoView({ behavior: 'smooth' })}
+                            className="bg-white/20 backdrop-blur-md rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-white/30 transition border border-white/20"
+                        >
+                            <ClipboardList className="text-white h-8 w-8 mb-2" />
+                            <span className="text-white font-bold text-sm">Exams</span>
+                        </div>
+                        <div
+                            onClick={() => navigate('/dashboard/student/syllabus')}
+                            className="bg-white/20 backdrop-blur-md rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-white/30 transition border border-white/20"
+                        >
+                            <FileText className="text-white h-8 w-8 mb-2" />
+                            <span className="text-white font-bold text-sm">Syllabus</span>
                         </div>
                     </div>
                 </div>
@@ -112,10 +159,37 @@ export default function StudentDashboard() {
                     </div>
                 )}
 
+                {/* Topics Selection */}
+                <div className="mb-8 overflow-x-auto pb-2 flex gap-4 scrollbar-hide">
+                    {topics.map(topic => (
+                        <button
+                            key={topic.id}
+                            onClick={() => handleTopicClick(topic.id)}
+                            className={`flex-shrink-0 px-6 py-3 rounded-2xl font-bold transition-all border-2 ${selectedTopic === topic.id ? 'bg-red-600 border-red-600 text-white shadow-lg' : 'bg-white border-gray-200 text-gray-700 hover:border-red-300'}`}
+                        >
+                            {topic.name}
+                        </button>
+                    ))}
+                </div>
+
+                {selectedTopic && subtopics.length > 0 && (
+                    <div className="mb-8 flex flex-wrap gap-2">
+                        {subtopics.map(sub => (
+                            <button
+                                key={sub.id}
+                                onClick={() => setSelectedSubtopic(selectedSubtopic === sub.id ? null : sub.id)}
+                                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${selectedSubtopic === sub.id ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                            >
+                                {sub.name}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content: Available Tests */}
                     <div className="lg:col-span-2 space-y-6">
-                        <div className="flex justify-between items-center mb-4">
+                        <div id="tests-section" className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-bold text-gray-900">Available Mock Exams</h2>
                         </div>
 
@@ -129,7 +203,10 @@ export default function StudentDashboard() {
                             <div className="grid grid-cols-1 gap-4">
                                 {tests.filter(test => {
                                     const isPremium = test.premium || test.isPremium;
-                                    return isPro ? true : !isPremium;
+                                    const matchesTier = isPro ? true : !isPremium;
+                                    const matchesTopic = !selectedTopic || test.topicId === selectedTopic;
+                                    const matchesSubtopic = !selectedSubtopic || test.subtopicId === selectedSubtopic;
+                                    return matchesTier && matchesTopic && matchesSubtopic;
                                 }).map(test => {
                                     const isPremium = test.premium || test.isPremium;
                                     return (

@@ -32,7 +32,7 @@ spring:
         - id: assessment-service
           uri: lb://assessment-service
           predicates:
-            - Path=/api/tests/**
+            - Path=/api/tests/**, /api/topics/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
 

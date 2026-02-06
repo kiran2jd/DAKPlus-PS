@@ -37,9 +37,12 @@ export const testService = {
         return response.data;
     },
 
-    extractQuestions: async (file) => {
+    extractQuestions: async (file, topicId, subtopicId) => {
         const formData = new FormData();
         formData.append('file', file);
+        if (topicId) formData.append('topicId', topicId);
+        if (subtopicId) formData.append('subtopicId', subtopicId);
+
         const response = await api.post('/tests/extract-questions', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'

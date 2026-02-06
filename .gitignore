@@ -1,0 +1,35 @@
+# Environment variables
+.env
+.env.*
+PROD_ENV_VARS.md
+
+# Node.js
+**/node_modules/
+**/dist/
+**/build/
+.npm
+**/*.log
+
+# Java & Maven
+**/target/
+**/.factorypath
+**/.settings/
+**/.project
+**/.classpath
+
+# Expo
+.expo/
+web-build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/

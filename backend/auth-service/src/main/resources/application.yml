@@ -19,6 +19,7 @@ spring:
           auth: true
           starttls:
             enable: true
+      debug: true
 
 otp:
   delivery:

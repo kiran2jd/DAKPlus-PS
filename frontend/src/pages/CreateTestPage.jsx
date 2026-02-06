@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { testService } from '../services/test';
+import { topicService } from '../services/topic';
 import QuestionBuilder from '../components/QuestionBuilder';
 import DocumentUpload from '../components/DocumentUpload';
+import { useEffect } from 'react';
 
 export default function CreateTestPage() {
     const navigate = useNavigate();
@@ -16,10 +18,41 @@ export default function CreateTestPage() {
         category: 'General',
         difficulty: 'Medium',
         isPremium: false,
-        price: 0
+        price: 0,
+        topicId: '',
+        subtopicId: ''
     });
 
+    const [topics, setTopics] = useState([]);
+    const [subtopics, setSubtopics] = useState([]);
+
     const [questions, setQuestions] = useState([]);
+
+    useEffect(() => {
+        const fetchTopics = async () => {
+            try {
+                const data = await topicService.getAllTopics();
+                setTopics(data);
+            } catch (err) {
+                console.error("Failed to fetch topics", err);
+            }
+        };
+        fetchTopics();
+    }, []);
+
+    const handleTopicChange = async (topicId) => {
+        setTestData({ ...testData, topicId, subtopicId: '' });
+        if (topicId) {
+            try {
+                const data = await topicService.getSubtopics(topicId);
+                setSubtopics(data);
+            } catch (err) {
+                console.error("Failed to fetch subtopics", err);
+            }
+        } else {
+            setSubtopics([]);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -145,6 +178,48 @@ export default function CreateTestPage() {
                                     <option>Hard</option>
                                 </select>
                             </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Topic</label>
+                                <select
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 bg-white"
+                                    value={testData.topicId}
+                                    onChange={(e) => handleTopicChange(e.target.value)}
+                                >
+                                    <option value="">Select Topic</option>
+                                    {topics.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Subtopic</label>
+                                <select
+                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 bg-white"
+                                    value={testData.subtopicId}
+                                    onChange={(e) => setTestData({ ...testData, subtopicId: e.target.value })}
+                                    disabled={!testData.topicId}
+                                >
+                                    <option value="">Select Subtopic</option>
+                                    {subtopics.map(s => (
+                                        <option key={s.id} value={s.id}>{s.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex items-center space-x-3 mt-6">
+                                <input
+                                    type="checkbox"
+                                    id="isPremium"
+                                    className="h-5 w-5 text-primary border-gray-300 rounded focus:ring-primary"
+                                    checked={testData.isPremium}
+                                    onChange={(e) => setTestData({ ...testData, isPremium: e.target.checked })}
+                                />
+                                <label htmlFor="isPremium" className="text-sm font-bold text-gray-700">
+                                    Premium Test (Locked for free users)
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -153,7 +228,11 @@ export default function CreateTestPage() {
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <h2 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100">Questions</h2>
                             <div className="w-full md:w-auto">
-                                <DocumentUpload onQuestionsExtracted={(newQuestions) => setQuestions([...questions, ...newQuestions])} />
+                                <DocumentUpload
+                                    onQuestionsExtracted={(newQuestions) => setQuestions([...questions, ...newQuestions])}
+                                    topicId={testData.topicId}
+                                    subtopicId={testData.subtopicId}
+                                />
                             </div>
                         </div>
                         <QuestionBuilder questions={questions} setQuestions={setQuestions} />
@@ -176,7 +255,7 @@ export default function CreateTestPage() {
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

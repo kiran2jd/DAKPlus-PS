@@ -37,7 +37,8 @@ public class AuthController {
             @NotBlank(message = "Phone number is required") String phoneNumber,
             String role,
             @NotBlank(message = "Password is required") @Size(min = 6, message = "Password must be at least 6 characters") String password,
-            boolean persistent) {
+            boolean persistent,
+            boolean notificationsEnabled) {
     }
 
     record SendOtpRequest(String identifier) {
@@ -112,6 +113,7 @@ public class AuthController {
         try {
             // Create user object from request
             User user = new User(request.fullName(), request.email(), request.phoneNumber(), request.role());
+            user.setNotificationsEnabled(request.notificationsEnabled());
             if (request.password() != null && !request.password().isEmpty()) {
                 user.setPassword(request.password());
             }

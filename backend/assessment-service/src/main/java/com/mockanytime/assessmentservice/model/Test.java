@@ -29,6 +29,8 @@ public class Test {
     private int maxAttempts = -1; // -1 means unlimited
     private boolean isPublished = true;
     private int totalAttempts = 0;
+    private String topicId;
+    private String subtopicId;
 
     public Test() {
     }
@@ -167,6 +169,22 @@ public class Test {
 
     public void setTotalAttempts(int totalAttempts) {
         this.totalAttempts = totalAttempts;
+    }
+
+    public String getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(String topicId) {
+        this.topicId = topicId;
+    }
+
+    public String getSubtopicId() {
+        return subtopicId;
+    }
+
+    public void setSubtopicId(String subtopicId) {
+        this.subtopicId = subtopicId;
     }
 
     public void incrementAttempts() {
