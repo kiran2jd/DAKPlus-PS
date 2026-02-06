@@ -1,21 +1,4 @@
 services:
-  mongodb:
-    image: mongo:7.0
-    container_name: mockanytime-mongodb
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_DATABASE: mockanytime
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - mockanytime-network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/mockanytime --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   discovery-server:
     build:
       context: ./backend/discovery-server
@@ -39,7 +22,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/mockanytime
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       MSG91_AUTH_KEY: ${MSG91_AUTH_KEY}
       MSG91_TEMPLATE_ID: ${MSG91_TEMPLATE_ID}
@@ -49,8 +32,6 @@ services:
       SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
     depends_on:
-      mongodb:
-        condition: service_healthy
       discovery-server:
         condition: service_healthy
     networks:
@@ -64,12 +45,10 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/mockanytime
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_AI_OPENAI_API_KEY: ${SPRING_AI_OPENAI_API_KEY}
     depends_on:
-      mongodb:
-        condition: service_healthy
       discovery-server:
         condition: service_healthy
     networks:
@@ -83,12 +62,10 @@ services:
     ports:
       - "8083:8083"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/mockanytime
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_AI_OPENAI_API_KEY: ${SPRING_AI_OPENAI_API_KEY}
     depends_on:
-      mongodb:
-        condition: service_healthy
       discovery-server:
         condition: service_healthy
     networks:
@@ -130,10 +107,7 @@ services:
     networks:
       - mockanytime-network
 
-# Networks and Volumes
+# Networks
 networks:
   mockanytime-network:
     driver: bridge
-
-volumes:
-  mongodb_data:
