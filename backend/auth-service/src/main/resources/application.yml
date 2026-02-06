@@ -7,6 +7,7 @@ spring:
   data:
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URI}
+      database: mockanytime
       auto-index-creation: true
   mail:
     host: ${SPRING_MAIL_HOST:smtp.gmail.com}
