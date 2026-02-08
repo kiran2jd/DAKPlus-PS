@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { User, Mail, Shield, BookOpen, Award, Settings, Camera, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { resultService } from '../services/result';
+import logo from '../assets/logo.jpg';
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -67,10 +68,8 @@ export default function ProfilePage() {
                 <div className="h-32 bg-gradient-to-r from-indigo-600 to-purple-600"></div>
                 <div className="px-8 pb-8 flex flex-col md:flex-row items-start md:items-end -mt-12 space-y-4 md:space-y-0">
                     <div className="relative">
-                        <div className="h-24 w-24 rounded-full bg-white p-1 shadow-lg">
-                            <div className="h-full w-full rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                                <User className="h-10 w-10 text-gray-400" />
-                            </div>
+                        <div className="h-24 w-24 rounded-full bg-white p-1 shadow-lg overflow-hidden">
+                            <img src={logo} alt="Logo" className="h-full w-full object-contain" />
                         </div>
                     </div>
 

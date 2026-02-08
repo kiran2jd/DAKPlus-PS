@@ -19,6 +19,8 @@ import { resultService } from '../services/result';
 import { topicService } from '../services/topic';
 import api from '../services/api';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'react-native';
+import logo from '../../assets/logo.jpg';
 
 export default function DashboardScreen({ navigation }) {
     // usePreventScreenCapture(); // Temporarily disabled for client demo
@@ -98,18 +100,21 @@ export default function DashboardScreen({ navigation }) {
             style={styles.headerGradient}
         >
             <View style={styles.topRow}>
-                <View>
-                    <View style={styles.nameRow}>
-                        <Text style={styles.greeting}>Hello, {user?.fullName?.split(' ')[0] || 'User'}</Text>
-                        {(isPro || isStaff) && (
-                            <View style={styles.proBadge}>
-                                <Text style={styles.proText}>{user?.role === 'ADMIN' ? 'ADMIN' : user?.role === 'TEACHER' ? 'TEACHER' : 'PRO'}</Text>
-                            </View>
-                        )}
+                <View style={styles.headerInfo}>
+                    <Image source={logo} style={styles.logoMini} resizeMode="contain" />
+                    <View>
+                        <View style={styles.nameRow}>
+                            <Text style={styles.greeting}>Hello, {user?.fullName?.split(' ')[0] || 'User'}</Text>
+                            {(isPro || isStaff) && (
+                                <View style={styles.proBadge}>
+                                    <Text style={styles.proText}>{user?.role === 'ADMIN' ? 'ADMIN' : user?.role === 'TEACHER' ? 'TEACHER' : 'PRO'}</Text>
+                                </View>
+                            )}
+                        </View>
+                        <Text style={styles.roleLabel}>
+                            {user?.role === 'TEACHER' ? 'Instructor Portal' : user?.role === 'ADMIN' ? 'Admin Control' : 'Student Hub'}
+                        </Text>
                     </View>
-                    <Text style={styles.roleLabel}>
-                        {user?.role === 'TEACHER' ? 'Instructor Portal' : user?.role === 'ADMIN' ? 'Admin Control' : 'Student Hub'}
-                    </Text>
                 </View>
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
                     <Ionicons name="log-out-outline" size={20} color="#fff" />
@@ -306,6 +311,17 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 24,
+    },
+    headerInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    logoMini: {
+        width: 45,
+        height: 45,
+        borderRadius: 12,
+        backgroundColor: '#fff',
     },
     greeting: {
         fontSize: 24,

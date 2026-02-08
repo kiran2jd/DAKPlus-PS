@@ -1,0 +1,28 @@
+server:
+  port: ${PORT:8084}
+
+spring:
+  application:
+    name: payment-service
+
+razorpay:
+  mode: ${RAZORPAY_MODE:live}
+  key:
+    id: ${RAZORPAY_KEY_ID}
+    secret: ${RAZORPAY_KEY_SECRET}
+
+# Disable Eureka client for Railway deployment
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

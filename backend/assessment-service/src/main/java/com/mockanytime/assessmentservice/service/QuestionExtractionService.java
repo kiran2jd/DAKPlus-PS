@@ -50,9 +50,19 @@ public class QuestionExtractionService {
         BeanOutputParser<QuestionList> parser = new BeanOutputParser<>(QuestionList.class);
 
         Prompt prompt = new Prompt(promptString.replace("{text}", text));
-        System.out.println("Sending extraction prompt to AI...");
-        String response = chatClient.call(prompt).getResult().getOutput().getContent();
-        System.out.println("AI Response received: " + response);
+        long startTime = System.currentTimeMillis();
+        System.out.println("Sending extraction prompt to Groq (Doc Length: " + text.length() + " chars)...");
+
+        String response;
+        try {
+            response = chatClient.call(prompt).getResult().getOutput().getContent();
+            long duration = System.currentTimeMillis() - startTime;
+            System.out.println("AI Response received in " + duration + "ms. Response Length: " + response.length());
+        } catch (Exception e) {
+            System.err.println(
+                    "API Call failed after " + (System.currentTimeMillis() - startTime) + "ms: " + e.getMessage());
+            throw e;
+        }
 
         // Basic cleanup of response in case AI adds markdown
         if (response.contains("```json")) {

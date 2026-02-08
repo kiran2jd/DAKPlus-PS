@@ -92,7 +92,26 @@ export default function TakeTestPage() {
     if (loading) return <div className="p-8 text-center">Loading Test...</div>;
     if (!test) return <div className="p-8 text-center text-red-500">Test not found</div>;
 
-    const question = test.questions[currentQuestion];
+    const question = test.questions && test.questions.length > 0 ? test.questions[currentQuestion] : null;
+
+    if (!question) {
+        return (
+            <div className="min-h-screen bg-white flex flex-col">
+                <div className="bg-gradient-to-r from-red-600 to-blue-900 px-6 py-4 shadow-xl">
+                    <div className="max-w-7xl mx-auto flex justify-between items-center">
+                        <button onClick={() => navigate('/dashboard')} className="text-white font-semibold">Back to Dashboard</button>
+                    </div>
+                </div>
+                <div className="flex-1 flex items-center justify-center p-8">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">No Questions Found</h2>
+                        <p className="text-gray-600">This test doesn't seem to have any questions. Please contact your instructor.</p>
+                        <button onClick={() => navigate('/dashboard')} className="mt-6 px-6 py-3 bg-red-600 text-white rounded-xl font-bold">Return Home</button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-white flex flex-col">

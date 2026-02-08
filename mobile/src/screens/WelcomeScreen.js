@@ -8,6 +8,7 @@ import {
     SafeAreaView,
     StatusBar,
 } from 'react-native';
+import logo from '../../assets/logo.jpg';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function WelcomeScreen({ navigation }) {
@@ -20,6 +21,7 @@ export default function WelcomeScreen({ navigation }) {
             >
                 <View style={styles.content}>
                     <View style={styles.logoContainer}>
+                        <Image source={logo} style={styles.logoImage} resizeMode="contain" />
                         <Text style={styles.logoText}>DAKPlus</Text>
                         <View style={styles.logoUnderline} />
                     </View>
@@ -64,14 +66,19 @@ const styles = StyleSheet.create({
         marginTop: 60,
         alignItems: 'center',
     },
+    logoImage: {
+        width: 120,
+        height: 120,
+        marginBottom: 10,
+    },
     logoText: {
-        fontSize: 48,
+        fontSize: 40,
         fontWeight: '900',
         color: '#fff',
         letterSpacing: 4,
     },
     logoUnderline: {
-        width: 80,
+        width: 60,
         height: 4,
         backgroundColor: '#fbbf24',
         marginTop: 5,

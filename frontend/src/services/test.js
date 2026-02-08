@@ -8,7 +8,13 @@ export const testService = {
 
     getMyTests: async () => {
         const response = await api.get('/tests/my-tests');
-        return response.data;
+        // Handle wrapped responses or unexpected formats
+        const data = response.data;
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.data)) return data.data;
+        if (data && Array.isArray(data.tests)) return data.tests;
+        console.warn('Unexpected my-tests response format:', data);
+        return [];
     },
 
     getTestById: async (testId) => {
@@ -19,7 +25,13 @@ export const testService = {
     // Student Methods
     getAvailableTests: async () => {
         const response = await api.get('/tests/available/all');
-        return response.data;
+        // Handle wrapped responses or unexpected formats
+        const data = response.data;
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.data)) return data.data;
+        if (data && Array.isArray(data.tests)) return data.tests;
+        console.warn('Unexpected available tests response format:', data);
+        return [];
     },
 
     updateTest: async (id, testData) => {

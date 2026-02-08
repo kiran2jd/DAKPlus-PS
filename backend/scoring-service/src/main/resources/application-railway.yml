@@ -1,0 +1,33 @@
+server:
+  port: ${PORT:8083}
+
+spring:
+  application:
+    name: scoring-service
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI}
+      database: mockanytime
+      auto-index-creation: true
+  ai:
+    openai:
+      api-key: ${SPRING_AI_OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+
+# Disable Eureka client for Railway deployment
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

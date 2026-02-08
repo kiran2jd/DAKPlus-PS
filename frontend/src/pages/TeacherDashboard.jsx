@@ -3,37 +3,50 @@ import { testService } from '../services/test';
 import { authService } from '../services/auth';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import { PlusCircle, Layout, Users, TrendingUp, ExternalLink } from 'lucide-react';
+import { PlusCircle, Layout, Users, TrendingUp, ExternalLink, Trash2, Edit } from 'lucide-react';
 
 export default function TeacherDashboard() {
     const [tests, setTests] = useState([]);
     const [studentCount, setStudentCount] = useState(0);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadTests = async () => {
-            try {
-                // Get latest profile (sync tier/role)
-                await authService.getProfile();
+    const loadTests = async () => {
+        setLoading(true);
+        try {
+            // Get latest profile (sync tier/role)
+            await authService.getProfile();
 
-                const data = await testService.getMyTests();
-                setTests(data);
+            const data = await testService.getMyTests();
+            setTests(data);
 
-                // Fetch real student reach if teacher has tests
-                if (data.length > 0) {
-                    const testIds = data.map(t => t.id);
-                    const queryString = testIds.map(id => `testIds=${id}`).join('&');
-                    const countRes = await api.get(`/results/tests/unique-students?${queryString}`);
-                    setStudentCount(countRes.data.count);
-                }
-            } catch (err) {
-                console.error("Failed to load dashboard data", err);
-            } finally {
-                setLoading(false);
+            // Fetch real student reach if teacher has tests
+            if (data.length > 0) {
+                const testIds = data.map(t => t.id);
+                const queryString = testIds.map(id => `testIds=${id}`).join('&');
+                const countRes = await api.get(`/results/tests/unique-students?${queryString}`);
+                setStudentCount(countRes.data.count);
             }
-        };
+        } catch (err) {
+            console.error("Failed to load dashboard data", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         loadTests();
     }, []);
+
+    const handleDelete = async (testId) => {
+        if (window.confirm("Are you sure you want to delete this test? This action cannot be undone.")) {
+            try {
+                await testService.deleteTest(testId);
+                loadTests(); // Refresh list
+            } catch (err) {
+                alert("Failed to delete test: " + err.message);
+            }
+        }
+    };
 
     return (
         <div className="space-y-8">
@@ -109,14 +122,21 @@ export default function TeacherDashboard() {
                                     <div className="flex items-center text-sm text-gray-500 space-x-4">
                                         <span>{test.category || 'General'}</span>
                                         <span>•</span>
-                                        <span>{test.duration_minutes} mins</span>
+                                        <span>{test.durationMinutes || test.duration_minutes} mins</span>
                                         <span>•</span>
-                                        <span>{new Date().toLocaleDateString()}</span>
+                                        <span>{new Date(test.createdAt || Date.now()).toLocaleDateString()}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-3 mt-4 sm:mt-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Link to={`/dashboard/edit-test/${test.id}`} className="px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium hover:bg-white text-gray-700">Edit</Link>
-                                    <button className="px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium hover:bg-white text-gray-700">Analytics</button>
+                                    <Link to={`/dashboard/edit-test/${test.id}`} className="px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium hover:bg-white text-gray-700 flex items-center">
+                                        <Edit className="h-3.5 w-3.5 mr-1" /> Edit
+                                    </Link>
+                                    <button
+                                        onClick={() => handleDelete(test.id)}
+                                        className="px-3 py-1.5 border border-red-200 rounded-md text-sm font-medium hover:bg-red-50 text-red-600 flex items-center"
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+                                    </button>
                                     <Link to={`/dashboard/take-test/${test.id}`} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-md text-sm font-medium hover:bg-indigo-100 flex items-center">
                                         Preview <ExternalLink className="ml-1.5 h-3 w-3" />
                                     </Link>

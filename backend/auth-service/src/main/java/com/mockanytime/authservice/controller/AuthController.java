@@ -70,6 +70,19 @@ public class AuthController {
     }
 
     /**
+     * Resends the OTP to the specified identifier (Email or SMS).
+     */
+    @PostMapping("/resend-otp")
+    public ResponseEntity<?> resendOtp(@RequestBody SendOtpRequest request) {
+        try {
+            authService.sendOtp(request.identifier());
+            return ResponseEntity.ok(Map.of("message", "OTP resent successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /**
      * Verifies the OTP provided by the user and returns an authentication token.
      * 
      * @param request The request containing phone number and the OTP to verify.
@@ -239,6 +252,21 @@ public class AuthController {
             // Invalidate if session mismatch found
             return ResponseEntity.status(401)
                     .body(Map.of("valid", false, "message", "Session invalidated. Another login detected."));
+        }
+    }
+
+    /**
+     * Internal endpoint to update user tier (called by payment-service)
+     */
+    @PutMapping("/internal/update-tier")
+    public ResponseEntity<?> updateTier(@RequestBody Map<String, String> request) {
+        String userId = request.get("userId");
+        String tier = request.get("tier");
+        try {
+            User updatedUser = authService.updateTier(userId, tier);
+            return ResponseEntity.ok(Map.of("user", updatedUser, "message", "Tier updated successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 }

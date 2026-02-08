@@ -2,12 +2,13 @@ package com.mockanytime.authservice.service;
 
 import com.mockanytime.authservice.model.Otp;
 import com.mockanytime.authservice.repository.OtpRepository;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
 
 import java.security.SecureRandom;
 import java.util.Optional;
@@ -16,14 +17,19 @@ import java.util.Optional;
 public class OtpService {
 
     private final OtpRepository otpRepository;
+    private final org.springframework.mail.javamail.JavaMailSender mailSender;
     private final SecureRandom random = new SecureRandom();
 
-    private final JavaMailSender mailSender;
+    @Value("${resend.api.key:}")
+    private String resendApiKey;
 
-    @Value("${spring.mail.username:noreply@dakplus.in}")
+    @Value("${spring.mail.username:onboarding@resend.dev}")
     private String mailFrom;
 
-    public OtpService(OtpRepository otpRepository, JavaMailSender mailSender) {
+    @Value("${spring.mail.host:}")
+    private String mailHost;
+
+    public OtpService(OtpRepository otpRepository, org.springframework.mail.javamail.JavaMailSender mailSender) {
         this.otpRepository = otpRepository;
         this.mailSender = mailSender;
     }
@@ -104,10 +110,19 @@ public class OtpService {
     @Value("${otp.delivery.mode:sms}")
     private String otpDeliveryMode; // "sms" or "email"
 
-    @Value("${msg91.auth.key}")
+    @Value("${twilio.account.sid}")
+    private String twilioAccountSid;
+
+    @Value("${twilio.auth.token}")
+    private String twilioAuthToken;
+
+    @Value("${twilio.from.number}")
+    private String twilioFromNumber;
+
+    @Value("${msg91.auth.key:}")
     private String msg91AuthKey;
 
-    @Value("${msg91.template.id}")
+    @Value("${msg91.template.id:}")
     private String msg91TemplateId;
 
     /**
@@ -117,7 +132,12 @@ public class OtpService {
         if (isEmail(identifier)) {
             sendOtpViaEmail(identifier, code);
         } else {
-            sendOtpViaSms(identifier, code);
+            // Priority to Twilio, fallback to MSG91 if Twilio not configured
+            if (twilioAccountSid != null && !twilioAccountSid.isEmpty() && !"...".equals(twilioAccountSid)) {
+                sendOtpViaTwilio(identifier, code);
+            } else {
+                sendOtpViaMsg91(identifier, code);
+            }
         }
     }
 
@@ -125,14 +145,11 @@ public class OtpService {
         return identifier != null && identifier.contains("@") && identifier.contains(".");
     }
 
-    /**
-     * Send OTP to phone number using MSG91
-     */
-    public void sendOtpViaSms(String phoneNumber, String code) {
-        if (msg91AuthKey == null || msg91AuthKey.isEmpty() || "...".equals(msg91AuthKey)) {
+    public void sendOtpViaMsg91(String phoneNumber, String code) {
+        if ((msg91AuthKey == null || msg91AuthKey.isEmpty() || "...".equals(msg91AuthKey))) {
             // Fallback for dev: log to console
             System.out.println("================================");
-            System.out.println("LOG-ONLY MOBILE OTP for " + phoneNumber + ": " + code);
+            System.out.println("LOG-ONLY MSG91 OTP for " + phoneNumber + ": " + code);
             System.out.println("================================");
             return;
         }
@@ -156,57 +173,135 @@ public class OtpService {
     }
 
     /**
-     * Send OTP via Email
+     * Send OTP to phone number using Twilio
      */
-    public void sendOtpViaEmail(String email, String code) {
+    public void sendOtpViaTwilio(String phoneNumber, String code) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(mailFrom);
-            message.setTo(email);
-            message.setSubject("Your DAKPLUS Verification Code");
-            message.setText("Your verification code is: " + code + "\n\nThis code will expire in 5 minutes.");
+            System.out.println("Attempting to send Twilio OTP to " + phoneNumber);
+            // Twilio implementation using RestTemplate (avoiding large SDK for now to keep
+            // it lightweight)
+            String url = "https://api.twilio.com/2010-04-01/Accounts/" + twilioAccountSid + "/Messages.json";
 
-            mailSender.send(message);
-            System.out.println("Email OTP sent successfully to " + email);
+            RestTemplate restTemplate = new RestTemplate();
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED);
+            headers.setBasicAuth(twilioAccountSid, twilioAuthToken);
+
+            org.springframework.util.MultiValueMap<String, String> map = new org.springframework.util.LinkedMultiValueMap<>();
+            map.add("To", phoneNumber.startsWith("+") ? phoneNumber : "+" + phoneNumber);
+            map.add("From", twilioFromNumber);
+            map.add("Body", "Your DAKPLUS verification code is: " + code);
+
+            org.springframework.http.HttpEntity<org.springframework.util.MultiValueMap<String, String>> request = new org.springframework.http.HttpEntity<>(
+                    map, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("Twilio OTP sent successfully to " + phoneNumber);
+            } else {
+                System.err.println("Failed to send Twilio OTP (Switching to MSG91): " + response.getBody());
+                sendOtpViaMsg91(phoneNumber, code);
+            }
         } catch (Exception e) {
-            System.err.println("Failed to send email OTP to " + email + ": " + e.getMessage());
-            System.out.println("FALLBACK LOG OTP for " + email + ": " + code);
+            System.err.println("Error sending Twilio OTP (Switching to MSG91): " + e.getMessage());
+            sendOtpViaMsg91(phoneNumber, code);
         }
     }
 
     /**
-     * Send Transactional Email (Success/Notification)
+     * Send OTP via Email (using Resend API)
+     */
+    public void sendOtpViaEmail(String email, String code) {
+        String htmlContent = "<strong>Your DAKPLUS verification code is: " + code
+                + "</strong><p>This code will expire in 5 minutes.</p>";
+        sendEmail(email, "Your DAKPLUS Verification Code", htmlContent);
+    }
+
+    /**
+     * Send Transactional Email (Registration Success)
      */
     public void sendRegistrationSuccessEmail(String email, String fullName) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(mailFrom);
-            message.setTo(email);
-            message.setSubject("Welcome to DAKPLUS APP!");
-            message.setText("Hello " + fullName
-                    + ",\n\nWelcome to our platform! Your registration was successful.\n\nBest Regards,\nDAKPLUS Team");
-
-            mailSender.send(message);
-        } catch (Exception e) {
-            System.err.println("Failed to send welcome email to " + email + ": " + e.getMessage());
-        }
+        String htmlContent = "<h1>Welcome to DAKPLUS APP!</h1><p>Hello " + fullName
+                + ",</p><p>Welcome to our platform! Your registration was successful.</p><p>Best Regards,<br>DAKPLUS Team</p>";
+        sendEmail(email, "Welcome to DAKPLUS APP!", htmlContent);
     }
 
     /**
      * Send Payment Success Email
      */
     public void sendPaymentSuccessEmail(String email, double amount) {
+        String htmlContent = "<h2>Payment Received</h2><p>Thank you for your payment of INR " + amount
+                + ".</p><p>Your Pro Subscription is now active!</p><p>Best Regards,<br>DAKPLUS Team</p>";
+        sendEmail(email, "Payment Received - Pro Subscription Activated", htmlContent);
+    }
+
+    /**
+     * Core Email Sending Logic (Prefer SMTP, fallback to Resend)
+     */
+    private void sendEmail(String to, String subject, String htmlContent) {
+        // Try SMTP if host is configured
+        if (mailHost != null && !mailHost.isEmpty() && !"...".equals(mailHost)) {
+            sendEmailViaSmtp(to, subject, htmlContent);
+        } else {
+            sendEmailViaResend(to, subject, htmlContent);
+        }
+    }
+
+    private void sendEmailViaSmtp(String to, String subject, String htmlContent) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(mailFrom);
-            message.setTo(email);
-            message.setSubject("Payment Received - Pro Subscription Activated");
-            message.setText("Thank you for your payment of INR " + amount
-                    + ".\n\nYour Pro Subscription is now active!\n\nBest Regards,\nDAKPLUS Team");
+            jakarta.mail.internet.MimeMessage message = mailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(
+                    message, true, "UTF-8");
+
+            helper.setFrom(mailFrom);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
 
             mailSender.send(message);
+            System.out.println("SMTP Email sent successfully to " + to);
         } catch (Exception e) {
-            System.err.println("Failed to send payment email to " + email + ": " + e.getMessage());
+            System.err.println("Error sending SMTP Email: " + e.getMessage());
+            // Fallback to Resend if SMTP fails
+            sendEmailViaResend(to, subject, htmlContent);
+        }
+    }
+
+    /**
+     * Core Resend API Integration
+     */
+    private void sendEmailViaResend(String to, String subject, String htmlContent) {
+        if (resendApiKey == null || resendApiKey.isEmpty() || "...".equals(resendApiKey)) {
+            System.out.println("================================");
+            System.out.println("LOG-ONLY EMAIL to " + to + ": [" + subject + "] -> " + htmlContent);
+            System.out.println("================================");
+            return;
+        }
+
+        try {
+            String url = "https://api.resend.com/emails";
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(resendApiKey);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("from", mailFrom);
+            body.put("to", List.of(to));
+            body.put("subject", subject);
+            body.put("html", htmlContent);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("Resend Email sent successfully to " + to);
+            } else {
+                System.err.println("Failed to send Resend Email: " + response.getBody());
+            }
+        } catch (Exception e) {
+            System.err.println("Error sending Resend Email: " + e.getMessage());
         }
     }
 }

@@ -1,0 +1,66 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false  # Disable Eureka-based discovery for Railway
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: ${ALLOWED_ORIGINS:*}
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+      routes:
+        - id: auth-service
+          uri: http://auth-service.railway.internal:8081
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        
+        - id: assessment-service
+          uri: http://assessment-service.railway.internal:8082
+          predicates:
+            - Path=/api/tests/**, /api/topics/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+
+        - id: scoring-service
+          uri: http://scoring-service.railway.internal:8083
+          predicates:
+            - Path=/api/results/**, /api/chat/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        
+        - id: payment-service
+          uri: http://payment-service.railway.internal:8084
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+
+# Disable Eureka client for Railway deployment
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

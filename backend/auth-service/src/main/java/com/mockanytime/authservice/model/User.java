@@ -43,6 +43,7 @@ public class User {
     private LocalDateTime lastLogin;
     private String activeSessionId; // For single session enforcement
     private boolean notificationsEnabled;
+    private String expoPushToken;
 
     public User() {
         this.createdAt = LocalDateTime.now();
@@ -185,5 +186,13 @@ public class User {
 
     public void setNotificationsEnabled(boolean notificationsEnabled) {
         this.notificationsEnabled = notificationsEnabled;
+    }
+
+    public String getExpoPushToken() {
+        return expoPushToken;
+    }
+
+    public void setExpoPushToken(String expoPushToken) {
+        this.expoPushToken = expoPushToken;
     }
 }

@@ -39,6 +39,11 @@ export default function RegisterScreen({ navigation, route }) {
             return;
         }
 
+        if (fullName.trim().length < 3) {
+            Alert.alert('Error', 'Full Name must be at least 3 characters long');
+            return;
+        }
+
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email)) {
             Alert.alert('Error', 'Please enter a valid email address');
@@ -47,6 +52,13 @@ export default function RegisterScreen({ navigation, route }) {
 
         if (password.length < 6) {
             Alert.alert('Error', 'Password must be at least 6 characters long');
+            return;
+        }
+
+        const phoneRegex = /^\d{10,15}$/;
+        const cleanPhone = phone.replace(/[\s-]/g, '');
+        if (!phoneRegex.test(cleanPhone)) {
+            Alert.alert('Error', 'Phone number must be between 10 and 15 digits');
             return;
         }
 

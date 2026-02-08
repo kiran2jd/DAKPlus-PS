@@ -45,6 +45,10 @@ export const authService = {
     updateProfile: async (updates) => {
         const response = await api.put('/auth/profile', updates);
         if (response.data.user) {
+            const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+            if (localUser.subscriptionTier === 'PREMIUM' && response.data.user.subscriptionTier !== 'PREMIUM') {
+                response.data.user.subscriptionTier = 'PREMIUM';
+            }
             localStorage.setItem('user', JSON.stringify(response.data.user));
         }
         return response.data;
@@ -53,6 +57,11 @@ export const authService = {
     getProfile: async () => {
         const response = await api.get('/auth/profile');
         if (response.data.user) {
+            const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+            // If local is PREMIUM, keep it even if backend says FREE (prevents flickering during upgrade)
+            if (localUser.subscriptionTier === 'PREMIUM' && response.data.user.subscriptionTier !== 'PREMIUM') {
+                response.data.user.subscriptionTier = 'PREMIUM';
+            }
             localStorage.setItem('user', JSON.stringify(response.data.user));
         }
         return response.data;

@@ -37,7 +37,19 @@ export default function CreateTestPage() {
                 console.error("Failed to fetch topics", err);
             }
         };
+
         fetchTopics();
+
+        // Refresh topics when window regains focus (user returns from topic management)
+        const handleFocus = () => {
+            fetchTopics();
+        };
+
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            window.removeEventListener('focus', handleFocus);
+        };
     }, []);
 
     const handleTopicChange = async (topicId) => {

@@ -17,7 +17,7 @@ import { testService } from '../services/test';
 import { resultService } from '../services/result';
 
 export default function TakeTestScreen({ navigation, route }) {
-    // usePreventScreenCapture(); // Temporarily disabled for client demo
+
     const { testId } = route.params;
     const [test, setTest] = useState(null);
     const [currentQuestion, setCurrentQuestion] = useState(0);

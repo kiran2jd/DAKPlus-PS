@@ -8,8 +8,8 @@ spring:
 razorpay:
   mode: ${RAZORPAY_MODE:live}
   key:
-    id: ${RAZORPAY_KEY_ID}
-    secret: ${RAZORPAY_KEY_SECRET}
+    id: ${RAZORPAY_KEY_ID:}
+    secret: ${RAZORPAY_KEY_SECRET:}
 
 eureka:
   instance:

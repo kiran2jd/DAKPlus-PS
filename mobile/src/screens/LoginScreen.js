@@ -12,6 +12,8 @@ import {
     ScrollView,
 } from 'react-native';
 import { authService } from '../services/auth';
+import { Image } from 'react-native';
+import logo from '../../assets/logo.jpg';
 
 export default function LoginScreen({ navigation }) {
     const [loginMethod, setLoginMethod] = useState('password'); // 'password' or 'otp'
@@ -22,6 +24,7 @@ export default function LoginScreen({ navigation }) {
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
+    const [persistent, setPersistent] = useState(true); // Default to persistent
 
     // Clear state on mount (logout cleanup)
     React.useEffect(() => {
@@ -36,9 +39,14 @@ export default function LoginScreen({ navigation }) {
             Alert.alert('Error', 'Please fill in all fields');
             return;
         }
+
+        if (password.length < 6) {
+            Alert.alert('Error', 'Password must be at least 6 characters long');
+            return;
+        }
         setLoading(true);
         try {
-            await authService.login(identifier, password);
+            await authService.login(identifier, password, persistent);
             navigation.replace('Dashboard');
         } catch (err) {
             Alert.alert('Login Failed', err.response?.data?.message || 'Invalid credentials');
@@ -78,7 +86,7 @@ export default function LoginScreen({ navigation }) {
         }
         setLoading(true);
         try {
-            const data = await authService.verifyOtp(phone, otp);
+            const data = await authService.verifyOtp(phone, otp, persistent);
             if (data.is_new_user) {
                 navigation.navigate('Register', { phoneNumber: phone });
             } else {
@@ -98,6 +106,7 @@ export default function LoginScreen({ navigation }) {
         >
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.header}>
+                    <Image source={logo} style={styles.logoImage} resizeMode="contain" />
                     <Text style={styles.title}>DAKPlus</Text>
                     <Text style={styles.subtitle}>Advanced Learning & Assessment</Text>
                 </View>
@@ -139,6 +148,15 @@ export default function LoginScreen({ navigation }) {
                                     onChangeText={setPassword}
                                     secureTextEntry={true}
                                 />
+                                <TouchableOpacity
+                                    style={styles.checkboxContainer}
+                                    onPress={() => setPersistent(!persistent)}
+                                >
+                                    <View style={[styles.checkbox, persistent && styles.checkboxChecked]}>
+                                        {persistent && <Text style={styles.checkmark}>✓</Text>}
+                                    </View>
+                                    <Text style={styles.checkboxLabel}>Keep me signed in</Text>
+                                </TouchableOpacity>
                                 <TouchableOpacity style={styles.button} onPress={handlePasswordLogin} disabled={loading}>
                                     {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
                                 </TouchableOpacity>
@@ -170,6 +188,15 @@ export default function LoginScreen({ navigation }) {
                                 keyboardType="number-pad"
                                 maxLength={6}
                             />
+                            <TouchableOpacity
+                                style={styles.checkboxContainer}
+                                onPress={() => setPersistent(!persistent)}
+                            >
+                                <View style={[styles.checkbox, persistent && styles.checkboxChecked]}>
+                                    {persistent && <Text style={styles.checkmark}>✓</Text>}
+                                </View>
+                                <Text style={styles.checkboxLabel}>Keep me signed in</Text>
+                            </TouchableOpacity>
                             <TouchableOpacity style={styles.button} onPress={handleVerifyOtp} disabled={loading}>
                                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify OTP</Text>}
                             </TouchableOpacity>
@@ -205,16 +232,21 @@ const styles = StyleSheet.create({
     },
     header: {
         alignItems: 'center',
-        marginBottom: 40,
+        marginBottom: 30,
+    },
+    logoImage: {
+        width: 100,
+        height: 100,
+        marginBottom: 10,
     },
     title: {
-        fontSize: 36,
+        fontSize: 32,
         fontWeight: 'bold',
         color: '#dc2626', // Postal Red
         letterSpacing: 2,
     },
     subtitle: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#64748b',
         marginTop: 5,
     },

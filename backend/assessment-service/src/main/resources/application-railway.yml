@@ -1,0 +1,37 @@
+server:
+  port: ${PORT:8082}
+
+spring:
+  application:
+    name: assessment-service
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI}
+      database: mockanytime
+      auto-index-creation: true
+  ai:
+    openai:
+      api-key: ${SPRING_AI_OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+# Disable Eureka client for Railway deployment
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

@@ -3,8 +3,18 @@ import TeacherDashboard from '../pages/TeacherDashboard';
 import StudentDashboard from '../pages/StudentDashboard';
 
 export default function DashboardRedirect() {
-    const userStr = localStorage.getItem('user');
-    const user = userStr ? JSON.parse(userStr) : null;
+    const getUserFromStorage = () => {
+        try {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) return null;
+            return JSON.parse(userStr);
+        } catch (error) {
+            console.error('Failed to parse user from localStorage:', error);
+            return null;
+        }
+    };
+
+    const user = getUserFromStorage();
 
     if (!user) {
         return <Navigate to="/login" replace />;

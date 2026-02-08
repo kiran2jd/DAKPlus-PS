@@ -14,6 +14,12 @@ export const resultService = {
 
     getResultsByUser: async (userId) => {
         const response = await api.get(`/results/user/${userId}`);
-        return response.data;
+        // Handle wrapped responses or unexpected formats
+        const data = response.data;
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.data)) return data.data;
+        if (data && Array.isArray(data.results)) return data.results;
+        console.warn('Unexpected results response format:', data);
+        return [];
     }
 };

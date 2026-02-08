@@ -23,6 +23,8 @@ public class DocumentParsingService {
             return extractFromPdf(file);
         } else if (filename.toLowerCase().endsWith(".docx")) {
             return extractFromWord(file);
+        } else if (filename.toLowerCase().endsWith(".txt")) {
+            return new String(file.getBytes());
         } else {
             throw new IllegalArgumentException("Unsupported file type: " + filename);
         }

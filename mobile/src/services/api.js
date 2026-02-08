@@ -1,13 +1,17 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.109:8080/api';
+// Temporarily hardcoded for testing - change back to env variable later
+const API_BASE_URL = 'https://prediscountable-nickole-nonhazardous.ngrok-free.dev/api';
+console.log('Mobile App API Configuration:');
+console.log('Using hardcoded API_BASE_URL:', API_BASE_URL);
 
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
+    timeout: 30000, // 30 second timeout
 });
 
 // Interceptor to add JWT token and User ID

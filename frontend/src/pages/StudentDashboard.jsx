@@ -7,7 +7,24 @@ import { resultService } from '../services/result';
 import { topicService } from '../services/topic';
 
 export default function StudentDashboard() {
-    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
+    // Safely parse user from localStorage with defaults
+    const getUserFromStorage = () => {
+        try {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) return null;
+            const user = JSON.parse(userStr);
+            // Ensure subscriptionTier exists with default value
+            if (user && !user.subscriptionTier) {
+                user.subscriptionTier = 'FREE';
+            }
+            return user;
+        } catch (error) {
+            console.error('Failed to parse user from localStorage:', error);
+            return null;
+        }
+    };
+
+    const [user, setUser] = useState(getUserFromStorage());
     const [tests, setTests] = useState([]);
     const [topics, setTopics] = useState([]);
     const [selectedTopic, setSelectedTopic] = useState(null);
@@ -18,14 +35,26 @@ export default function StudentDashboard() {
     const [totalPoints, setTotalPoints] = useState(0);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const isPro = user.subscriptionTier === 'PREMIUM';
+    const isPro = user?.subscriptionTier === 'PREMIUM';
 
     useEffect(() => {
         const loadTests = async () => {
             try {
                 // Refresh profile to get real tier
                 const profileRes = await authService.getProfile();
-                setUser(profileRes.user);
+                if (profileRes?.user) {
+                    const localUser = getUserFromStorage();
+                    const mergedUser = { ...profileRes.user };
+
+                    // Prioritize local PREMIUM status if it exists
+                    if (localUser?.subscriptionTier === 'PREMIUM') {
+                        mergedUser.subscriptionTier = 'PREMIUM';
+                    } else if (!mergedUser.subscriptionTier) {
+                        mergedUser.subscriptionTier = 'FREE';
+                    }
+
+                    setUser(mergedUser);
+                }
 
                 const data = await testService.getAvailableTests();
                 setTests(data);
@@ -34,6 +63,11 @@ export default function StudentDashboard() {
                 setTopics(topicsData);
             } catch (err) {
                 console.error("Failed to load tests", err);
+                // If profile fetch fails but we have a user in state, keep using it
+                if (!user) {
+                    // No user at all, redirect to login
+                    navigate('/login');
+                }
             } finally {
                 setLoading(false);
             }
@@ -41,9 +75,9 @@ export default function StudentDashboard() {
 
         const loadAnalytics = async () => {
             try {
-                const user = JSON.parse(localStorage.getItem('user'));
-                if (user?.id) {
-                    const results = await resultService.getResultsByUser(user.id);
+                const currentUser = user || getUserFromStorage();
+                if (currentUser?.id) {
+                    const results = await resultService.getResultsByUser(currentUser.id);
                     setHistory(results);
 
                     if (results.length > 0) {

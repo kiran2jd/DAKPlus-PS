@@ -188,14 +188,56 @@ db.users.updateOne(
 
 ### Eureka Dashboard
 View all registered services at http://localhost:8761
+
+## Railway Production Deployment
+
+DAKPlus supports seamless deployment to Railway using Spring profiles. The application automatically switches between:
+- **Local mode**: Eureka service discovery (Docker Compose)
+- **Railway mode**: Private networking with direct HTTP routing
+
+### Quick Railway Deployment
+
+1. **Create Railway Project** at [railway.app](https://railway.app)
+2. **Deploy 5 services** from GitHub (one per microservice):
+   - `auth-service`
+   - `assessment-service`
+   - `scoring-service`
+   - `payment-service`
+   - `api-gateway`
+
+3. **Set environment variable** for each service:
+   ```bash
+   SPRING_PROFILES_ACTIVE=railway
+   ```
+
+4. **Configure service-specific variables** (MongoDB URI, API keys, etc.)
+
+5. **Generate public domain** for `api-gateway` only
+
+### Complete Railway Guide
+
+For detailed step-by-step instructions, environment variables reference, troubleshooting, and architecture diagrams, see:
+
+📖 **[Railway Deployment Guide](./railway-deployment-guide.md)**
+
+The guide covers:
+- Service-by-service deployment steps
+- Complete environment variables reference
+- Private networking configuration
+- Troubleshooting connection timeouts
+- Monitoring and logging
+- Cost optimization tips
+
+---
+
 ## Transitioning to Production
 
 When you are ready to move from local development to a live production environment, follow these steps:
 
 ### 1. Production Checklist
 - [ ] **Domains**: Set up your domain (e.g., `api.dakplus.in` and `app.dakplus.in`).
-- [ ] **Infrastructure**: Choose a hosting provider (Railway, DigitalOcean, or AWS).
-- [ ] **SSL/HTTPS**: Ensure all endpoints are served over HTTPS (Cloudflare recommended).
+- [ ] **Infrastructure**: Deploy backend to Railway (see Railway Deployment Guide above).
+- [ ] **SSL/HTTPS**: Ensure all endpoints are served over HTTPS (Railway provides this automatically).
 - [ ] **Secrets**: Rotate all passwords and JWT secrets.
 - [ ] **Live Payments**: Switch `RAZORPAY_MODE` to `live` and update keys.
 - [ ] **Database**: Use a dedicated Production cluster on MongoDB Atlas.
@@ -205,8 +247,6 @@ To get feedback from real users:
 1. **Android (APK)**: Use `eas build -p android --profile preview` to generate a download link. Share this link with your testers.
 2. **Web (Public Alpha)**: Deploy your frontend to Vercel and share the URL.
 3. **Admin Setup**: Reach out to your first set of instructors/teachers and provide them with the `admin@dakplus.in` default credentials for initial setup.
-
-For a detailed walkthrough, refer to the [Production Deployment Strategy](file:///c:/Users/PathipatiKirankumar/.gemini/antigravity/brain/37a45195-4df4-43a3-a9f4-25883185a898/production_deployment_plan.md).
 
 ---
 

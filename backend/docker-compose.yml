@@ -39,7 +39,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI:mongodb://mongodb:27017/mockanytime}
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
     depends_on:
       mongodb:
@@ -57,7 +57,7 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI:mongodb://mongodb:27017/mockanytime}
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
     depends_on:
       mongodb:
@@ -75,7 +75,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI:mongodb://mongodb:27017/mockanytime}
+      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
     depends_on:
       mongodb:
@@ -94,7 +94,7 @@ services:
       - "8080:8080"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:*}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
     depends_on:
       - discovery-server
       - auth-service
@@ -105,7 +105,7 @@ services:
 
   frontend:
     build:
-      context: ../MockAnyTime/frontend
+      context: ../frontend
       dockerfile: Dockerfile
     container_name: mockanytime-frontend
     ports:

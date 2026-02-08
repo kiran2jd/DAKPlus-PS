@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/auth';
+import logo from '../assets/logo.jpg';
 
 export default function SignupPage() {
     const navigate = useNavigate();
@@ -26,7 +27,8 @@ export default function SignupPage() {
     }, [location]);
 
     const validate = () => {
-        if (!formData.fullName || formData.fullName.length < 3) {
+        setError('');
+        if (!formData.fullName || formData.fullName.trim().length < 3) {
             setError("Full Name must be at least 3 characters long");
             return false;
         }
@@ -45,7 +47,9 @@ export default function SignupPage() {
 
         // Strict Phone Regex: 10-15 digits
         const phoneRegex = /^\d{10,15}$/;
-        if (!phone || !phoneRegex.test(phone)) {
+        // Remove spaces or dashes for validation
+        const cleanPhone = phone ? phone.replace(/[\s-]/g, '') : '';
+        if (!cleanPhone || !phoneRegex.test(cleanPhone)) {
             setError("Phone number must be between 10 and 15 digits");
             return false;
         }
@@ -87,9 +91,10 @@ export default function SignupPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                <div className="flex flex-col items-center">
+                    <img src={logo} alt="DAKPlus Logo" className="h-20 w-auto mb-2" />
+                    <h2 className="text-center text-3xl font-extrabold text-gray-900">
                         Complete your profile
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-600">

@@ -28,9 +28,17 @@ otp:
 
 msg91:
   auth:
-    key: ${MSG91_AUTH_KEY}
+    key: ${MSG91_AUTH_KEY:}
   template:
-    id: ${MSG91_TEMPLATE_ID}
+    id: ${MSG91_TEMPLATE_ID:}
+
+twilio:
+  account:
+    sid: ${TWILIO_ACCOUNT_SID:}
+  auth:
+    token: ${TWILIO_AUTH_TOKEN:}
+  from:
+    number: ${TWILIO_FROM_NUMBER:}
 
 eureka:
   instance:
@@ -42,7 +50,7 @@ eureka:
 # Simple Secret for demo
 jwt:
   secret: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
-  expiration: 86400000
+  expiration: 5184000000 # 60 days
 
 management:
   endpoints:

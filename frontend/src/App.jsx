@@ -18,6 +18,7 @@ import TopicManagementPage from './pages/TopicManagementPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardRedirect from './components/DashboardRedirect';
 import ChatWidget from './components/ChatWidget';
+import EditTestPage from './pages/EditTestPage';
 import { authService } from './services/auth';
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
           <Route path="manage-topics" element={<TopicManagementPage />} />
           <Route path="create-test" element={<CreateTestPage />} />
           <Route path="my-tests" element={<TeacherDashboard />} />
+          <Route path="edit-test/:testId" element={<EditTestPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
 

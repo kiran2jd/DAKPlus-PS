@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { Mail, Lock, Phone, ArrowRight } from 'lucide-react';
+import logo from '../assets/logo.jpg';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -21,9 +22,16 @@ export default function LoginPage() {
     const [otpSent, setOtpSent] = useState(false);
     const [resendTimer, setResendTimer] = useState(0);
 
-    // Handle password-based login
     const handlePasswordLogin = async (e) => {
         e.preventDefault();
+        if (!identifier || !password) {
+            setError('Please enter both identifier and password');
+            return;
+        }
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long');
+            return;
+        }
         setLoading(true);
         setError('');
         try {
@@ -130,8 +138,9 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                <div className="flex flex-col items-center">
+                    <img src={logo} alt="DAKPlus Logo" className="h-20 w-auto mb-4" />
+                    <h2 className="text-center text-3xl font-extrabold text-gray-900">
                         Welcome Back
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-600">
