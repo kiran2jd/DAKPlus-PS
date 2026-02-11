@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { testService } from '../services/test';
 import { topicService } from '../services/topic';
 import { authService } from '../services/auth';
+import api from '../services/api';
 
 export default function TestLibraryScreen({ navigation }) {
     const [user, setUser] = useState(null);
@@ -23,6 +24,8 @@ export default function TestLibraryScreen({ navigation }) {
     const [subtopics, setSubtopics] = useState([]);
     const [selectedSubtopic, setSelectedSubtopic] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('all'); // 'all' or 'purchased'
+    const [purchases, setPurchases] = useState([]);
 
     useEffect(() => {
         loadInitialData();
@@ -40,6 +43,13 @@ export default function TestLibraryScreen({ navigation }) {
 
             setTopics(topicsData);
             setTests(testsData);
+
+            try {
+                const response = await api.get(`/payments/user-purchases?userId=${userData.id || userData._id}`);
+                setPurchases(response.data || []);
+            } catch (pErr) {
+                console.log("No purchases found or error:", pErr);
+            }
         } catch (err) {
             console.error("Load Library error:", err);
         } finally {
@@ -72,19 +82,19 @@ export default function TestLibraryScreen({ navigation }) {
                 onPress={() => isLocked ? navigation.navigate('Payment') : navigation.navigate('TakeTest', { testId: item.id })}
             >
                 <View style={styles.testHeader}>
-                    <View style={[styles.badge, { backgroundColor: item.difficulty === 'Hard' ? '#ef444420' : '#22c55e20' }]}>
+                    <View style={[styles.badge, { backgroundColor: item.difficulty === 'Hard' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)' }]}>
                         <Text style={[styles.badgeText, { color: item.difficulty === 'Hard' ? '#ef4444' : '#22c55e' }]}>
                             {item.difficulty || 'Medium'}
                         </Text>
                     </View>
                     <View style={styles.headerRight}>
-                        {isLocked && <Ionicons name="lock-closed" size={16} color="#64748b" style={{ marginRight: 8 }} />}
+                        {isLocked && <Ionicons name="lock-closed" size={14} color="#f97316" style={{ marginRight: 8 }} />}
                         <Text style={styles.durationText}>{item.durationMinutes || item.duration_minutes} mins</Text>
                     </View>
                 </View>
 
                 <Text style={styles.testTitle}>
-                    {isPremium && <Text style={{ color: '#f59e0b' }}>[PRO] </Text>}
+                    {isPremium && <Text style={{ color: '#f97316' }}>[PRO] </Text>}
                     {item.title}
                 </Text>
 
@@ -92,8 +102,15 @@ export default function TestLibraryScreen({ navigation }) {
 
                 <View style={styles.testFooter}>
                     <Text style={styles.categoryText}>{item.category || 'General'}</Text>
-                    <View style={[styles.startButton, isLocked ? { backgroundColor: '#94a3b8' } : null]}>
-                        <Text style={styles.startButtonText}>{isLocked ? 'Unlock PRO' : 'Start Test'}</Text>
+                    <View style={[styles.startButton, isLocked ? styles.lockedBtn : null]}>
+                        <LinearGradient
+                            colors={isLocked ? ['#475569', '#334155'] : ['#dc2626', '#f97316']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.btnGradient}
+                        >
+                            <Text style={styles.startButtonText}>{isLocked ? 'Unlock PRO' : 'Start Test'}</Text>
+                        </LinearGradient>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -102,191 +119,258 @@ export default function TestLibraryScreen({ navigation }) {
 
     if (loading) {
         return (
-            <View style={styles.center}>
+            <View style={[styles.container, styles.center]}>
                 <ActivityIndicator size="large" color="#dc2626" />
             </View>
         );
     }
 
+    const purchasedIds = purchases.map(p => p.itemId);
+
     const filteredTests = tests.filter(test => {
         const matchesTopic = !selectedTopic || test.topicId === selectedTopic;
         const matchesSubtopic = !selectedSubtopic || test.subtopicId === selectedSubtopic;
+
+        if (activeTab === 'purchased') {
+            const hasAccess = isPro || purchasedIds.includes(test.id);
+            return hasAccess && matchesTopic && matchesSubtopic;
+        }
+
         return matchesTopic && matchesSubtopic;
     });
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                    <Ionicons name="arrow-back" size={24} color="#1e293b" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Test Library</Text>
-                <View style={{ width: 40 }} />
-            </View>
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#0f172a', '#1e293b', '#0f172a']}
+                style={StyleSheet.absoluteFillObject}
+            />
+            <SafeAreaView style={{ flex: 1 }}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+                        <Ionicons name="chevron-back" size={24} color="#fff" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Test Library</Text>
+                    <View style={{ width: 44 }} />
+                </View>
 
-            <View style={styles.filterSection}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.topicScroll}>
-                    {topics.map(topic => (
-                        <TouchableOpacity
-                            key={topic.id}
-                            style={[styles.topicChip, selectedTopic === topic.id && styles.topicChipActive]}
-                            onPress={() => handleTopicSelect(topic.id)}
-                        >
-                            <Text style={[styles.topicChipText, selectedTopic === topic.id && styles.topicChipTextActive]}>
-                                {topic.name}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
+                <View style={styles.tabContainer}>
+                    <TouchableOpacity
+                        style={[styles.tabButton, activeTab === 'all' && styles.tabButtonActive]}
+                        onPress={() => setActiveTab('all')}
+                    >
+                        {activeTab === 'all' && <LinearGradient colors={['#dc2626', '#f97316']} style={styles.tabLine} />}
+                        <Text style={[styles.tabText, activeTab === 'all' && styles.tabTextActive]}>All Exams</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.tabButton, activeTab === 'purchased' && styles.tabButtonActive]}
+                        onPress={() => setActiveTab('purchased')}
+                    >
+                        {activeTab === 'purchased' && <LinearGradient colors={['#dc2626', '#f97316']} style={styles.tabLine} />}
+                        <Text style={[styles.tabText, activeTab === 'purchased' && styles.tabTextActive]}>My Library</Text>
+                    </TouchableOpacity>
+                </View>
 
-                {selectedTopic && subtopics.length > 0 && (
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subtopicScroll}>
-                        {subtopics.map(sub => (
+                <View style={styles.filterSection}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.topicScroll}>
+                        {topics.map(topic => (
                             <TouchableOpacity
-                                key={sub.id}
-                                style={[styles.subChip, selectedSubtopic === sub.id && styles.subChipActive]}
-                                onPress={() => setSelectedSubtopic(selectedSubtopic === sub.id ? null : sub.id)}
+                                key={topic.id}
+                                style={[styles.topicChip, selectedTopic === topic.id && styles.topicChipActive]}
+                                onPress={() => handleTopicSelect(topic.id)}
                             >
-                                <Text style={[styles.subChipText, selectedSubtopic === sub.id && styles.subChipTextActive]}>
-                                    {sub.name}
+                                {selectedTopic === topic.id && <LinearGradient colors={['#dc2626', '#f97316']} style={StyleSheet.absoluteFillObject} />}
+                                <Text style={[styles.topicChipText, selectedTopic === topic.id && styles.topicChipTextActive]}>
+                                    {topic.name}
                                 </Text>
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
-                )}
-            </View>
 
-            <FlatList
-                data={filteredTests}
-                keyExtractor={(item) => item.id}
-                renderItem={renderTestItem}
-                contentContainerStyle={styles.listContent}
-                ListFooterComponent={
-                    !isPro && user?.role === 'STUDENT' ? (
-                        <TouchableOpacity
-                            style={styles.libraryProBanner}
-                            onPress={() => navigation.navigate('Payment')}
-                        >
-                            <LinearGradient
-                                colors={['#dc2626', '#b91c1c']}
-                                style={styles.proBannerGradient}
+                    {selectedTopic && subtopics.length > 0 && (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.subtopicScroll}>
+                            {subtopics.map(sub => (
+                                <TouchableOpacity
+                                    key={sub.id}
+                                    style={[styles.subChip, selectedSubtopic === sub.id && styles.subChipActive]}
+                                    onPress={() => setSelectedSubtopic(selectedSubtopic === sub.id ? null : sub.id)}
+                                >
+                                    <Text style={[styles.subChipText, selectedSubtopic === sub.id && styles.subChipTextActive]}>
+                                        {sub.name}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    )}
+                </View>
+
+                <FlatList
+                    data={filteredTests}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderTestItem}
+                    contentContainerStyle={styles.listContent}
+                    ListFooterComponent={
+                        !isPro && user?.role === 'STUDENT' ? (
+                            <TouchableOpacity
+                                style={styles.libraryProBanner}
+                                onPress={() => navigation.navigate('Payment')}
                             >
-                                <Ionicons name="sparkles" size={24} color="#fff" />
-                                <View style={styles.proBannerTextContainer}>
-                                    <Text style={styles.proBannerTitle}>Unlock Everything!</Text>
-                                    <Text style={styles.proBannerSub}>Get unlimited access to specialized tests & premium content.</Text>
-                                </View>
-                                <Ionicons name="chevron-forward" size={20} color="#fff" />
-                            </LinearGradient>
-                        </TouchableOpacity>
-                    ) : null
-                }
-                ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Ionicons name="document-text-outline" size={64} color="#cbd5e1" />
-                        <Text style={styles.emptyText}>No tests found for this selection.</Text>
-                    </View>
-                }
-            />
-        </SafeAreaView>
+                                <LinearGradient
+                                    colors={['#dc2626', '#f97316']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={styles.proBannerGradient}
+                                >
+                                    <Ionicons name="sparkles" size={24} color="#fff" />
+                                    <View style={styles.proBannerTextContainer}>
+                                        <Text style={styles.proBannerTitle}>Unlock Everything!</Text>
+                                        <Text style={styles.proBannerSub}>Get unlimited access to all tests & analytics.</Text>
+                                    </View>
+                                    <View style={styles.proBannerBadge}>
+                                        <Text style={styles.proBadgeText}>GO PRO</Text>
+                                    </View>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        ) : null
+                    }
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <Ionicons name="search-outline" size={64} color="rgba(255,255,255,0.05)" />
+                            <Text style={styles.emptyText}>No matching tests found.</Text>
+                        </View>
+                    }
+                />
+            </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8fafc',
+        backgroundColor: '#0f172a',
+    },
+    center: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#f1f5f9',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
     },
     backBtn: {
-        padding: 8,
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#1e293b',
+        fontSize: 20,
+        fontWeight: '900',
+        color: '#fff',
+        letterSpacing: 0.5,
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        backgroundColor: 'transparent',
+        marginBottom: 10,
+    },
+    tabButton: {
+        flex: 1,
+        paddingVertical: 12,
+        alignItems: 'center',
+        position: 'relative',
+    },
+    tabLine: {
+        position: 'absolute',
+        bottom: 0,
+        left: '20%',
+        right: '20%',
+        height: 3,
+        borderRadius: 2,
+    },
+    tabText: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#64748b',
+    },
+    tabTextActive: {
+        color: '#fff',
     },
     filterSection: {
-        backgroundColor: '#fff',
-        paddingBottom: 8,
+        paddingVertical: 8,
     },
     topicScroll: {
-        paddingHorizontal: 16,
-        marginVertical: 12,
+        paddingHorizontal: 20,
+        paddingBottom: 4,
     },
     topicChip: {
-        backgroundColor: '#f1f5f9',
-        paddingHorizontal: 20,
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        paddingHorizontal: 16,
         paddingVertical: 10,
-        borderRadius: 20,
+        borderRadius: 14,
         marginRight: 10,
         borderWidth: 1,
-        borderColor: '#e2e8f0',
+        borderColor: 'rgba(255,255,255,0.05)',
+        overflow: 'hidden',
     },
     topicChipActive: {
-        backgroundColor: '#dc2626',
         borderColor: '#dc2626',
     },
     topicChipText: {
-        color: '#64748b',
+        color: '#94a3b8',
         fontWeight: 'bold',
+        fontSize: 13,
     },
     topicChipTextActive: {
         color: '#fff',
     },
     subtopicScroll: {
-        paddingHorizontal: 16,
-        marginBottom: 8,
+        paddingHorizontal: 20,
+        marginTop: 8,
     },
     subChip: {
-        backgroundColor: '#f8fafc',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 15,
+        backgroundColor: 'transparent',
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: 10,
         marginRight: 8,
         borderWidth: 1,
-        borderColor: '#f1f5f9',
+        borderColor: 'rgba(30, 58, 138, 0.3)',
     },
     subChipActive: {
-        backgroundColor: '#1E3A8A',
-        borderColor: '#1E3A8A',
+        backgroundColor: 'rgba(30, 58, 138, 0.2)',
+        borderColor: '#3b82f6',
     },
     subChipText: {
-        color: '#64748b',
-        fontSize: 12,
+        color: '#475569',
+        fontSize: 11,
         fontWeight: '600',
     },
     subChipTextActive: {
-        color: '#fff',
+        color: '#3b82f6',
     },
     listContent: {
-        padding: 16,
+        padding: 20,
     },
     testCard: {
-        backgroundColor: '#ffffff',
-        borderRadius: 16,
-        padding: 16,
+        backgroundColor: 'rgba(255,255,255,0.02)',
+        borderRadius: 22,
+        padding: 20,
         marginBottom: 16,
         borderWidth: 1,
-        borderColor: '#e2e8f0',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
+        borderColor: 'rgba(255,255,255,0.05)',
     },
     lockedCard: {
-        opacity: 0.8,
-        backgroundColor: '#f8fafc',
+        opacity: 0.7,
     },
     testHeader: {
         flexDirection: 'row',
@@ -309,71 +393,72 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
     durationText: {
-        color: '#64748b',
+        color: '#94a3b8',
         fontSize: 12,
+        fontWeight: '600',
     },
     testTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#1e293b',
-        marginBottom: 8,
+        fontSize: 17,
+        fontWeight: '900',
+        color: '#fff',
+        marginBottom: 6,
+        letterSpacing: 0.3,
     },
     testDesc: {
         color: '#64748b',
-        fontSize: 14,
-        lineHeight: 20,
-        marginBottom: 16,
+        fontSize: 13,
+        lineHeight: 18,
+        marginBottom: 20,
     },
     testFooter: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#f1f5f9',
-        paddingTop: 12,
+        borderTopColor: 'rgba(255,255,255,0.03)',
+        paddingTop: 15,
     },
     categoryText: {
-        color: '#dc2626',
-        fontSize: 12,
-        fontWeight: '600',
+        color: '#ef4444',
+        fontSize: 11,
+        fontWeight: '800',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     startButton: {
-        backgroundColor: '#dc2626',
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
+    lockedBtn: {
+        backgroundColor: '#334155',
+    },
+    btnGradient: {
         paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 10,
+        paddingVertical: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     startButtonText: {
         color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 14,
-    },
-    center: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f8fafc',
+        fontWeight: '900',
+        fontSize: 12,
+        textTransform: 'uppercase',
     },
     emptyContainer: {
-        padding: 60,
+        paddingVertical: 80,
         alignItems: 'center',
     },
     emptyText: {
-        color: '#94a3b8',
-        fontSize: 16,
+        color: '#475569',
+        fontSize: 14,
         marginTop: 16,
-        textAlign: 'center',
+        fontWeight: '600',
     },
     libraryProBanner: {
         marginTop: 10,
         marginBottom: 30,
-        borderRadius: 16,
+        borderRadius: 20,
         overflow: 'hidden',
-        elevation: 6,
-        shadowColor: '#dc2626',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
     },
     proBannerGradient: {
         padding: 20,
@@ -386,13 +471,24 @@ const styles = StyleSheet.create({
     },
     proBannerTitle: {
         color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 17,
+        fontWeight: '900',
         marginBottom: 2,
     },
     proBannerSub: {
-        color: '#fffa',
-        fontSize: 12,
-        lineHeight: 16,
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 11,
+        lineHeight: 15,
+    },
+    proBannerBadge: {
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    proBadgeText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: '900',
     },
 });

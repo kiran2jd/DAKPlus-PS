@@ -10,9 +10,10 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    Image,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { authService } from '../services/auth';
-import { Image } from 'react-native';
 import logo from '../../assets/logo.jpg';
 
 export default function LoginScreen({ navigation }) {
@@ -24,6 +25,7 @@ export default function LoginScreen({ navigation }) {
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [persistent, setPersistent] = useState(true); // Default to persistent
 
     // Clear state on mount (logout cleanup)
@@ -107,7 +109,7 @@ export default function LoginScreen({ navigation }) {
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <View style={styles.header}>
                     <Image source={logo} style={styles.logoImage} resizeMode="contain" />
-                    <Text style={styles.title}>DAKPlus</Text>
+                    <Text style={styles.title}>Dak Plus</Text>
                     <Text style={styles.subtitle}>Advanced Learning & Assessment</Text>
                 </View>
 
@@ -140,14 +142,19 @@ export default function LoginScreen({ navigation }) {
                                     onChangeText={setIdentifier}
                                     autoCapitalize="none"
                                 />
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Password"
-                                    placeholderTextColor="#999"
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    secureTextEntry={true}
-                                />
+                                <View style={styles.passwordContainer}>
+                                    <TextInput
+                                        style={styles.passwordInput}
+                                        placeholder="Password"
+                                        placeholderTextColor="#999"
+                                        value={password}
+                                        onChangeText={setPassword}
+                                        secureTextEntry={!showPassword}
+                                    />
+                                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                                        <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="#64748b" />
+                                    </TouchableOpacity>
+                                </View>
                                 <TouchableOpacity
                                     style={styles.checkboxContainer}
                                     onPress={() => setPersistent(!persistent)}
@@ -168,8 +175,9 @@ export default function LoginScreen({ navigation }) {
                                     placeholder="Phone Number (+1234567890)"
                                     placeholderTextColor="#999"
                                     value={phone}
-                                    onChangeText={setPhone}
+                                    onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
                                     keyboardType="phone-pad"
+                                    maxLength={15}
                                 />
                                 <TouchableOpacity style={styles.button} onPress={handleSendOtp} disabled={loading}>
                                     {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Send OTP</Text>}
@@ -306,6 +314,23 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderWidth: 1,
         borderColor: '#e2e8f0',
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f8fafc',
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+    },
+    passwordInput: {
+        flex: 1,
+        padding: 16,
+        color: '#1e293b',
+        fontSize: 16,
+    },
+    eyeIcon: {
+        padding: 12,
     },
     button: {
         backgroundColor: '#dc2626',

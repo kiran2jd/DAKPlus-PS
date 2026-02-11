@@ -11,6 +11,7 @@ import {
     Platform,
     ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { authService } from '../services/auth';
 
 export default function RegisterScreen({ navigation, route }) {
@@ -20,7 +21,13 @@ export default function RegisterScreen({ navigation, route }) {
     const [password, setPassword] = useState('');
     const [phone, setPhone] = useState(phoneNumber || (identifier && !identifier.includes('@') ? identifier : ''));
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+    const [postalCircle, setPostalCircle] = useState('');
+    const [division, setDivision] = useState('');
+    const [office, setOffice] = useState('');
+    const [cadre, setCadre] = useState('');
+    const [examType, setExamType] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     // Clear state on mount (but keep pre-filled data)
     React.useEffect(() => {
@@ -67,10 +74,15 @@ export default function RegisterScreen({ navigation, route }) {
             await authService.register({
                 fullName,
                 email,
-                phoneNumber: phone,
+                phoneNumber: phone.replace(/[^0-9]/g, ''),
                 role: 'STUDENT',
                 password,
-                notificationsEnabled
+                notificationsEnabled,
+                postalCircle,
+                division,
+                office,
+                cadre,
+                examType
             });
             navigation.replace('Dashboard');
         } catch (err) {
@@ -125,21 +137,27 @@ export default function RegisterScreen({ navigation, route }) {
                                 placeholder="+91 00000 00000"
                                 placeholderTextColor="#999"
                                 value={phone}
-                                onChangeText={setPhone}
+                                onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
                                 keyboardType="phone-pad"
+                                maxLength={15}
                             />
                         </View>
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Create Password</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Minimum 6 characters"
-                                placeholderTextColor="#999"
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry={true}
-                            />
+                            <View style={styles.passwordContainer}>
+                                <TextInput
+                                    style={styles.passwordInput}
+                                    placeholder="Minimum 6 characters"
+                                    placeholderTextColor="#999"
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry={!showPassword}
+                                />
+                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                                    <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="#64748b" />
+                                </TouchableOpacity>
+                            </View>
                         </View>
 
                         <TouchableOpacity
@@ -151,6 +169,65 @@ export default function RegisterScreen({ navigation, route }) {
                             </View>
                             <Text style={styles.checkboxLabel}>I want to receive exam updates and study tips</Text>
                         </TouchableOpacity>
+
+                        {/* Professional Details Section */}
+                        <View style={styles.divider} />
+                        <Text style={styles.sectionTitle}>Professional Details</Text>
+
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Postal Circle</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="e.g. Telangana, Andhra Pradesh"
+                                placeholderTextColor="#999"
+                                value={postalCircle}
+                                onChangeText={setPostalCircle}
+                            />
+                        </View>
+
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Division</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter Division"
+                                placeholderTextColor="#999"
+                                value={division}
+                                onChangeText={setDivision}
+                            />
+                        </View>
+
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Office</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter Office Name"
+                                placeholderTextColor="#999"
+                                value={office}
+                                onChangeText={setOffice}
+                            />
+                        </View>
+
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Cadre</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="e.g. GDS, MTS, Postman"
+                                placeholderTextColor="#999"
+                                value={cadre}
+                                onChangeText={setCadre}
+                            />
+                        </View>
+
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Target Exam</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="e.g. GDS to MTS, IP Exam"
+                                placeholderTextColor="#999"
+                                value={examType}
+                                onChangeText={setExamType}
+                            />
+                        </View>
 
                         <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
                             {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Start Learning Now</Text>}
@@ -205,6 +282,17 @@ const styles = StyleSheet.create({
     },
     form: {
         gap: 16,
+    },
+    divider: {
+        height: 1,
+        backgroundColor: '#e2e8f0',
+        marginVertical: 10,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#1e293b',
+        marginBottom: 8,
     },
     inputGroup: {
         gap: 8,

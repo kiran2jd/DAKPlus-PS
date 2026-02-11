@@ -11,7 +11,12 @@ export default function SignupPage() {
         fullName: '',
         email: '',
         password: '',
-        notificationsEnabled: true
+        notificationsEnabled: true,
+        postalCircle: '',
+        division: '',
+        office: '',
+        cadre: '',
+        examType: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -72,7 +77,12 @@ export default function SignupPage() {
                 email: formData.email,
                 role: 'student',
                 password: formData.password,
-                notificationsEnabled: formData.notificationsEnabled
+                notificationsEnabled: formData.notificationsEnabled,
+                postalCircle: formData.postalCircle,
+                division: formData.division,
+                office: formData.office,
+                cadre: formData.cadre,
+                examType: formData.examType
             });
             // Auto-login: Token is already saved by authService.register
             navigate('/dashboard');
@@ -186,6 +196,91 @@ export default function SignupPage() {
                             <label htmlFor="notificationsEnabled" className="ml-2 block text-sm text-gray-900">
                                 Send me exam notifications and updates via email
                             </label>
+                        </div>
+
+                        {/* Additional Information Section */}
+                        <div className="pt-4 border-t border-gray-100 mt-4">
+                            <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Professional Details</h3>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="mb-4">
+                                    <label htmlFor="postalCircle" className="block text-sm font-medium text-gray-700">Postal Circle</label>
+                                    <select
+                                        id="postalCircle"
+                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                                        value={formData.postalCircle}
+                                        onChange={(e) => setFormData({ ...formData, postalCircle: e.target.value })}
+                                    >
+                                        <option value="">Select Circle</option>
+                                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                        <option value="Telangana">Telangana</option>
+                                        <option value="Karnataka">Karnataka</option>
+                                        <option value="Tamil Nadu">Tamil Nadu</option>
+                                        <option value="Kerala">Kerala</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+
+                                <div className="mb-4">
+                                    <label htmlFor="division" className="block text-sm font-medium text-gray-700">Division</label>
+                                    <input
+                                        id="division"
+                                        type="text"
+                                        placeholder="Enter Division"
+                                        className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                                        value={formData.division}
+                                        onChange={(e) => setFormData({ ...formData, division: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="mb-4">
+                                    <label htmlFor="office" className="block text-sm font-medium text-gray-700">Office</label>
+                                    <input
+                                        id="office"
+                                        type="text"
+                                        placeholder="Enter Office"
+                                        className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                                        value={formData.office}
+                                        onChange={(e) => setFormData({ ...formData, office: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="mb-4">
+                                    <label htmlFor="cadre" className="block text-sm font-medium text-gray-700">Cadre</label>
+                                    <select
+                                        id="cadre"
+                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                                        value={formData.cadre}
+                                        onChange={(e) => setFormData({ ...formData, cadre: e.target.value })}
+                                    >
+                                        <option value="">Select Cadre</option>
+                                        <option value="GDS">GDS</option>
+                                        <option value="MTS">MTS</option>
+                                        <option value="Postman">Postman</option>
+                                        <option value="Mail Guard">Mail Guard</option>
+                                        <option value="PA/SA">PA/SA</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+
+                                <div className="mb-4 md:col-span-2">
+                                    <label htmlFor="examType" className="block text-sm font-medium text-gray-700">Target Exam</label>
+                                    <select
+                                        id="examType"
+                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                                        value={formData.examType}
+                                        onChange={(e) => setFormData({ ...formData, examType: e.target.value })}
+                                    >
+                                        <option value="">Select Exam</option>
+                                        <option value="GDS to MTS">GDS to MTS</option>
+                                        <option value="GDS to Postman">GDS to Postman</option>
+                                        <option value="MTS to Postman">MTS to Postman</option>
+                                        <option value="GDS/MTS/Postman to PA/SA">GDS/MTS/Postman to PA/SA</option>
+                                        <option value="IP Exam">IP Exam</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

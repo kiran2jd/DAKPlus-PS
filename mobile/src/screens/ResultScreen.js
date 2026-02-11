@@ -7,12 +7,12 @@ import {
     ActivityIndicator,
     SafeAreaView,
     ScrollView,
+    Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { resultService } from '../services/result';
 import { authService } from '../services/auth';
 
-import { Dimensions } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 
 const { width } = Dimensions.get('window');

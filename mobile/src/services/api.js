@@ -1,10 +1,17 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-// Temporarily hardcoded for testing - change back to env variable later
-const API_BASE_URL = 'https://prediscountable-nickole-nonhazardous.ngrok-free.dev/api';
+// Automatically switch between local and production
+// Local: http://192.168.0.108:8080/api (Docker on your machine)
+// Production: https://YOUR-RAILWAY-URL.up.railway.app/api
+// TODO: Replace 'YOUR-RAILWAY-URL' with actual Railway domain after deployment
+const API_BASE_URL = __DEV__
+    ? 'http://192.168.0.108:8080/api'  // Local development with Docker
+    : 'https://YOUR-RAILWAY-URL.up.railway.app/api';  // Production (Update after Railway deployment)
+
 console.log('Mobile App API Configuration:');
-console.log('Using hardcoded API_BASE_URL:', API_BASE_URL);
+console.log('Environment:', __DEV__ ? 'DEVELOPMENT' : 'PRODUCTION');
+console.log('API_BASE_URL:', API_BASE_URL);
 
 const api = axios.create({
     baseURL: API_BASE_URL,

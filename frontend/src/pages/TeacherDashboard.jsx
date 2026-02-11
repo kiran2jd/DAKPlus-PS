@@ -55,15 +55,21 @@ export default function TeacherDashboard() {
                     <h1 className="text-3xl font-bold text-gray-900">Instructor Dashboard</h1>
                     <p className="text-gray-500 mt-1">Manage your tests and view student progress.</p>
                 </div>
-                <div className="flex space-x-3 mt-4 md:mt-0">
+                <div className="flex flex-wrap gap-3 mt-4 md:mt-0 justify-end">
                     <Link to="/dashboard/manage-topics" className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 bg-white shadow-sm transition">
-                        <TrendingUp className="h-4 w-4 mr-2" /> Manage Topics
+                        <TrendingUp className="h-4 w-4 mr-2" /> Topics
+                    </Link>
+                    <Link to="/dashboard/admin/syllabus" className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 bg-white shadow-sm transition">
+                        <Layout className="h-4 w-4 mr-2" /> Syllabus
+                    </Link>
+                    <Link to="/dashboard/admin/reports" className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 bg-white shadow-sm transition">
+                        <Users className="h-4 w-4 mr-2" /> Reports
                     </Link>
                     <Link to="/dashboard/student" className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 bg-white shadow-sm transition">
-                        <Layout className="h-4 w-4 mr-2" /> Switch to Student View
+                        Switch to Student
                     </Link>
                     <Link to="/dashboard/create-test" className="flex items-center px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md transition font-medium">
-                        <PlusCircle className="h-4 w-4 mr-2" /> Create New Test
+                        <PlusCircle className="h-4 w-4 mr-2" /> Create Test
                     </Link>
                 </div>
             </div>

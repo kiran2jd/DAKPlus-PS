@@ -17,7 +17,7 @@ public class QuestionExtractionService {
 
     public List<Question> extractQuestions(String text, String topicId, String subtopicId) {
         String promptString = """
-                Analyze the following text and extract all multiple choice questions.
+                Analyze the following text (which may include OCR-extracted text from images) and extract all multiple choice questions.
                 For each question, identify:
                 - The question text
                 - Four options (a, b, c, d)
@@ -29,6 +29,8 @@ public class QuestionExtractionService {
                 3. The "correctAnswer" MUST match one of the strings in the "options" array EXACTLY.
                 4. If the source text says "Answer: c) Some Text", the "correctAnswer" should be "Some Text" if that is what you put in the options array. Do not include the "c)" prefix in the final options or correctAnswer unless it is part of the actual choice content.
                 5. Strip any leading labels like "110)", "a)", "b)", etc., from the question and option text to keep it clean.
+                6. If you encounter text labeled "[Image Text]:", treat it as part of the question or context immediately preceding it. It might contain the question itself or options.
+                7. Ignore any OCR noise (random characters) if it doesn't form coherent words.
 
                 EXAMPLE OUTPUT FORMAT:
                 {

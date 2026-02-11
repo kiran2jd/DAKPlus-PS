@@ -8,6 +8,7 @@ export default function ResultPage() {
     const { resultId } = useParams();
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [filter, setFilter] = useState('ALL');
 
     useEffect(() => {
         const loadResult = async () => {
@@ -41,6 +42,14 @@ export default function ResultPage() {
     const detailedAnswersArray = Object.keys(detailedAnswers)
         .sort((a, b) => parseInt(a) - parseInt(b))
         .map(key => ({ ...detailedAnswers[key], index: parseInt(key) }));
+
+    const filteredAnswers = detailedAnswersArray.filter(item => {
+        if (filter === 'ALL') return true;
+        if (filter === 'CORRECT') return item.correct;
+        if (filter === 'WRONG') return !item.correct && (item.userAnswer !== null && item.userAnswer !== 'Not Answered'); // Assuming wrong means attempted but incorrect
+        if (filter === 'UNATTEMPTED') return item.userAnswer === null || item.userAnswer === 'Not Answered';
+        return true;
+    });
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -91,11 +100,19 @@ export default function ResultPage() {
                 </Link>
 
                 {/* Detailed Review Section */}
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Detailed Review</h2>
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold text-gray-900">Detailed Review</h2>
+                    <div className="flex gap-2 text-xs">
+                        <button onClick={() => setFilter('ALL')} className={`px-3 py-1 rounded-lg font-bold border transition ${filter === 'ALL' ? 'bg-gray-800 text-white' : 'bg-white text-gray-600'}`}>All</button>
+                        <button onClick={() => setFilter('CORRECT')} className={`px-3 py-1 rounded-lg font-bold border transition ${filter === 'CORRECT' ? 'bg-green-600 text-white' : 'bg-white text-gray-600'}`}>Correct</button>
+                        <button onClick={() => setFilter('WRONG')} className={`px-3 py-1 rounded-lg font-bold border transition ${filter === 'WRONG' ? 'bg-red-600 text-white' : 'bg-white text-gray-600'}`}>Wrong</button>
+                        <button onClick={() => setFilter('UNATTEMPTED')} className={`px-3 py-1 rounded-lg font-bold border transition ${filter === 'UNATTEMPTED' ? 'bg-gray-400 text-white' : 'bg-white text-gray-600'}`}>Skipped</button>
+                    </div>
+                </div>
 
-                {detailedAnswersArray.length > 0 ? (
+                {filteredAnswers.length > 0 ? (
                     <div className="space-y-4">
-                        {detailedAnswersArray.map((detail, idx) => (
+                        {filteredAnswers.map((detail, idx) => (
                             <div
                                 key={idx}
                                 className={`bg-white rounded-2xl p-5 shadow-sm border-l-4 ${detail.correct ? 'border-green-600' : 'border-red-600'}`}
@@ -106,7 +123,7 @@ export default function ResultPage() {
 
                                 <div className="flex justify-between items-center mb-2">
                                     <p className={`text-sm font-semibold ${detail.correct ? 'text-green-600' : 'text-red-600'}`}>
-                                        Your Answer: {detail.userAnswer}
+                                        Your Answer: {detail.userAnswer || 'Not Answered'}
                                     </p>
                                     {detail.correct ? (
                                         <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
@@ -138,7 +155,7 @@ export default function ResultPage() {
                     </div>
                 ) : (
                     <div className="bg-white rounded-2xl p-8 text-center">
-                        <p className="text-gray-400">Detailed review data not available.</p>
+                        <p className="text-gray-400">No questions match the selected filter.</p>
                     </div>
                 )}
             </div>
