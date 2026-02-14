@@ -12,42 +12,41 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: ${ALLOWED_ORIGINS:*}
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
+            allowedOriginPatterns: 
+              - "*"
+              - "https://dak-plus-ps-u7bo.vercel.app"
+              - "${ALLOWED_ORIGINS:*}"
+            allowedMethods: "*"
             allowedHeaders: "*"
+            allowCredentials: true
       routes:
         - id: auth-service
           uri: http://auth-service.railway.internal:8081
           predicates:
-            - Path=/api/auth/**
+            - Path=/api/auth/**, //api/auth/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - RewritePath=/(?:api/)?(?<segment>.*), /$\{segment}
         
         - id: assessment-service
           uri: http://assessment-service.railway.internal:8082
           predicates:
-            - Path=/api/tests/**, /api/topics/**
+            - Path=/api/tests/**, //api/tests/**, /api/topics/**, //api/topics/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - RewritePath=/(?:api/)?(?<segment>.*), /$\{segment}
 
         - id: scoring-service
           uri: http://scoring-service.railway.internal:8083
           predicates:
-            - Path=/api/results/**, /api/chat/**
+            - Path=/api/results/**, //api/results/**, /api/chat/**, //api/chat/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - RewritePath=/(?:api/)?(?<segment>.*), /$\{segment}
         
         - id: payment-service
           uri: http://payment-service.railway.internal:8084
           predicates:
-            - Path=/api/payments/**
+            - Path=/api/payments/**, //api/payments/**
           filters:
-            - RewritePath=/api/(?<segment>.*), /$\{segment}
+            - RewritePath=/(?:api/)?(?<segment>.*), /$\{segment}
 
 # Disable Eureka client for Railway deployment
 eureka:
@@ -64,3 +63,9 @@ management:
   endpoint:
     health:
       show-details: always
+
+info:
+  app:
+    name: DAKPlus API Gateway (Production)
+    status: Online
+    version: 1.0.0
