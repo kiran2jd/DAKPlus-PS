@@ -22,28 +22,28 @@ spring:
             allowCredentials: true
       routes:
         - id: auth-service
-          uri: http://dakplus-ps:8081
+          uri: http://${AUTH_SERVICE_HOST:dakplus-ps}:8081
           predicates:
             - Path=/api/auth/**, //api/auth/**
           filters:
             - RewritePath=/(?:api/)?(?<segment>.*), /$\{segment}
         
         - id: assessment-service
-          uri: http://assessment-service:8082
+          uri: http://${ASSESSMENT_SERVICE_HOST:assessment-service}:8082
           predicates:
             - Path=/api/tests/**, //api/tests/**, /api/topics/**, //api/topics/**
           filters:
             - RewritePath=/(?:api/)?(?<segment>.*), /$\{segment}
 
         - id: scoring-service
-          uri: http://scoring-service:8083
+          uri: http://${SCORING_SERVICE_HOST:scoring-service}:8083
           predicates:
             - Path=/api/results/**, //api/results/**, /api/chat/**, //api/chat/**
           filters:
             - RewritePath=/(?:api/)?(?<segment>.*), /$\{segment}
         
         - id: payment-service
-          uri: http://payment-service:8084
+          uri: http://${PAYMENT_SERVICE_HOST:payment-service}:8084
           predicates:
             - Path=/api/payments/**, //api/payments/**
           filters:
