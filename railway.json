@@ -53,12 +53,7 @@
             "rootDirectory": "backend/api-gateway",
             "build": {
                 "builder": "NIXPACKS"
-            },
-            "dependsOn": [
-                "discovery-server",
-                "auth-service",
-                "assessment-service"
-            ]
+            }
         }
     }
 }
