@@ -5,6 +5,12 @@ spring:
   application:
     name: payment-service
 
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/mockanytime}
+      database: mockanytime
+      auto-index-creation: true
+
 razorpay:
   mode: ${RAZORPAY_MODE:live}
   key:

@@ -6,7 +6,7 @@ spring:
     name: auth-service
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI}
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/mockanytime}
       database: mockanytime
       auto-index-creation: true
   mail:
@@ -20,6 +20,9 @@ spring:
           auth: true
           starttls:
             enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
       debug: true
 
 otp:
@@ -46,6 +49,11 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+
+# Resend API
+resend:
+  api:
+    key: ${RESEND_API_KEY:}
 
 # Simple Secret for demo
 jwt:

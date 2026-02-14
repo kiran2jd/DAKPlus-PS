@@ -41,7 +41,9 @@ export default function DashboardScreen({ navigation }) {
         { id: '3', title: 'MTS & Selection Post', subtitle: 'Master the basics with detailed analytics', colors: ['#1e293b', '#334155'] },
     ];
 
-    const loadData = async () => {
+    const loadData = async (force = false) => {
+        if (!force && user && results.length > 0) return;
+        setLoading(true);
         try {
             let userData;
             try {
@@ -85,7 +87,7 @@ export default function DashboardScreen({ navigation }) {
 
     const onRefresh = () => {
         setRefreshing(true);
-        loadData();
+        loadData(true);
     };
 
     const isPro = user?.subscriptionTier === 'PREMIUM' || user?.role === 'ADMIN' || user?.role === 'TEACHER';
@@ -370,9 +372,14 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     carouselContainer: {
-        borderRadius: 24,
+        borderRadius: 28,
         overflow: 'hidden',
-        height: 150,
+        height: 160,
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
     },
     bannerCard: {
         flex: 1,
@@ -520,12 +527,17 @@ const styles = StyleSheet.create({
     },
     gridItem: {
         width: '48%',
-        backgroundColor: 'rgba(255,255,255,0.02)',
-        padding: 18,
-        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        padding: 20,
+        borderRadius: 24,
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(255,255,255,0.08)',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     gridIconBg: {
         width: 48,
