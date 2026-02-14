@@ -1,10 +1,11 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-// Temporarily hardcoded for testing - change back to env variable later
-const API_BASE_URL = 'https://prediscountable-nickole-nonhazardous.ngrok-free.dev/api';
+// Use environment variable for API Gateway URL
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api-gateway-production-bb02.up.railway.app/api';
+
 console.log('Mobile App API Configuration:');
-console.log('Using hardcoded API_BASE_URL:', API_BASE_URL);
+console.log('Using API_BASE_URL:', API_BASE_URL);
 
 const api = axios.create({
     baseURL: API_BASE_URL,
