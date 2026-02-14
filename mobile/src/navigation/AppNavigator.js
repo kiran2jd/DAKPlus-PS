@@ -17,7 +17,29 @@ import ManageTestsScreen from '../screens/ManageTestsScreen';
 import TopicManagementScreen from '../screens/TopicManagementScreen';
 import { authService } from '../services/auth';
 
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import SideMenu from '../components/SideMenu';
+
 const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
+
+function StudentDrawer() {
+    return (
+        <Drawer.Navigator
+            drawerContent={(props) => <SideMenu {...props} />}
+            screenOptions={{
+                headerShown: false,
+                drawerStyle: {
+                    width: '80%',
+                },
+            }}
+        >
+            <Drawer.Screen name="Dashboard" component={DashboardScreen} />
+            <Drawer.Screen name="TestLibrary" component={TestLibraryScreen} />
+            <Drawer.Screen name="Analytics" component={AnalyticsScreen} />
+        </Drawer.Navigator>
+    );
+}
 
 export default function AppNavigator() {
     const [isLoading, setIsLoading] = useState(true);
@@ -49,7 +71,7 @@ export default function AppNavigator() {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName={isAuthenticated ? "Dashboard" : "Welcome"}
+                initialRouteName={isAuthenticated ? "Main" : "Welcome"}
                 screenOptions={{
                     headerShown: false,
                 }}
@@ -57,16 +79,18 @@ export default function AppNavigator() {
                 <Stack.Screen name="Welcome" component={WelcomeScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Register" component={RegisterScreen} />
-                <Stack.Screen name="Dashboard" component={DashboardScreen} />
-                <Stack.Screen name="TestLibrary" component={TestLibraryScreen} />
+
+                {/* Main Student App Flow */}
+                <Stack.Screen name="Main" component={StudentDrawer} />
+
+                {/* Other Screens */}
                 <Stack.Screen name="TakeTest" component={TakeTestScreen} />
-                <Stack.Screen name="CreateTest" component={CreateTestScreen} />
-                <Stack.Screen name="EditTest" component={EditTestScreen} />
                 <Stack.Screen name="Result" component={ResultScreen} />
                 <Stack.Screen name="Payment" component={PaymentScreen} />
-                <Stack.Screen name="Analytics" component={AnalyticsScreen} />
                 <Stack.Screen name="ManageTests" component={ManageTestsScreen} />
                 <Stack.Screen name="TopicManagement" component={TopicManagementScreen} />
+                <Stack.Screen name="CreateTest" component={CreateTestScreen} />
+                <Stack.Screen name="EditTest" component={EditTestScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

@@ -45,6 +45,13 @@ public class User {
     private boolean notificationsEnabled;
     private String expoPushToken;
 
+    // Additional Profile Fields
+    private String postalCircle;
+    private String division;
+    private String office;
+    private String cadre;
+    private String examType;
+
     public User() {
         this.createdAt = LocalDateTime.now();
         this.subscriptionTier = "FREE";
@@ -194,5 +201,45 @@ public class User {
 
     public void setExpoPushToken(String expoPushToken) {
         this.expoPushToken = expoPushToken;
+    }
+
+    public String getPostalCircle() {
+        return postalCircle;
+    }
+
+    public void setPostalCircle(String postalCircle) {
+        this.postalCircle = postalCircle;
+    }
+
+    public String getDivision() {
+        return division;
+    }
+
+    public void setDivision(String division) {
+        this.division = division;
+    }
+
+    public String getOffice() {
+        return office;
+    }
+
+    public void setOffice(String office) {
+        this.office = office;
+    }
+
+    public String getCadre() {
+        return cadre;
+    }
+
+    public void setCadre(String cadre) {
+        this.cadre = cadre;
+    }
+
+    public String getExamType() {
+        return examType;
+    }
+
+    public void setExamType(String examType) {
+        this.examType = examType;
     }
 }

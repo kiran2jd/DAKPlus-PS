@@ -6,9 +6,8 @@ import com.mockanytime.scoringservice.model.Result;
 import com.mockanytime.scoringservice.repository.ResultRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 
 @Service
 public class ResultService {
@@ -125,5 +124,80 @@ public class ResultService {
 
     public Iterable<Result> getResultsByTestId(String testId) {
         return resultRepository.findByTestIdOrderByScoreDesc(testId);
+    }
+    public record LeaderboardEntry(
+        String userId,
+        String name,
+        int totalScore,
+        int testsTaken,
+        double averageAccuracy,
+        int rank
+    ) {}
+
+    public List<LeaderboardEntry> getLeaderboard(String period) {
+        Date startDate;
+        Calendar cal = Calendar.getInstance();
+
+        if ("weekly".equalsIgnoreCase(period)) {
+            cal.add(Calendar.DAY_OF_YEAR, -7);
+            startDate = cal.getTime();
+        } else if ("monthly".equalsIgnoreCase(period)) {
+            cal.add(Calendar.MONTH, -1);
+            startDate = cal.getTime();
+        } else {
+            // Default to all time or specific logic
+            startDate = new Date(0); // Beginning of time
+        }
+
+        List<Result> results = resultRepository.findByCreatedAtAfter(startDate);
+
+        // Group by user
+        Map<String, List<Result>> userResults = new HashMap<>();
+        for (Result r : results) {
+            userResults.computeIfAbsent(r.getUserId(), k -> new ArrayList<>()).add(r);
+        }
+
+        List<LeaderboardEntry> leaderboard = new ArrayList<>();
+
+        for (Map.Entry<String, List<Result>> entry : userResults.entrySet()) {
+            String userId = entry.getKey();
+            List<Result> list = entry.getValue();
+
+            int totalScore = list.stream().mapToInt(Result::getScore).sum();
+            int testsTaken = list.size();
+            double avgAcc = list.stream().mapToDouble(Result::getAccuracy).average().orElse(0.0);
+
+            // In a real app, fetch user name from AuthService or User Service
+            // For now, use userId or a placeholder
+            String name = "User " + userId.substring(0, Math.min(userId.length(), 6));
+
+            leaderboard.add(new LeaderboardEntry(
+                userId,
+                name,
+                totalScore,
+                testsTaken,
+                Math.round(avgAcc * 100.0) / 100.0,
+                0 // Rank set later
+            ));
+        }
+
+        // Sort by total score desc
+        leaderboard.sort(Comparator.comparingInt(LeaderboardEntry::totalScore).reversed());
+
+        // Assign ranks
+        List<LeaderboardEntry> rankedBoard = new ArrayList<>();
+        for (int i = 0; i < leaderboard.size(); i++) {
+            LeaderboardEntry e = leaderboard.get(i);
+            rankedBoard.add(new LeaderboardEntry(
+                e.userId(),
+                e.name(),
+                e.totalScore(),
+                e.testsTaken(),
+                e.averageAccuracy(),
+                i + 1
+            ));
+        }
+
+        return rankedBoard;
     }
 }

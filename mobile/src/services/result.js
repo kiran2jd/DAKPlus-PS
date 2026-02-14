@@ -41,5 +41,15 @@ export const resultService = {
             console.error('Error in getMyResults:', error);
             return [];
         }
+    },
+
+    getLeaderboard: async (period = 'weekly') => {
+        try {
+            const response = await api.get(`/results/leaderboard?period=${period}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching leaderboard:', error);
+            return [];
+        }
     }
 };

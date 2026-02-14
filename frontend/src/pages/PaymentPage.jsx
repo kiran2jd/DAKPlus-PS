@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Shield, Star, Zap, CreditCard, Smartphone, QrCode } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CheckCircle, Shield, Star, Zap, CreditCard, Smartphone, QrCode, FileText } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { authService } from '../services/auth';
 import { paymentService } from '../services/payment';
+import { testService } from '../services/test';
 
 // Function to dynamically load the Razorpay script
 const loadRazorpayScript = () => {
@@ -18,9 +19,13 @@ const loadRazorpayScript = () => {
 
 export default function PaymentPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const testId = searchParams.get('testId');
+
     const [processing, setProcessing] = useState(false);
     const [success, setSuccess] = useState(false);
     const [user, setUser] = useState(null);
+    const [testDetails, setTestDetails] = useState(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -28,9 +33,22 @@ export default function PaymentPage() {
             setUser(JSON.parse(storedUser));
         } else {
             // Enforce login for payment
-            navigate('/login?redirect=/payment');
+            navigate(`/login?redirect=/payment${testId ? `?testId=${testId}` : ''}`);
         }
-    }, [navigate]);
+
+        if (testId) {
+            loadTestDetails(testId);
+        }
+    }, [navigate, testId]);
+
+    const loadTestDetails = async (id) => {
+        try {
+            const test = await testService.getTestById(id);
+            setTestDetails(test);
+        } catch (error) {
+            console.error("Failed to load test details", error);
+        }
+    };
 
     const handlePayment = async () => {
         setProcessing(true);
@@ -45,8 +63,12 @@ export default function PaymentPage() {
 
         try {
             // 2. Create Order on Backend (Professional Approach)
-            const amount = 299; // Amount in INR (e.g., ₹299)
-            const orderData = await paymentService.createOrder(amount);
+            // If testId is present, it's a single test purchase (e.g., ₹49), else Subscription (₹299)
+            const amount = testId ? 49 : 299;
+            const itemId = testId || 'SUBSCRIPTION_PRO';
+            const itemType = testId ? 'TEST' : 'SUBSCRIPTION';
+
+            const orderData = await paymentService.createOrder(amount, itemId, itemType);
 
             // 2.5 Handle Dummy Mode Simulation (Bypass Razorpay SDK)
             if (orderData.orderId && (orderData.orderId.startsWith('order_dummy_') || import.meta.env.VITE_RAZORPAY_KEY_ID === '')) {
@@ -63,10 +85,12 @@ export default function PaymentPage() {
                     try {
                         const verificationResult = await paymentService.verifyPayment(dummyResponse);
                         if (verificationResult.status === 'success') {
-                            const updatedUser = { ...user, subscriptionTier: 'PREMIUM' };
-                            localStorage.setItem('user', JSON.stringify(updatedUser));
+                            if (itemType === 'SUBSCRIPTION') {
+                                const updatedUser = { ...user, subscriptionTier: 'PREMIUM' };
+                                localStorage.setItem('user', JSON.stringify(updatedUser));
+                            }
                             setSuccess(true);
-                            setTimeout(() => navigate('/dashboard'), 3000);
+                            setTimeout(() => navigate(testId ? `/dashboard/take-test/${testId}` : '/dashboard'), 3000);
                         } else {
                             alert('Dummy payment verification failed.');
                         }
@@ -84,7 +108,7 @@ export default function PaymentPage() {
                 amount: orderData.amount * 100, // Amount in paise
                 currency: "INR",
                 name: "DAKPlus App",
-                description: "Upgrade to Pro Subscription",
+                description: testId ? `Unlock Test: ${testDetails?.title || 'Premium Test'}` : "Upgrade to Pro Subscription",
                 image: "/logo.png", // Replace with your actual logo path
                 order_id: orderData.orderId,
                 handler: async function (response) {
@@ -98,12 +122,14 @@ export default function PaymentPage() {
                     try {
                         const verificationResult = await paymentService.verifyPayment(verifyData);
                         if (verificationResult.status === 'success') {
-                            // Update local user state
-                            const updatedUser = { ...user, subscriptionTier: 'PREMIUM' };
-                            localStorage.setItem('user', JSON.stringify(updatedUser));
+                            // Update local user state if subscription
+                            if (itemType === 'SUBSCRIPTION') {
+                                const updatedUser = { ...user, subscriptionTier: 'PREMIUM' };
+                                localStorage.setItem('user', JSON.stringify(updatedUser));
+                            }
 
                             setSuccess(true);
-                            setTimeout(() => navigate('/dashboard'), 3000);
+                            setTimeout(() => navigate(testId ? `/dashboard/take-test/${testId}` : '/dashboard'), 3000);
                         } else {
                             alert('Payment verification failed. Please contact support.');
                         }
@@ -150,7 +176,10 @@ export default function PaymentPage() {
                             <CheckCircle className="text-green-600 w-8 h-8" />
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
-                        <p className="text-gray-600 mb-6">Welcome to DAKPlus Pro. Redirecting you to your premium dashboard...</p>
+                        <p className="text-gray-600 mb-6">
+                            {testId ? "You have successfully unlocked the test." : "Welcome to DAKPlus Pro."}
+                            Redirecting...
+                        </p>
                         <div className="flex justify-center">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                         </div>
@@ -166,8 +195,14 @@ export default function PaymentPage() {
             <div className="flex-1 container mx-auto px-4 py-8">
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-10">
-                        <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Upgrade to DAKPlus Pro</h1>
-                        <p className="text-xl text-gray-600">Unlock your full potential with unlimited access and advanced analytics.</p>
+                        <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                            {testId ? 'Unlock Premium Test' : 'Upgrade to DAKPlus Pro'}
+                        </h1>
+                        <p className="text-xl text-gray-600">
+                            {testId
+                                ? 'Get immediate access to this exclusive practice test.'
+                                : 'Unlock your full potential with unlimited access and advanced analytics.'}
+                        </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-8 items-stretch">
@@ -175,7 +210,7 @@ export default function PaymentPage() {
                         <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col">
                             <h3 className="text-xl font-bold text-gray-900 mb-8 flex items-center">
                                 <Star className="w-6 h-6 text-yellow-500 mr-2 fill-current" />
-                                Pro Benefits
+                                {testId ? 'Test Features' : 'Pro Benefits'}
                             </h3>
                             <ul className="space-y-6 flex-1">
                                 <li className="flex items-start group">
@@ -183,8 +218,8 @@ export default function PaymentPage() {
                                         <CheckCircle className="w-5 h-5 text-green-600" />
                                     </div>
                                     <div>
-                                        <span className="font-bold text-gray-900">Unlimited Mock Tests</span>
-                                        <p className="text-sm text-gray-500">Practice as much as you want without daily limits.</p>
+                                        <span className="font-bold text-gray-900">{testId ? 'Full Test Access' : 'Unlimited Mock Tests'}</span>
+                                        <p className="text-sm text-gray-500">{testId ? 'Attempt all questions in this premium exam.' : 'Practice as much as you want without daily limits.'}</p>
                                     </div>
                                 </li>
                                 <li className="flex items-start group">
@@ -205,15 +240,17 @@ export default function PaymentPage() {
                                         <p className="text-sm text-gray-500">Step-by-step solutions for every test question.</p>
                                     </div>
                                 </li>
-                                <li className="flex items-start group">
-                                    <div className="bg-green-100 p-1 rounded-full mr-4 mt-0.5 group-hover:scale-110 transition-transform">
-                                        <CheckCircle className="w-5 h-5 text-green-600" />
-                                    </div>
-                                    <div>
-                                        <span className="font-bold text-gray-900">Priority Support</span>
-                                        <p className="text-sm text-gray-500">Direct channel to our expert support team.</p>
-                                    </div>
-                                </li>
+                                {!testId && (
+                                    <li className="flex items-start group">
+                                        <div className="bg-green-100 p-1 rounded-full mr-4 mt-0.5 group-hover:scale-110 transition-transform">
+                                            <CheckCircle className="w-5 h-5 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <span className="font-bold text-gray-900">Priority Support</span>
+                                            <p className="text-sm text-gray-500">Direct channel to our expert support team.</p>
+                                        </div>
+                                    </li>
+                                )}
                             </ul>
 
                             <div className="mt-8 pt-6 border-t border-gray-100 flex items-center text-sm text-gray-500 italic">
@@ -229,12 +266,17 @@ export default function PaymentPage() {
                             </div>
 
                             <div className="mb-8 text-center">
-                                <span className="text-xs text-indigo-600 uppercase tracking-widest font-black">Pro Annual Access</span>
+                                <span className="text-xs text-indigo-600 uppercase tracking-widest font-black">
+                                    {testId ? 'Single Test Access' : 'Pro Annual Access'}
+                                </span>
+                                {testId && testDetails && (
+                                    <p className="text-gray-900 font-bold mt-2">{testDetails.title}</p>
+                                )}
                                 <div className="mt-4 flex items-center justify-center">
-                                    <span className="text-5xl font-black text-gray-900">₹299</span>
-                                    <span className="text-gray-400 ml-2 font-medium">/ year</span>
+                                    <span className="text-5xl font-black text-gray-900">₹{testId ? '49' : '299'}</span>
+                                    {!testId && <span className="text-gray-400 ml-2 font-medium">/ year</span>}
                                 </div>
-                                <p className="mt-2 text-sm text-gray-500">Billed annually. Cancel anytime.</p>
+                                <p className="mt-2 text-sm text-gray-500">{testId ? 'One-time payment.' : 'Billed annually. Cancel anytime.'}</p>
                             </div>
 
                             <div className="space-y-6">
@@ -261,7 +303,8 @@ export default function PaymentPage() {
                                             </>
                                         ) : (
                                             <>
-                                                <Zap className="w-5 h-5 mr-3 fill-current" /> Upgrade Now
+                                                <Zap className="w-5 h-5 mr-3 fill-current" />
+                                                {testId ? 'Unlock Test Now' : 'Upgrade Now'}
                                             </>
                                         )}
                                     </span>

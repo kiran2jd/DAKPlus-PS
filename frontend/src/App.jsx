@@ -21,9 +21,26 @@ import ChatWidget from './components/ChatWidget';
 import EditTestPage from './pages/EditTestPage';
 import { authService } from './services/auth';
 
+import InactivityHandler from './components/InactivityHandler';
+import BooksPage from './pages/BooksPage';
+import SyllabusManagementPage from './pages/SyllabusManagementPage';
+import AdminReportsPage from './pages/AdminReportsPage';
+import HelpButton from './components/HelpButton';
+import Footer from './components/Footer';
+
 function App() {
+
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+  };
+
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <div
+      className="min-h-screen flex flex-col font-sans bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200"
+      onContextMenu={handleContextMenu}
+    >
+      <InactivityHandler />
+      <HelpButton />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<><Navbar /><LoginPage /></>} />
@@ -37,7 +54,10 @@ function App() {
           <Route index element={<DashboardRedirect />} />
           <Route path="student" element={<StudentDashboard />} />
           <Route path="student/syllabus" element={<SyllabusPage />} />
+          <Route path="student/books" element={<BooksPage />} />
           <Route path="manage-topics" element={<TopicManagementPage />} />
+          <Route path="admin/syllabus" element={<SyllabusManagementPage />} />
+          <Route path="admin/reports" element={<AdminReportsPage />} />
           <Route path="create-test" element={<CreateTestPage />} />
           <Route path="my-tests" element={<TeacherDashboard />} />
           <Route path="edit-test/:testId" element={<EditTestPage />} />
@@ -64,6 +84,7 @@ function App() {
 
         <Route path="*" element={<div className="p-8 text-center">404 - Not Found</div>} />
       </Routes>
+      <Footer />
       <ChatWidget />
     </div>
   );

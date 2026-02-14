@@ -13,4 +13,6 @@ public interface ResultRepository extends MongoRepository<Result, String> {
     List<Result> findByTestId(String testId);
 
     List<Result> findByTestIdOrderByScoreDesc(String testId);
+
+    List<Result> findByCreatedAtAfter(java.util.Date date);
 }

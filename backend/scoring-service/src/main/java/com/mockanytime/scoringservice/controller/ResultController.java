@@ -48,4 +48,10 @@ public class ResultController {
     public ResponseEntity<Iterable<Result>> getResultsByUser(@PathVariable String userId) {
         return ResponseEntity.ok(resultService.getResultsByUserId(userId));
     }
+
+    @GetMapping("/leaderboard")
+    public ResponseEntity<Iterable<ResultService.LeaderboardEntry>> getLeaderboard(
+            @RequestParam(value = "period", defaultValue = "weekly") String period) {
+        return ResponseEntity.ok(resultService.getLeaderboard(period));
+    }
 }

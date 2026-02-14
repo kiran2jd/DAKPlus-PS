@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Topic {
     @Id
     private String id;
-    private String name;
+    private String name; // Represents "Exam Category" (e.g., Dept Exams, GDS to MTS)
     private String description;
     private String icon; // Icon name for UI
 }
