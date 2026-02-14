@@ -84,7 +84,7 @@ export default function RegisterScreen({ navigation, route }) {
                 cadre,
                 examType
             });
-            navigation.replace('Dashboard');
+            navigation.replace('Main');
         } catch (err) {
             console.error("Registration UI error:", err);
             Alert.alert('Registration Failed', err.response?.data?.message || 'Something went wrong');
