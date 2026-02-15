@@ -30,7 +30,11 @@ public class QuestionExtractionService {
         if (apiKey == null || apiKey.isEmpty()) {
             System.err.println("WARNING: AI API Key is MISSING!");
         } else {
-            System.out.println("AI API Key is present (Length: " + apiKey.length() + ")");
+            String maskedKey = apiKey.length() > 8
+                    ? apiKey.substring(0, 5) + "..." + apiKey.substring(apiKey.length() - 3)
+                    : "***";
+            System.out.println(
+                    "AI API Key is present. Key hint: " + maskedKey + " (Total Length: " + apiKey.length() + ")");
         }
     }
 

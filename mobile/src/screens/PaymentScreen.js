@@ -36,7 +36,13 @@ export default function PaymentScreen({ navigation }) {
             setSuccess(true);
             setTimeout(() => {
                 Alert.alert('Congratulations', 'You are now a DAKPlus PRO member!', [
-                    { text: 'Great!', onPress: () => navigation.replace('Dashboard') }
+                    {
+                        text: 'Great!',
+                        onPress: () => navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Main' }],
+                        })
+                    }
                 ]);
             }, 1500);
         } catch (err) {
