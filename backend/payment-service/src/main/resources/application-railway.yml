@@ -7,7 +7,7 @@ spring:
 
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:${MONGODB_URI:mongodb://localhost:27017/mockanytime}}
+      uri: ${SPRING_DATA_MONGODB_URI:${MONGODB_URI:${MONGODB_URL:mongodb://localhost:27017/mockanytime}}}
       database: mockanytime
       auto-index-creation: true
       min-connections-per-host: 5
