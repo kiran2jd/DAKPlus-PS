@@ -30,6 +30,7 @@ export default function DashboardScreen({ navigation }) {
     // usePreventScreenCapture(); // Temporarily disabled for client demo
     const [user, setUser] = useState(null);
     const [results, setResults] = useState([]);
+    const [tests, setTests] = useState([]);
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -56,11 +57,13 @@ export default function DashboardScreen({ navigation }) {
             if (userData.role === 'STUDENT') {
                 if (userData.id || userData._id) {
                     const userId = userData.id || userData._id;
-                    const [userResults, lbData] = await Promise.all([
+                    const [userResults, availableTests, lbData] = await Promise.all([
                         resultService.getResultsByUser(userId),
+                        testService.getAvailableTests(),
                         resultService.getLeaderboard('weekly')
                     ]);
                     setResults(userResults);
+                    setTests(availableTests);
                     setLeaderboard(lbData);
                 }
             }
@@ -166,18 +169,18 @@ export default function DashboardScreen({ navigation }) {
                                 <Text style={styles.sectionTitle}>Course Progress</Text>
                                 <View style={styles.progressContainer}>
                                     <View style={styles.progressHeader}>
-                                        <Text style={styles.progressLabel}>Mock Tests Completed</Text>
-                                        <Text style={styles.progressValue}>{results.length}/10</Text>
+                                        <Text style={styles.progressLabel}>Unique Tests Completed</Text>
+                                        <Text style={styles.progressValue}>{new Set(results.map(r => r.testId || r.id)).size}/{tests.length || 10}</Text>
                                     </View>
                                     <View style={styles.progressBarBg}>
                                         <LinearGradient
                                             colors={['#22c55e', '#16a34a']}
                                             start={{ x: 0, y: 0 }}
                                             end={{ x: 1, y: 0 }}
-                                            style={[styles.progressBarFill, { width: `${Math.min(100, (results.length / 10) * 100)}%` }]}
+                                            style={[styles.progressBarFill, { width: `${Math.min(100, (new Set(results.map(r => r.testId || r.id)).size / (tests.length || 10)) * 100)}%` }]}
                                         />
                                     </View>
-                                    <Text style={styles.progressGoal}>Goal: 10 Tests</Text>
+                                    <Text style={styles.progressGoal}>Goal: {tests.length || 10} Tests</Text>
                                 </View>
                             </View>
                         )}
@@ -335,14 +338,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerWrapper: {
-        paddingTop: 10,
+        paddingTop: 45,
         paddingHorizontal: 20,
     },
     topBar: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 25,
     },
     headerIconButton: {
         width: 44,

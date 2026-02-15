@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function CourseProgressBar({ progress, total }) {
-    const percentage = Math.round((progress / total) * 100) || 0;
+    const percentage = Math.min(100, Math.round((progress / total) * 100)) || 0;
 
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">

@@ -115,8 +115,8 @@ export default function StudentDashboard() {
     };
 
     const purchasedIds = purchases.map(p => p.itemId);
-    const completedTestsCount = history.length || 0;
-    const totalAvailableTests = tests.length || 10;
+    const completedTestsCount = new Set(history.map(h => h.testId || h.id)).size;
+    const totalAvailableTests = tests.length || 0;
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
