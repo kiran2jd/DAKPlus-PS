@@ -176,13 +176,19 @@ export default function RegisterScreen({ navigation, route }) {
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Postal Circle</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="e.g. Telangana, Andhra Pradesh"
-                                placeholderTextColor="#999"
-                                value={postalCircle}
-                                onChangeText={setPostalCircle}
-                            />
+                            <View style={styles.pickerContainer}>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    {['Andhra Pradesh', 'Telangana', 'Karnataka', 'Tamil Nadu', 'Kerala', 'Others'].map(circle => (
+                                        <TouchableOpacity
+                                            key={circle}
+                                            style={[styles.chip, postalCircle === circle ? styles.chipSelected : null]}
+                                            onPress={() => setPostalCircle(circle)}
+                                        >
+                                            <Text style={[styles.chipText, postalCircle === circle ? styles.chipTextSelected : null]}>{circle}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                            </View>
                         </View>
 
                         <View style={styles.inputGroup}>
@@ -209,24 +215,43 @@ export default function RegisterScreen({ navigation, route }) {
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Cadre</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="e.g. GDS, MTS, Postman"
-                                placeholderTextColor="#999"
-                                value={cadre}
-                                onChangeText={setCadre}
-                            />
+                            <View style={styles.pickerContainer}>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    {['GDS', 'MTS', 'Postman', 'Mail Guard', 'PA/SA', 'Others'].map(item => (
+                                        <TouchableOpacity
+                                            key={item}
+                                            style={[styles.chip, cadre === item ? styles.chipSelected : null]}
+                                            onPress={() => setCadre(item)}
+                                        >
+                                            <Text style={[styles.chipText, cadre === item ? styles.chipTextSelected : null]}>{item}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                            </View>
                         </View>
 
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Target Exam</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="e.g. GDS to MTS, IP Exam"
-                                placeholderTextColor="#999"
-                                value={examType}
-                                onChangeText={setExamType}
-                            />
+                            <View style={styles.pickerContainer}>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    {[
+                                        'GDS to MTS',
+                                        'GDS to Postman',
+                                        'MTS to Postman',
+                                        'GDS/MTS/Postman to PA/SA',
+                                        'IP Exam',
+                                        'Others'
+                                    ].map(type => (
+                                        <TouchableOpacity
+                                            key={type}
+                                            style={[styles.chip, examType === type ? styles.chipSelected : null]}
+                                            onPress={() => setExamType(type)}
+                                        >
+                                            <Text style={[styles.chipText, examType === type ? styles.chipTextSelected : null]}>{type}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                            </View>
                         </View>
 
                         <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
@@ -386,5 +411,29 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 14,
         color: '#475569',
+    },
+    pickerContainer: {
+        marginBottom: 10,
+    },
+    chip: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 20,
+        backgroundColor: '#f1f5f9',
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+    },
+    chipSelected: {
+        backgroundColor: '#dc2626',
+        borderColor: '#dc2626',
+    },
+    chipText: {
+        fontSize: 13,
+        color: '#64748b',
+    },
+    chipTextSelected: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
 });

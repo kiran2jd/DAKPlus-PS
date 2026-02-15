@@ -207,17 +207,17 @@ export default function SignupPage() {
                                     <label htmlFor="postalCircle" className="block text-sm font-medium text-gray-700">Postal Circle</label>
                                     <select
                                         id="postalCircle"
-                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md text-gray-900 bg-white"
                                         value={formData.postalCircle}
                                         onChange={(e) => setFormData({ ...formData, postalCircle: e.target.value })}
                                     >
-                                        <option value="">Select Circle</option>
-                                        <option value="Andhra Pradesh">Andhra Pradesh</option>
-                                        <option value="Telangana">Telangana</option>
-                                        <option value="Karnataka">Karnataka</option>
-                                        <option value="Tamil Nadu">Tamil Nadu</option>
-                                        <option value="Kerala">Kerala</option>
-                                        <option value="Others">Others</option>
+                                        <option value="" className="text-gray-900 bg-white">Select Circle</option>
+                                        <option value="Andhra Pradesh" className="text-gray-900 bg-white">Andhra Pradesh</option>
+                                        <option value="Telangana" className="text-gray-900 bg-white">Telangana</option>
+                                        <option value="Karnataka" className="text-gray-900 bg-white">Karnataka</option>
+                                        <option value="Tamil Nadu" className="text-gray-900 bg-white">Tamil Nadu</option>
+                                        <option value="Kerala" className="text-gray-900 bg-white">Kerala</option>
+                                        <option value="Others" className="text-gray-900 bg-white">Others</option>
                                     </select>
                                 </div>
 
@@ -249,17 +249,17 @@ export default function SignupPage() {
                                     <label htmlFor="cadre" className="block text-sm font-medium text-gray-700">Cadre</label>
                                     <select
                                         id="cadre"
-                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md text-gray-900 bg-white"
                                         value={formData.cadre}
                                         onChange={(e) => setFormData({ ...formData, cadre: e.target.value })}
                                     >
-                                        <option value="">Select Cadre</option>
-                                        <option value="GDS">GDS</option>
-                                        <option value="MTS">MTS</option>
-                                        <option value="Postman">Postman</option>
-                                        <option value="Mail Guard">Mail Guard</option>
-                                        <option value="PA/SA">PA/SA</option>
-                                        <option value="Others">Others</option>
+                                        <option value="" className="text-gray-900 bg-white">Select Cadre</option>
+                                        <option value="GDS" className="text-gray-900 bg-white">GDS</option>
+                                        <option value="MTS" className="text-gray-900 bg-white">MTS</option>
+                                        <option value="Postman" className="text-gray-900 bg-white">Postman</option>
+                                        <option value="Mail Guard" className="text-gray-900 bg-white">Mail Guard</option>
+                                        <option value="PA/SA" className="text-gray-900 bg-white">PA/SA</option>
+                                        <option value="Others" className="text-gray-900 bg-white">Others</option>
                                     </select>
                                 </div>
 
@@ -267,17 +267,17 @@ export default function SignupPage() {
                                     <label htmlFor="examType" className="block text-sm font-medium text-gray-700">Target Exam</label>
                                     <select
                                         id="examType"
-                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md text-gray-900 bg-white"
                                         value={formData.examType}
                                         onChange={(e) => setFormData({ ...formData, examType: e.target.value })}
                                     >
-                                        <option value="">Select Exam</option>
-                                        <option value="GDS to MTS">GDS to MTS</option>
-                                        <option value="GDS to Postman">GDS to Postman</option>
-                                        <option value="MTS to Postman">MTS to Postman</option>
-                                        <option value="GDS/MTS/Postman to PA/SA">GDS/MTS/Postman to PA/SA</option>
-                                        <option value="IP Exam">IP Exam</option>
-                                        <option value="Others">Others</option>
+                                        <option value="" className="text-gray-900 bg-white">Select Exam</option>
+                                        <option value="GDS to MTS" className="text-gray-900 bg-white">GDS to MTS</option>
+                                        <option value="GDS to Postman" className="text-gray-900 bg-white">GDS to Postman</option>
+                                        <option value="MTS to Postman" className="text-gray-900 bg-white">MTS to Postman</option>
+                                        <option value="GDS/MTS/Postman to PA/SA" className="text-gray-900 bg-white">GDS/MTS/Postman to PA/SA</option>
+                                        <option value="IP Exam" className="text-gray-900 bg-white">IP Exam</option>
+                                        <option value="Others" className="text-gray-900 bg-white">Others</option>
                                     </select>
                                 </div>
                             </div>
