@@ -22,7 +22,7 @@ spring:
             allowCredentials: true
       routes:
         - id: auth-service
-          uri: http://${AUTH_SERVICE_HOST:dakplus-ps}:8081
+          uri: http://${AUTH_SERVICE_HOST:auth-service}:8081
           predicates:
             - Path=/api/auth/**, //api/auth/**
           filters:

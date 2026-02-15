@@ -7,9 +7,13 @@ spring:
 
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/mockanytime}
+      uri: ${SPRING_DATA_MONGODB_URI:${MONGODB_URI:mongodb://localhost:27017/mockanytime}}
       database: mockanytime
       auto-index-creation: true
+      min-connections-per-host: 5
+      max-connections-per-host: 20
+      connect-timeout: 10000
+      max-wait-time: 5000
 
 razorpay:
   mode: ${RAZORPAY_MODE:live}
