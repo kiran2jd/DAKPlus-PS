@@ -6,7 +6,9 @@ import org.springframework.ai.chat.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.parser.BeanOutputParser;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 
 @Service
@@ -14,6 +16,23 @@ import java.util.List;
 public class QuestionExtractionService {
 
     private final ChatClient chatClient;
+
+    @Value("${spring.ai.openai.api-key:}")
+    private String apiKey;
+
+    @Value("${spring.ai.openai.base-url:}")
+    private String baseUrl;
+
+    @PostConstruct
+    public void init() {
+        System.out.println("AI Extraction Service Initialized.");
+        System.out.println("Base URL: " + baseUrl);
+        if (apiKey == null || apiKey.isEmpty()) {
+            System.err.println("WARNING: AI API Key is MISSING!");
+        } else {
+            System.out.println("AI API Key is present (Length: " + apiKey.length() + ")");
+        }
+    }
 
     public List<Question> extractQuestions(String text, String topicId, String subtopicId) {
         String promptString = """

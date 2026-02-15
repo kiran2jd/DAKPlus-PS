@@ -15,8 +15,8 @@ spring:
       max-wait-time: 5000
   ai:
     openai:
-      api-key: ${GROQ_API_KEY:${SPRING_AI_OPENAI_API_KEY}}
-      base-url: https://api.groq.com/openai
+      api-key: ${GROQ_API_KEY}
+      base-url: https://api.groq.com/openai/v1
       chat:
         options:
           model: llama-3.3-70b-versatile
