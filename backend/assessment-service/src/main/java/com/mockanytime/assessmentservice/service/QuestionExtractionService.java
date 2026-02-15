@@ -17,28 +17,28 @@ public class QuestionExtractionService {
 
     public List<Question> extractQuestions(String text, String topicId, String subtopicId) {
         String promptString = """
-                Analyze the following text (which may include OCR-extracted text from images) and extract all multiple choice questions.
-                For each question, identify:
-                - The question text
-                - Four options (a, b, c, d)
-                - The correct answer
+                Extract all multiple choice questions from the provided text.
+                The text may contain OCR noise or fragments labeled "[Image Text Content]:".
+                Synthesize coherent questions from these fragments if they appear to belong together.
 
-                CRITICAL RULES:
-                1. The output MUST be a valid JSON object with a single key "questions" containing an array of question objects.
-                2. Each question object MUST have: "text", "options" (array of 4 strings), "correctAnswer", "type" ("mcq"), "points" (1).
-                3. The "correctAnswer" MUST match one of the strings in the "options" array EXACTLY.
-                4. If the source text says "Answer: c) Some Text", the "correctAnswer" should be "Some Text" if that is what you put in the options array. Do not include the "c)" prefix in the final options or correctAnswer unless it is part of the actual choice content.
-                5. Strip any leading labels like "110)", "a)", "b)", etc., from the question and option text to keep it clean.
-                6. If you encounter text labeled "[Image Text]:", treat it as part of the question or context immediately preceding it. It might contain the question itself or options.
-                7. Ignore any OCR noise (random characters) if it doesn't form coherent words.
+                EXTRACT:
+                - Question text (clear and concise)
+                - Options (exactly four: a, b, c, d)
+                - Correct Answer (one of the options)
 
-                EXAMPLE OUTPUT FORMAT:
+                RULES:
+                1. JSON ONLY. No explanation text outside the JSON.
+                2. "correctAnswer" must match one of the "options" exactly.
+                3. Clean OCR noise (random symbols, broken words).
+                4. If a question is incomplete, skip it rather than guessing.
+
+                FORMAT:
                 {
                   "questions": [
                     {
-                      "text": "What is the capital of France?",
-                      "options": ["Paris", "London", "Berlin", "Madrid"],
-                      "correctAnswer": "Paris",
+                      "text": "...",
+                      "options": ["...", "...", "...", "..."],
+                      "correctAnswer": "...",
                       "type": "mcq",
                       "points": 1
                     }

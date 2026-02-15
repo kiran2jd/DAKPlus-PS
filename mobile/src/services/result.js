@@ -3,17 +3,17 @@ import * as SecureStore from 'expo-secure-store';
 
 export const resultService = {
     submitTest: async (submissionData) => {
-        const response = await api.post('/results/submit', submissionData);
+        const response = await api.post('results/submit', submissionData);
         return response.data;
     },
 
     getResultById: async (resultId) => {
-        const response = await api.get(`/results/${resultId}`);
+        const response = await api.get(`results/${resultId}`);
         return response.data;
     },
 
     getResultsByUser: async (userId) => {
-        const response = await api.get(`/results/user/${userId}`);
+        const response = await api.get(`results/user/${userId}`);
         return response.data;
     },
 
@@ -35,7 +35,7 @@ export const resultService = {
             }
 
             console.log('Fetching results for user:', userId);
-            const response = await api.get(`/results/user/${userId}`);
+            const response = await api.get(`results/user/${userId}`);
             return response.data;
         } catch (error) {
             console.error('Error in getMyResults:', error);
@@ -45,7 +45,7 @@ export const resultService = {
 
     getLeaderboard: async (period = 'weekly') => {
         try {
-            const response = await api.get(`/results/leaderboard?period=${period}`);
+            const response = await api.get(`results/leaderboard?period=${period}`);
             return response.data;
         } catch (error) {
             console.error('Error fetching leaderboard:', error);

@@ -3,12 +3,12 @@ import * as SecureStore from 'expo-secure-store';
 
 export const authService = {
     async sendOtp(identifier) {
-        const response = await api.post('/auth/send-otp', { identifier });
+        const response = await api.post('auth/send-otp', { identifier });
         return response.data;
     },
 
     async verifyOtp(identifier, otp) {
-        const response = await api.post('/auth/verify-otp', { identifier, otp, persistent: true });
+        const response = await api.post('auth/verify-otp', { identifier, otp, persistent: true });
         const { access_token, user } = response.data;
         if (access_token) {
             await SecureStore.setItemAsync('access_token', access_token);
@@ -18,7 +18,7 @@ export const authService = {
     },
 
     async login(identifier, password) {
-        const response = await api.post('/auth/login', { identifier, password, persistent: true });
+        const response = await api.post('auth/login', { identifier, password, persistent: true });
         const { access_token, user } = response.data;
         if (access_token) {
             await SecureStore.setItemAsync('access_token', access_token);
@@ -28,7 +28,7 @@ export const authService = {
     },
 
     async register(userData) {
-        const response = await api.post('/auth/register', { ...userData, persistent: true });
+        const response = await api.post('auth/register', { ...userData, persistent: true });
         const { access_token, user } = response.data;
         if (access_token) {
             await SecureStore.setItemAsync('access_token', access_token);
@@ -53,7 +53,7 @@ export const authService = {
     },
 
     async getProfile() {
-        const response = await api.get('/auth/profile');
+        const response = await api.get('auth/profile');
         const user = response.data.user;
         if (user) {
             await SecureStore.setItemAsync('user', JSON.stringify(user));
@@ -82,7 +82,7 @@ export const authService = {
 
             if (!user.activeSessionId) return true; // Optimistic if not present? Or false?
 
-            const response = await api.get('/auth/validate-session', {
+            const response = await api.get('auth/validate-session', {
                 headers: {
                     'X-User-Id': user.id,
                     'X-Session-Id': user.activeSessionId

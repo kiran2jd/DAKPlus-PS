@@ -49,7 +49,7 @@ export default function LoginScreen({ navigation }) {
         setLoading(true);
         try {
             await authService.login(identifier, password, persistent);
-            navigation.replace('Dashboard');
+            navigation.replace('Main');
         } catch (err) {
             Alert.alert('Login Failed', err.response?.data?.message || 'Invalid credentials');
         } finally {
@@ -92,7 +92,7 @@ export default function LoginScreen({ navigation }) {
             if (data.is_new_user) {
                 navigation.navigate('Register', { phoneNumber: phone });
             } else {
-                navigation.replace('Dashboard');
+                navigation.replace('Main');
             }
         } catch (err) {
             Alert.alert('Error', 'Invalid OTP');

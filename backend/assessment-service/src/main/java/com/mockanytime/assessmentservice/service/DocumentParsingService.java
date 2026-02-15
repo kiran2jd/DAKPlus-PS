@@ -41,21 +41,29 @@ public class DocumentParsingService {
         try (InputStream inputStream = file.getInputStream();
                 XWPFDocument doc = new XWPFDocument(inputStream);
                 XWPFWordExtractor extractor = new XWPFWordExtractor(doc)) {
-            
+
             StringBuilder fullText = new StringBuilder(extractor.getText());
-            
+
             // Extract images and perform OCR
             for (org.apache.poi.xwpf.usermodel.XWPFPictureData picture : doc.getAllPictures()) {
                 try {
                     String ocrResult = performOcr(picture.getData());
                     if (ocrResult != null && !ocrResult.isBlank()) {
-                        fullText.append("\n[Image Text]:\n").append(ocrResult).append("\n");
+                        System.out.println("OCR Success: Extracted " + ocrResult.length() + " chars from image.");
+                        fullText.append("\n[Image Text Content]:\n").append(ocrResult).append("\n");
                     }
                 } catch (Exception e) {
-                    System.err.println("Failed to perform OCR on image: " + e.getMessage());
+                    // Log error but don't break the whole extraction
+                    System.err.println("Non-critical: OCR failed for an image chunk. Skipping this image. Error: "
+                            + e.getMessage());
+                } catch (NoClassDefFoundError | UnsatisfiedLinkError e) {
+                    // Special handling for missing system dependencies (common in Railway/Docker)
+                    System.err.println(
+                            "CRITICAL: Tesseract native library or class not found. OCR disabled for this request.");
+                    break; // stop trying OCR for this doc if library is missing
                 }
             }
-            
+
             return fullText.toString();
         }
     }
@@ -65,11 +73,11 @@ public class DocumentParsingService {
             net.sourceforge.tess4j.ITesseract instance = new net.sourceforge.tess4j.Tesseract();
             // Assuming tessdata is available in a standard location or environment variable
             // You might need to set datapath: instance.setDatapath("path/to/tessdata");
-            
+
             // Create a temp file for the image
             java.io.File tempFile = java.io.File.createTempFile("ocr_image", ".png");
             java.nio.file.Files.write(tempFile.toPath(), imageData);
-            
+
             String result = instance.doOCR(tempFile);
             tempFile.delete();
             return result;

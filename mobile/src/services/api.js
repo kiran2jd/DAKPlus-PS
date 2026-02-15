@@ -1,8 +1,25 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-// Use environment variable for API Gateway URL
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api-gateway-production-bb02.up.railway.app/api';
+import Constants from 'expo-constants';
+
+// Strategy for resolving API URL:
+// 1. Process environment (for local dev/web)
+// 2. Expo Constants (for EAS builds/standalone APKs)
+// 3. Last resort hardcoded production URL
+const getApiUrl = () => {
+    if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
+
+    // expoConfig.extra is where EAS injects variables during build
+    if (Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL) {
+        return Constants.expoConfig.extra.EXPO_PUBLIC_API_URL;
+    }
+
+    // Explicit last resort for the current production environment
+    return 'https://api-gateway-production-bb02.up.railway.app/api/';
+};
+
+const API_BASE_URL = getApiUrl();
 
 console.log('Mobile App API Configuration:');
 console.log('Using API_BASE_URL:', API_BASE_URL);

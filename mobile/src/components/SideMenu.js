@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -6,7 +6,8 @@ import {
     TouchableOpacity,
     Image,
     ScrollView,
-    SafeAreaView
+    SafeAreaView,
+    Alert
 } from 'react-native';
 import {
     DrawerContentScrollView,
@@ -15,10 +16,46 @@ import {
 } from '@react-navigation/drawer';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { authService } from '../services/auth';
 
 const SideMenu = (props) => {
     const { navigation, state } = props;
     const activeRouteName = state?.routeNames && state?.index !== undefined ? state.routeNames[state.index] : null;
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        loadUser();
+    }, []);
+
+    const loadUser = async () => {
+        try {
+            const userData = await authService.getUser();
+            setUser(userData);
+        } catch (error) {
+            console.error("Error loading user in SideMenu:", error);
+        }
+    };
+
+    const handleLogout = () => {
+        Alert.alert(
+            "Logout",
+            "Are you sure you want to sign out?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Logout",
+                    style: "destructive",
+                    onPress: async () => {
+                        await authService.logout();
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Login' }],
+                        });
+                    }
+                }
+            ]
+        );
+    };
 
     const menuItems = [
         { label: 'Dashboard', icon: 'grid-outline', route: 'Dashboard', type: 'ion' },
@@ -45,8 +82,8 @@ const SideMenu = (props) => {
                     />
                     <View style={styles.onlineStatus} />
                 </View>
-                <Text style={styles.userName}>Kiran Kumar</Text>
-                <Text style={styles.userRole}>PRIME ASPIRANT</Text>
+                <Text style={styles.userName}>{user?.fullName || 'Dak Plus Aspirant'}</Text>
+                <Text style={styles.userRole}>{user?.role === 'STUDENT' ? 'PRIME ASPIRANT' : user?.role || 'Aspirant'}</Text>
             </View>
 
             <ScrollView style={styles.menuList}>
@@ -122,7 +159,7 @@ const SideMenu = (props) => {
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.logoutBtn}>
+                <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
                     <Ionicons name="log-out-outline" size={20} color="#ef4444" />
                     <Text style={styles.logoutText}>Sign Out</Text>
                 </TouchableOpacity>

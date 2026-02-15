@@ -110,7 +110,9 @@ export default function DashboardScreen({ navigation }) {
                 >
                     <Ionicons name="menu-outline" size={28} color="#fff" />
                 </TouchableOpacity>
-                <Image source={logo} style={styles.logoMini} resizeMode="contain" />
+                <View style={[styles.logoContainer, { flex: 1, alignItems: 'center' }]}>
+                    <Image source={logo} style={styles.logoMini} resizeMode="contain" />
+                </View>
                 <TouchableOpacity style={styles.headerIconButton} onPress={() => navigation.navigate('Analytics')}>
                     <Ionicons name="notifications-outline" size={24} color="#fff" />
                 </TouchableOpacity>

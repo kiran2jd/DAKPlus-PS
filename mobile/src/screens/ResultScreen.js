@@ -43,6 +43,8 @@ export default function ResultScreen({ navigation, route }) {
         fetchResult();
     }, [resultId]);
 
+    const [filter, setFilter] = useState('all'); // all, correct, incorrect
+
     if (loading) {
         return (
             <View style={styles.center}>
@@ -56,6 +58,12 @@ export default function ResultScreen({ navigation, route }) {
     const detailedAnswersArray = Object.keys(detailedAnswers)
         .sort((a, b) => parseInt(a) - parseInt(b))
         .map(key => detailedAnswers[key]);
+
+    const filteredAnswers = detailedAnswersArray.filter(answer => {
+        if (filter === 'correct') return answer.correct;
+        if (filter === 'incorrect') return !answer.correct;
+        return true;
+    });
 
     return (
         <SafeAreaView style={styles.container}>
@@ -102,7 +110,7 @@ export default function ResultScreen({ navigation, route }) {
                         style={styles.homeButton}
                         onPress={() => navigation.reset({
                             index: 0,
-                            routes: [{ name: 'Dashboard' }],
+                            routes: [{ name: 'Main' }],
                         })}
                     >
                         <Text style={styles.homeButtonText}>Back to Dashboard</Text>
@@ -132,7 +140,30 @@ export default function ResultScreen({ navigation, route }) {
                     )}
 
                     <Text style={styles.sectionTitle}>Detailed Review</Text>
-                    {detailedAnswersArray.length > 0 ? detailedAnswersArray.map((detail, idx) => (
+
+                    {/* Filter Tabs */}
+                    <View style={styles.filterTabs}>
+                        <TouchableOpacity
+                            style={[styles.filterTab, filter === 'all' && styles.activeFilterTab]}
+                            onPress={() => setFilter('all')}
+                        >
+                            <Text style={[styles.filterTabText, filter === 'all' && styles.activeFilterTabText]}>All</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.filterTab, filter === 'correct' && styles.activeCorrectTab]}
+                            onPress={() => setFilter('correct')}
+                        >
+                            <Text style={[styles.filterTabText, filter === 'correct' && styles.activeFilterTabText]}>Correct</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.filterTab, filter === 'incorrect' && styles.activeWrongTab]}
+                            onPress={() => setFilter('incorrect')}
+                        >
+                            <Text style={[styles.filterTabText, filter === 'incorrect' && styles.activeFilterTabText]}>Wrong</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {filteredAnswers.length > 0 ? filteredAnswers.map((detail, idx) => (
                         <View key={idx} style={[styles.reviewCard, { borderColor: detail.correct ? '#059669' : '#dc2626' }]}>
                             <Text style={styles.reviewQuestion}>{idx + 1}. {detail.questionText}</Text>
                             <View style={styles.answerRow}>
@@ -160,7 +191,7 @@ export default function ResultScreen({ navigation, route }) {
                         </View>
                     )) : (
                         <View style={styles.emptyReview}>
-                            <Text style={styles.emptyReviewText}>Detailed review data not available.</Text>
+                            <Text style={styles.emptyReviewText}>No {filter === 'all' ? '' : filter} questions to show.</Text>
                         </View>
                     )}
                 </View>
@@ -349,6 +380,40 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    filterTabs: {
+        flexDirection: 'row',
+        marginBottom: 20,
+        gap: 10,
+    },
+    filterTab: {
+        flex: 1,
+        paddingVertical: 10,
+        borderRadius: 12,
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+        alignItems: 'center',
+    },
+    activeFilterTab: {
+        backgroundColor: '#1e293b',
+        borderColor: '#1e293b',
+    },
+    activeCorrectTab: {
+        backgroundColor: '#059669',
+        borderColor: '#059669',
+    },
+    activeWrongTab: {
+        backgroundColor: '#dc2626',
+        borderColor: '#dc2626',
+    },
+    filterTabText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#64748b',
+    },
+    activeFilterTabText: {
+        color: '#fff',
     },
     center: {
         flex: 1,
