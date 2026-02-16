@@ -25,25 +25,47 @@ public class QuestionExtractionService {
 
     @PostConstruct
     public void init() {
-        System.out.println("AI Extraction Service Initialized.");
+        System.out.println("=== AI SUPER DIAGNOSTICS ===");
         System.out.println("Base URL: " + baseUrl);
+
+        // Check Environment Variables Directly
+        String envGroq = System.getenv("GROQ_API_KEY");
+        String envOpenAI = System.getenv("SPRING_AI_OPENAI_API_KEY");
+
+        System.out.println("Direct Env Check:");
+        System.out.println("- GROQ_API_KEY exists: " + (envGroq != null && !envGroq.isEmpty()));
+        if (envGroq != null && envGroq.length() > 5) {
+            System.out.println("- GROQ_API_KEY starts with 'gsk_': " + envGroq.startsWith("gsk_"));
+            System.out.println(
+                    "- GROQ_API_KEY starts with quote: " + (envGroq.startsWith("\"") || envGroq.startsWith("'")));
+        }
+
+        System.out.println("- SPRING_AI_OPENAI_API_KEY exists: " + (envOpenAI != null && !envOpenAI.isEmpty()));
+
+        // Check the Resolved Spring Property
         if (apiKey == null || apiKey.isEmpty()) {
-            System.err.println("CRITICAL: AI API Key is MISSING! Extraction will fail.");
+            System.err.println("CRITICAL: Resolved 'spring.ai.openai.api-key' is EMPTY!");
         } else {
-            String maskedKey = apiKey.length() > 8
-                    ? apiKey.substring(0, 5) + "..." + apiKey.substring(apiKey.length() - 3)
+            // Defensive cleanup: remove quotes or whitespace that might be in Railway
+            // variables
+            String cleanKey = apiKey.trim().replace("\"", "").replace("'", "");
+            boolean startsWithGsk = cleanKey.startsWith("gsk_");
+
+            String maskedKey = cleanKey.length() > 8
+                    ? cleanKey.substring(0, 5) + "..." + cleanKey.substring(cleanKey.length() - 3)
                     : "***";
 
-            // Log verification hints
-            System.out.println("AI API Key Info:");
-            System.out.println("- Hint: " + maskedKey);
-            System.out.println("- Length: " + apiKey.length());
-            System.out.println("- Starts with 'gsk_': " + apiKey.startsWith("gsk_"));
+            System.out.println("Resolved API Key Info:");
+            System.out.println("- Masked Key: " + maskedKey);
+            System.out.println("- Length: " + cleanKey.length());
+            System.out.println("- Valid Groq Prefix (gsk_): " + startsWithGsk);
 
-            if (!apiKey.startsWith("gsk_") && baseUrl.contains("groq")) {
-                System.err.println("WARNING: Using Groq URL but API key does not have standard 'gsk_' prefix!");
+            if (!startsWithGsk && baseUrl.contains("groq")) {
+                System.err
+                        .println("ALERT: You are calling Groq but the key does NOT start with 'gsk_'. This will 401.");
             }
         }
+        System.out.println("============================");
     }
 
     public List<Question> extractQuestions(String text, String topicId, String subtopicId) {
