@@ -143,23 +143,23 @@ export default function EditTestPage() {
                 <form onSubmit={handleSubmit}>
                     {/* Test Details Section */}
                     <div className="mb-8">
-                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 border-b pb-2">Test Details</h2>
+                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 border-b dark:border-gray-700 pb-2">Test Details</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Test Title</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Test Title</label>
                                 <input
                                     type="text"
                                     required
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 bg-white"
+                                    className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700"
                                     value={testData.title}
                                     onChange={(e) => setTestData({ ...testData, title: e.target.value })}
                                 />
                             </div>
 
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description</label>
                                 <textarea
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 bg-white"
+                                    className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700"
                                     rows={3}
                                     value={testData.description}
                                     onChange={(e) => setTestData({ ...testData, description: e.target.value })}
@@ -167,30 +167,30 @@ export default function EditTestPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Duration (Minutes)</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Duration (Minutes)</label>
                                 <input
                                     type="number"
                                     required
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 bg-white"
+                                    className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700"
                                     value={testData.durationMinutes}
                                     onChange={(e) => setTestData({ ...testData, durationMinutes: parseInt(e.target.value) })}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Category</label>
                                 <input
                                     type="text"
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 bg-white"
+                                    className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700"
                                     value={testData.category}
                                     onChange={(e) => setTestData({ ...testData, category: e.target.value })}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Difficulty</label>
                                 <select
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 bg-white"
+                                    className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700"
                                     value={testData.difficulty}
                                     onChange={(e) => setTestData({ ...testData, difficulty: e.target.value })}
                                 >
@@ -201,9 +201,9 @@ export default function EditTestPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Topic</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Topic</label>
                                 <select
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 bg-white"
+                                    className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700"
                                     value={testData.topicId}
                                     onChange={(e) => handleTopicChange(e.target.value)}
                                 >
@@ -215,9 +215,9 @@ export default function EditTestPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Subtopic</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Subtopic</label>
                                 <select
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 bg-white"
+                                    className="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary p-2 text-gray-900 dark:text-white bg-white dark:bg-gray-700"
                                     value={testData.subtopicId}
                                     onChange={(e) => setTestData({ ...testData, subtopicId: e.target.value })}
                                     disabled={!testData.topicId}
@@ -233,11 +233,11 @@ export default function EditTestPage() {
                                 <input
                                     type="checkbox"
                                     id="isPremium"
-                                    className="h-5 w-5 text-primary border-gray-300 rounded focus:ring-primary"
+                                    className="h-5 w-5 text-primary border-gray-300 dark:border-gray-600 rounded focus:ring-primary dark:bg-gray-700"
                                     checked={testData.isPremium}
                                     onChange={(e) => setTestData({ ...testData, isPremium: e.target.checked })}
                                 />
-                                <label htmlFor="isPremium" className="text-sm font-bold text-gray-700">
+                                <label htmlFor="isPremium" className="text-sm font-bold text-gray-700 dark:text-gray-200">
                                     Premium Test
                                 </label>
                             </div>
@@ -259,11 +259,11 @@ export default function EditTestPage() {
                         <QuestionBuilder questions={questions} setQuestions={setQuestions} />
                     </div>
 
-                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t">
+                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t dark:border-gray-700">
                         <button
                             type="button"
                             onClick={() => navigate('/dashboard/my-tests')}
-                            className="w-full sm:w-auto px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 bg-white"
+                            className="w-full sm:w-auto px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 transition"
                         >
                             Cancel
                         </button>

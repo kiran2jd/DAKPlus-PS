@@ -100,20 +100,28 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+            <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
                 <div className="flex flex-col items-center">
                     <img src={logo} alt="DAK Plus Logo" className="h-20 w-auto mb-2" />
-                    <h2 className="text-center text-3xl font-extrabold text-gray-900">
-                        Complete your profile
+                    <div className="mt-4 text-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Already have an account?{' '}
+                            <Link to="/login" className="font-bold text-red-600 dark:text-red-400 hover:text-red-500">
+                                Log In
+                            </Link>
+                        </p>
+                    </div>
+                    <h2 className="text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+                        Create Account
                     </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Setting up account for {phone}
+                    <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                        Join DAK Plus to start your journey
                     </p>
                 </div>
 
                 {error && (
-                    <div className={`p-4 rounded-xl text-sm text-center ${existingUser ? 'bg-amber-50 text-amber-800 border border-amber-200 shadow-sm' : 'bg-red-50 text-red-700 border border-red-100 shadow-sm'}`}>
+                    <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm mb-4 border border-red-100 dark:border-red-800 transition-colors">
                         {error}
                         {existingUser && (
                             <div className="mt-2 pt-2 border-t border-amber-100">
@@ -129,156 +137,139 @@ export default function SignupPage() {
                 )}
 
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        {/* Only show Phone input if not passed from OTP flow */}
-                        {!location.state?.phone && (
-                            <div className="mb-4">
-                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <div className="rounded-md shadow-sm space-y-4">
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
                                 <input
-                                    id="phone"
+                                    name="fullName"
+                                    type="text"
+                                    required
+                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-all"
+                                    placeholder="Enter full name"
+                                    value={formData.fullName}
+                                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+                                <input
+                                    name="email"
+                                    type="email"
+                                    required
+                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-all"
+                                    placeholder="Enter email address"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                                <input
+                                    name="password"
+                                    type="password"
+                                    required
+                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-all"
+                                    placeholder="Enter password"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
+                                <input
                                     name="phone"
                                     type="tel"
                                     required
-                                    className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-all"
+                                    placeholder="Enter phone number"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
-                                    placeholder="+1234567890"
                                 />
                             </div>
-                        )}
 
-                        <div className="mb-4">
-                            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input
-                                id="fullName"
-                                name="fullName"
-                                type="text"
-                                required
-                                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                                value={formData.fullName}
-                                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                required
-                                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                required
-                                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            />
-                        </div>
+                            {/* Additional Information Section */}
+                            <div className="pt-4 border-t border-gray-100 dark:border-gray-700 mt-4">
+                                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 uppercase tracking-wider">Professional Details</h3>
 
-                        <div className="flex items-center mb-4">
-                            <input
-                                id="notificationsEnabled"
-                                name="notificationsEnabled"
-                                type="checkbox"
-                                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                                checked={formData.notificationsEnabled}
-                                onChange={(e) => setFormData({ ...formData, notificationsEnabled: e.target.checked })}
-                            />
-                            <label htmlFor="notificationsEnabled" className="ml-2 block text-sm text-gray-900">
-                                Send me exam notifications and updates via email
-                            </label>
-                        </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="mb-4">
+                                        <label htmlFor="postalCircle" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Postal Circle</label>
+                                        <select
+                                            id="postalCircle"
+                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
+                                            value={formData.postalCircle}
+                                            onChange={(e) => setFormData({ ...formData, postalCircle: e.target.value })}
+                                        >
+                                            <option value="">Select Circle</option>
+                                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                            <option value="Telangana">Telangana</option>
+                                            <option value="Karnataka">Karnataka</option>
+                                            <option value="Tamil Nadu">Tamil Nadu</option>
+                                            <option value="Kerala">Kerala</option>
+                                            <option value="Others">Others</option>
+                                        </select>
+                                    </div>
 
-                        {/* Additional Information Section */}
-                        <div className="pt-4 border-t border-gray-100 mt-4">
-                            <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Professional Details</h3>
+                                    <div className="mb-4">
+                                        <label htmlFor="division" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Division</label>
+                                        <input
+                                            id="division"
+                                            type="text"
+                                            placeholder="Enter Division"
+                                            className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-all"
+                                            value={formData.division}
+                                            onChange={(e) => setFormData({ ...formData, division: e.target.value })}
+                                        />
+                                    </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="mb-4">
-                                    <label htmlFor="postalCircle" className="block text-sm font-medium text-gray-700">Postal Circle</label>
-                                    <select
-                                        id="postalCircle"
-                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md text-gray-900 bg-white"
-                                        value={formData.postalCircle}
-                                        onChange={(e) => setFormData({ ...formData, postalCircle: e.target.value })}
-                                    >
-                                        <option value="" className="text-gray-900 bg-white">Select Circle</option>
-                                        <option value="Andhra Pradesh" className="text-gray-900 bg-white">Andhra Pradesh</option>
-                                        <option value="Telangana" className="text-gray-900 bg-white">Telangana</option>
-                                        <option value="Karnataka" className="text-gray-900 bg-white">Karnataka</option>
-                                        <option value="Tamil Nadu" className="text-gray-900 bg-white">Tamil Nadu</option>
-                                        <option value="Kerala" className="text-gray-900 bg-white">Kerala</option>
-                                        <option value="Others" className="text-gray-900 bg-white">Others</option>
-                                    </select>
-                                </div>
+                                    <div className="mb-4">
+                                        <label htmlFor="office" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Office</label>
+                                        <input
+                                            id="office"
+                                            type="text"
+                                            placeholder="Enter Office"
+                                            className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm transition-all"
+                                            value={formData.office}
+                                            onChange={(e) => setFormData({ ...formData, office: e.target.value })}
+                                        />
+                                    </div>
 
-                                <div className="mb-4">
-                                    <label htmlFor="division" className="block text-sm font-medium text-gray-700">Division</label>
-                                    <input
-                                        id="division"
-                                        type="text"
-                                        placeholder="Enter Division"
-                                        className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                                        value={formData.division}
-                                        onChange={(e) => setFormData({ ...formData, division: e.target.value })}
-                                    />
-                                </div>
+                                    <div className="mb-4">
+                                        <label htmlFor="cadre" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cadre</label>
+                                        <select
+                                            id="cadre"
+                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
+                                            value={formData.cadre}
+                                            onChange={(e) => setFormData({ ...formData, cadre: e.target.value })}
+                                        >
+                                            <option value="">Select Cadre</option>
+                                            <option value="GDS">GDS</option>
+                                            <option value="MTS">MTS</option>
+                                            <option value="Postman">Postman</option>
+                                            <option value="Mail Guard">Mail Guard</option>
+                                            <option value="PA/SA">PA/SA</option>
+                                            <option value="Others">Others</option>
+                                        </select>
+                                    </div>
 
-                                <div className="mb-4">
-                                    <label htmlFor="office" className="block text-sm font-medium text-gray-700">Office</label>
-                                    <input
-                                        id="office"
-                                        type="text"
-                                        placeholder="Enter Office"
-                                        className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                                        value={formData.office}
-                                        onChange={(e) => setFormData({ ...formData, office: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <label htmlFor="cadre" className="block text-sm font-medium text-gray-700">Cadre</label>
-                                    <select
-                                        id="cadre"
-                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md text-gray-900 bg-white"
-                                        value={formData.cadre}
-                                        onChange={(e) => setFormData({ ...formData, cadre: e.target.value })}
-                                    >
-                                        <option value="" className="text-gray-900 bg-white">Select Cadre</option>
-                                        <option value="GDS" className="text-gray-900 bg-white">GDS</option>
-                                        <option value="MTS" className="text-gray-900 bg-white">MTS</option>
-                                        <option value="Postman" className="text-gray-900 bg-white">Postman</option>
-                                        <option value="Mail Guard" className="text-gray-900 bg-white">Mail Guard</option>
-                                        <option value="PA/SA" className="text-gray-900 bg-white">PA/SA</option>
-                                        <option value="Others" className="text-gray-900 bg-white">Others</option>
-                                    </select>
-                                </div>
-
-                                <div className="mb-4 md:col-span-2">
-                                    <label htmlFor="examType" className="block text-sm font-medium text-gray-700">Target Exam</label>
-                                    <select
-                                        id="examType"
-                                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md text-gray-900 bg-white"
-                                        value={formData.examType}
-                                        onChange={(e) => setFormData({ ...formData, examType: e.target.value })}
-                                    >
-                                        <option value="" className="text-gray-900 bg-white">Select Exam</option>
-                                        <option value="GDS to MTS" className="text-gray-900 bg-white">GDS to MTS</option>
-                                        <option value="GDS to Postman" className="text-gray-900 bg-white">GDS to Postman</option>
-                                        <option value="MTS to Postman" className="text-gray-900 bg-white">MTS to Postman</option>
-                                        <option value="GDS/MTS/Postman to PA/SA" className="text-gray-900 bg-white">GDS/MTS/Postman to PA/SA</option>
-                                        <option value="IP Exam" className="text-gray-900 bg-white">IP Exam</option>
-                                        <option value="Others" className="text-gray-900 bg-white">Others</option>
-                                    </select>
+                                    <div className="mb-4 md:col-span-2">
+                                        <label htmlFor="examType" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Target Exam</label>
+                                        <select
+                                            id="examType"
+                                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md text-gray-900 dark:text-white bg-white dark:bg-gray-700 transition-colors"
+                                            value={formData.examType}
+                                            onChange={(e) => setFormData({ ...formData, examType: e.target.value })}
+                                        >
+                                            <option value="">Select Exam</option>
+                                            <option value="GDS to MTS">GDS to MTS</option>
+                                            <option value="GDS to Postman">GDS to Postman</option>
+                                            <option value="MTS to Postman">MTS to Postman</option>
+                                            <option value="GDS/MTS/Postman to PA/SA">GDS/MTS/Postman to PA/SA</option>
+                                            <option value="IP Exam">IP Exam</option>
+                                            <option value="Others">Others</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -288,9 +279,13 @@ export default function SignupPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-all shadow-lg hover:shadow-red-500/30"
                         >
-                            {loading ? 'Creating Account...' : 'Complete Registration'}
+                            {loading ? (
+                                <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                                'Create Account'
+                            )}
                         </button>
                     </div>
                 </form>

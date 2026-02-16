@@ -39,17 +39,17 @@ export default function DashboardLayout() {
     };
 
     return (
-        <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50">
+        <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
             {/* Header (Desktop & Mobile) */}
-            <header className="lg:pl-64 fixed top-0 w-full h-16 bg-white border-b z-30 flex items-center justify-between px-4 lg:px-8">
+            <header className="lg:pl-64 fixed top-0 w-full h-16 bg-white dark:bg-gray-800 border-b dark:border-gray-700 z-30 flex items-center justify-between px-4 lg:px-8 transition-colors">
                 <div className="flex items-center">
                     <button
                         onClick={() => setIsSidebarOpen(true)}
-                        className="lg:hidden p-2 text-gray-600 hover:text-red-600 transition outline-none"
+                        className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-red-600 transition outline-none"
                     >
                         <Menu size={24} />
                     </button>
-                    <div className="lg:hidden ml-2 text-xl font-bold tracking-tight">
+                    <div className="lg:hidden ml-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                         DAK<span className="text-red-600">Plus</span>
                     </div>
                 </div>
@@ -58,11 +58,11 @@ export default function DashboardLayout() {
                     <div className="relative">
                         <button
                             onClick={() => setIsNotifOpen(!isNotifOpen)}
-                            className="p-2 text-gray-500 hover:text-red-600 transition relative rounded-full hover:bg-gray-100"
+                            className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition relative rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                         >
                             <Bell size={22} />
                             {unreadCount > 0 && (
-                                <span className="absolute top-1.5 right-1.5 bg-red-600 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center border-2 border-white">
+                                <span className="absolute top-1.5 right-1.5 bg-red-600 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
                                     {unreadCount}
                                 </span>
                             )}
@@ -70,12 +70,12 @@ export default function DashboardLayout() {
 
                         {/* Notification Dropdown */}
                         {isNotifOpen && (
-                            <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50">
-                                <div className="p-4 border-b flex justify-between items-center bg-gray-50/50">
-                                    <h3 className="font-bold text-gray-900">Notifications</h3>
+                            <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl overflow-hidden z-50 transition-colors">
+                                <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
+                                    <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
                                     <button
                                         onClick={() => setIsNotifOpen(false)}
-                                        className="text-gray-400 hover:text-gray-600"
+                                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                                     >
                                         <X size={18} />
                                     </button>
@@ -85,27 +85,27 @@ export default function DashboardLayout() {
                                         notifications.map(n => (
                                             <div
                                                 key={n.id}
-                                                className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer ${!n.read ? 'bg-blue-50/30' : ''}`}
+                                                className={`p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer ${!n.read ? 'bg-blue-50/30 dark:bg-blue-900/20' : ''}`}
                                                 onClick={() => {
                                                     if (!n.read) markAsRead(n.id);
                                                     if (n.link) window.location.href = n.link;
                                                 }}
                                             >
                                                 <div className="flex justify-between items-start mb-1">
-                                                    <span className={`text-xs font-bold uppercase tracking-wider ${n.type === 'EXAM_COMPLETION' ? 'text-green-600' : 'text-blue-600'}`}>
+                                                    <span className={`text-xs font-bold uppercase tracking-wider ${n.type === 'EXAM_COMPLETION' ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
                                                         {n.type?.replace('_', ' ')}
                                                     </span>
                                                     {!n.read && <div className="h-2 w-2 bg-red-600 rounded-full"></div>}
                                                 </div>
-                                                <h4 className="text-sm font-bold text-gray-900">{n.title}</h4>
-                                                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{n.message}</p>
-                                                <span className="text-[10px] text-gray-400 mt-2 block">
+                                                <h4 className="text-sm font-bold text-gray-900 dark:text-white">{n.title}</h4>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{n.message}</p>
+                                                <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 block">
                                                     {new Date(n.createdAt).toLocaleString()}
                                                 </span>
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="p-8 text-center text-gray-400">
+                                        <div className="p-8 text-center text-gray-400 dark:text-gray-500">
                                             <Bell className="h-8 w-8 mx-auto mb-2 opacity-20" />
                                             <p className="text-sm">No notifications yet</p>
                                         </div>
@@ -119,7 +119,7 @@ export default function DashboardLayout() {
 
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-            <div className="flex-1 mt-16 p-4 lg:p-8 overflow-y-auto w-full">
+            <div className="flex-1 mt-16 p-4 lg:p-8 overflow-y-auto w-full transition-colors">
                 <Outlet />
             </div>
         </div>

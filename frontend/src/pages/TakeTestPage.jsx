@@ -96,7 +96,7 @@ export default function TakeTestPage() {
 
     if (!question) {
         return (
-            <div className="min-h-screen bg-white flex flex-col">
+            <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col transition-colors duration-300">
                 <div className="bg-gradient-to-r from-red-600 to-blue-900 px-6 py-4 shadow-xl">
                     <div className="max-w-7xl mx-auto flex justify-between items-center">
                         <button onClick={() => navigate('/dashboard')} className="text-white font-semibold">Back to Dashboard</button>
@@ -104,8 +104,8 @@ export default function TakeTestPage() {
                 </div>
                 <div className="flex-1 flex items-center justify-center p-8">
                     <div className="text-center">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">No Questions Found</h2>
-                        <p className="text-gray-600">This test doesn't seem to have any questions. Please contact your instructor.</p>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Questions Found</h2>
+                        <p className="text-gray-600 dark:text-gray-400">This test doesn't seem to have any questions. Please contact your instructor.</p>
                         <button onClick={() => navigate('/dashboard')} className="mt-6 px-6 py-3 bg-red-600 text-white rounded-xl font-bold">Return Home</button>
                     </div>
                 </div>
@@ -114,7 +114,7 @@ export default function TakeTestPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white flex flex-col">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors duration-300">
             {/* Gradient Header matching mobile app */}
             <div className="bg-gradient-to-r from-red-600 to-blue-900 px-6 py-4 shadow-xl">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -145,32 +145,32 @@ export default function TakeTestPage() {
             </div>
 
             {/* Progress Bar */}
-            <div className="bg-white px-6 py-5">
+            <div className="bg-white dark:bg-gray-800 px-6 py-5 shadow-sm transition-colors">
                 <div className="max-w-7xl mx-auto">
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
+                    <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
                         <div
                             className="h-full bg-red-600 transition-all duration-300"
                             style={{ width: `${((currentQuestion + 1) / test.questions.length) * 100}%` }}
                         />
                     </div>
-                    <p className="text-gray-600 text-xs font-semibold">Question {currentQuestion + 1} of {test.questions.length}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-xs font-semibold">Question {currentQuestion + 1} of {test.questions.length}</p>
                 </div>
             </div>
 
             {/* Main Content */}
             <div className="flex-1 max-w-5xl mx-auto w-full p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Question Area */}
-                <div className="lg:col-span-3 bg-white rounded-xl shadow-sm p-8 min-h-[400px] flex flex-col">
+                <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-8 min-h-[400px] flex flex-col transition-colors">
                     <div className="flex justify-between items-start mb-6">
-                        <span className="text-sm font-medium text-gray-500">Question {currentQuestion + 1} of {test.questions.length}</span>
-                        <span className="text-sm font-medium text-gray-500">{question.points} Points</span>
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Question {currentQuestion + 1} of {test.questions.length}</span>
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{question.points} Points</span>
                     </div>
 
                     <div className="flex-1">
-                        <h2 className="text-xl font-medium text-gray-900 mb-6">{question.text}</h2>
+                        <h2 className="text-xl font-medium text-gray-900 dark:text-white mb-6">{question.text}</h2>
 
                         {question.imageUrl && (
-                            <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 flex justify-center">
+                            <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex justify-center">
                                 <img
                                     src={question.imageUrl}
                                     alt="Question Diagram"
@@ -185,19 +185,19 @@ export default function TakeTestPage() {
                                     key={idx}
                                     onClick={() => handleAnswer(option)}
                                     className={`flex items-center w-full p-4 rounded-2xl border transition-all ${answers[currentQuestion] === option
-                                        ? 'border-red-600 bg-red-50'
-                                        : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
+                                        ? 'border-red-600 bg-red-50 dark:bg-red-900/20'
+                                        : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700'
                                         }`}
                                 >
                                     <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${answers[currentQuestion] === option
                                         ? 'border-red-600 bg-red-600'
-                                        : 'border-gray-300'
+                                        : 'border-gray-300 dark:border-gray-500'
                                         }`}>
                                         {answers[currentQuestion] === option && (
                                             <div className="w-2 h-2 bg-white rounded-full" />
                                         )}
                                     </div>
-                                    <span className={`text-base ${answers[currentQuestion] === option ? 'text-gray-900 font-bold' : 'text-gray-700 font-medium'}`}>{option}</span>
+                                    <span className={`text-base ${answers[currentQuestion] === option ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-700 dark:text-gray-300 font-medium'}`}>{option}</span>
                                 </button>
                             ))}
 
@@ -206,29 +206,29 @@ export default function TakeTestPage() {
                                     key={idx}
                                     onClick={() => handleAnswer(option)}
                                     className={`flex items-center w-full p-4 rounded-2xl border transition-all ${answers[currentQuestion] === option
-                                        ? 'border-red-600 bg-red-50'
-                                        : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
+                                        ? 'border-red-600 bg-red-50 dark:bg-red-900/20'
+                                        : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700'
                                         }`}
                                 >
                                     <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${answers[currentQuestion] === option
                                         ? 'border-red-600 bg-red-600'
-                                        : 'border-gray-300'
+                                        : 'border-gray-300 dark:border-gray-500'
                                         }`}>
                                         {answers[currentQuestion] === option && (
                                             <div className="w-2 h-2 bg-white rounded-full" />
                                         )}
                                     </div>
-                                    <span className={`text-base ${answers[currentQuestion] === option ? 'text-gray-900 font-bold' : 'text-gray-700 font-medium'}`}>{option}</span>
+                                    <span className={`text-base ${answers[currentQuestion] === option ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-700 dark:text-gray-300 font-medium'}`}>{option}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    <div className="flex justify-between mt-8 pt-6 border-t">
+                    <div className="flex justify-between mt-8 pt-6 border-t dark:border-gray-700">
                         <button
                             onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
                             disabled={currentQuestion === 0}
-                            className="flex items-center px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold disabled:opacity-30"
+                            className="flex items-center px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold disabled:opacity-30 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                         >
                             Previous
                         </button>
@@ -249,18 +249,18 @@ export default function TakeTestPage() {
 
                 {/* Navigation Sidebar */}
                 <div className="lg:col-span-1">
-                    <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Questions</h3>
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sticky top-24 transition-colors">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Questions</h3>
                         <div className="grid grid-cols-5 gap-2">
                             {test.questions.map((_, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setCurrentQuestion(idx)}
                                     className={`h-10 w-10 rounded-lg flex items-center justify-center text-sm font-medium transition ${currentQuestion === idx
-                                        ? 'bg-primary text-white ring-2 ring-primary ring-offset-2'
+                                        ? 'bg-primary text-white ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800'
                                         : answers[idx]
-                                            ? 'bg-green-100 text-green-700'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                                         }`}
                                 >
                                     {idx + 1}
@@ -268,9 +268,9 @@ export default function TakeTestPage() {
                             ))}
                         </div>
 
-                        <div className="mt-6 space-y-2 text-sm text-gray-500">
-                            <div className="flex items-center"><span className="w-3 h-3 bg-green-100 rounded-full mr-2"></span> Answered</div>
-                            <div className="flex items-center"><span className="w-3 h-3 bg-gray-100 rounded-full mr-2"></span> Not Answered</div>
+                        <div className="mt-6 space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center"><span className="w-3 h-3 bg-green-100 dark:bg-green-900/30 rounded-full mr-2"></span> Answered</div>
+                            <div className="flex items-center"><span className="w-3 h-3 bg-gray-100 dark:bg-gray-700 rounded-full mr-2"></span> Not Answered</div>
                             <div className="flex items-center"><span className="w-3 h-3 bg-primary rounded-full mr-2"></span> Current</div>
                         </div>
                     </div>

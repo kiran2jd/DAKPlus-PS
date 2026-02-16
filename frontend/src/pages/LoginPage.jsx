@@ -175,7 +175,7 @@ export default function LoginPage() {
                 )}
 
                 {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm border border-red-200 dark:border-red-800">
                         {error}
                     </div>
                 )}
@@ -185,7 +185,7 @@ export default function LoginPage() {
                     <form className="mt-8 space-y-6" onSubmit={handlePasswordLogin}>
                         <div className="space-y-4">
                             <div>
-                                <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Email or Phone
                                 </label>
                                 <div className="relative">
@@ -195,7 +195,7 @@ export default function LoginPage() {
                                         name="identifier"
                                         type="text"
                                         required
-                                        className="pl-10 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="pl-10 appearance-none relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                         placeholder="Enter email or phone"
                                         value={identifier}
                                         onChange={(e) => setIdentifier(e.target.value)}
@@ -203,7 +203,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
                             <div>
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Password
                                 </label>
                                 <div className="relative">
@@ -213,7 +213,7 @@ export default function LoginPage() {
                                         name="password"
                                         type="password"
                                         required
-                                        className="pl-10 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="pl-10 appearance-none relative block w-full px-3 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                         placeholder="Enter password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
@@ -237,7 +237,7 @@ export default function LoginPage() {
                 {loginMethod === 'otp' && step === 'input' && (
                     <form className="mt-8 space-y-6" onSubmit={handleSendOtp}>
                         <div>
-                            <label htmlFor="phone-number" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="phone-number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Phone Number
                             </label>
                             <div className="relative">
@@ -322,10 +322,10 @@ export default function LoginPage() {
                     </form>
                 )}
 
-                <div className="text-center mt-4">
-                    <p className="text-sm text-gray-600">
+                <div className="mt-4 text-center">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                         Don't have an account?{' '}
-                        <Link to="/signup" className="font-medium text-red-600 hover:text-red-500">
+                        <Link to="/signup" className="font-bold text-red-600 dark:text-red-400 hover:text-red-500">
                             Sign up
                         </Link>
                     </p>
