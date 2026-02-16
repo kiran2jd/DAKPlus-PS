@@ -25,9 +25,16 @@ public class DocumentParsingService {
             return extractFromWord(file);
         } else if (filename.toLowerCase().endsWith(".txt")) {
             return new String(file.getBytes());
+        } else if (isImageFile(filename)) {
+            return performOcr(file.getBytes());
         } else {
             throw new IllegalArgumentException("Unsupported file type: " + filename);
         }
+    }
+
+    private boolean isImageFile(String filename) {
+        String lower = filename.toLowerCase();
+        return lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".bmp");
     }
 
     private String extractFromPdf(MultipartFile file) throws IOException {
@@ -72,17 +79,29 @@ public class DocumentParsingService {
     private String performOcr(byte[] imageData) {
         try {
             net.sourceforge.tess4j.ITesseract instance = new net.sourceforge.tess4j.Tesseract();
-            // Assuming tessdata is available in a standard location or environment variable
-            // You might need to set datapath: instance.setDatapath("path/to/tessdata");
+
+            // Standard Alpine/Linux tessdata location
+            java.io.File tessDataFolder = new java.io.File("/usr/share/tessdata");
+            if (tessDataFolder.exists()) {
+                instance.setDatapath(tessDataFolder.getAbsolutePath());
+            }
 
             // Create a temp file for the image
             java.io.File tempFile = java.io.File.createTempFile("ocr_image", ".png");
             java.nio.file.Files.write(tempFile.toPath(), imageData);
 
+            System.out
+                    .println("Executing Tesseract OCR on " + tempFile.getName() + " (" + imageData.length + " bytes)");
             String result = instance.doOCR(tempFile);
             tempFile.delete();
+
+            if (result == null || result.isBlank()) {
+                System.out.println("Warning: OCR returned empty result for image.");
+                return "";
+            }
             return result;
         } catch (Exception e) {
+            System.err.println("OCR Error: " + e.getMessage());
             e.printStackTrace();
             return "";
         }

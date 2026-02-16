@@ -11,6 +11,7 @@ import {
     RefreshControl,
     Alert,
     Dimensions,
+    Platform,
     Image,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -81,12 +82,46 @@ export default function DashboardScreen({ navigation }) {
         }, [])
     );
 
+    const flatListRef = React.useRef(null);
+    const scrollInterval = React.useRef(null);
+    const [isManualScrolling, setIsManualScrolling] = React.useState(false);
+
+    const startAutoScroll = () => {
+        stopAutoScroll();
+        scrollInterval.current = setInterval(() => {
+            if (!isManualScrolling) {
+                const nextIndex = (currentBannerIndex + 1) % banners.length;
+                setCurrentBannerIndex(nextIndex);
+                if (flatListRef.current) {
+                    flatListRef.current.scrollToIndex({ index: nextIndex, animated: true });
+                }
+            }
+        }, 5000); // 5 seconds delay
+    };
+
+    const stopAutoScroll = () => {
+        if (scrollInterval.current) {
+            clearInterval(scrollInterval.current);
+        }
+    };
+
     useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
-        }, 4000);
-        return () => clearInterval(timer);
-    }, []);
+        startAutoScroll();
+        return () => stopAutoScroll();
+    }, [currentBannerIndex, isManualScrolling]);
+
+    const onMomentumScrollEnd = (event) => {
+        const contentOffset = event.nativeEvent.contentOffset.x;
+        const layoutWidth = event.nativeEvent.layoutMeasurement.width;
+        const index = Math.round(contentOffset / layoutWidth);
+        setCurrentBannerIndex(index);
+        setIsManualScrolling(false);
+    };
+
+    const onScrollBeginDrag = () => {
+        setIsManualScrolling(true);
+        stopAutoScroll();
+    };
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -113,7 +148,7 @@ export default function DashboardScreen({ navigation }) {
                 >
                     <Ionicons name="menu-outline" size={28} color="#fff" />
                 </TouchableOpacity>
-                <View style={[styles.logoContainer, { flex: 1, alignItems: 'center' }]}>
+                <View style={[styles.logoContainer, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
                     <Image source={logo} style={styles.logoMini} resizeMode="contain" />
                 </View>
                 <TouchableOpacity style={styles.headerIconButton} onPress={() => navigation.navigate('Analytics')}>
@@ -127,25 +162,39 @@ export default function DashboardScreen({ navigation }) {
             </View>
 
             <View style={styles.carouselContainer}>
-                <LinearGradient
-                    colors={banners[currentBannerIndex].colors}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.bannerCard}
-                >
-                    <View style={styles.bannerContent}>
-                        <Text style={styles.bannerSubtitle}>{banners[currentBannerIndex].subtitle}</Text>
-                        <Text style={styles.bannerTitle}>{banners[currentBannerIndex].title}</Text>
-                    </View>
-                    <View style={styles.bannerPagination}>
-                        {banners.map((_, i) => (
-                            <View
-                                key={i}
-                                style={[styles.pagDot, i === currentBannerIndex && styles.pagDotActive]}
-                            />
-                        ))}
-                    </View>
-                </LinearGradient>
+                <FlatList
+                    ref={flatListRef}
+                    data={banners}
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    onMomentumScrollEnd={onMomentumScrollEnd}
+                    onScrollBeginDrag={onScrollBeginDrag}
+                    keyExtractor={(_, index) => index.toString()}
+                    renderItem={({ item, index }) => (
+                        <View style={styles.bannerSlide}>
+                            <LinearGradient
+                                colors={item.colors}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.bannerCard}
+                            >
+                                <View style={styles.bannerContent}>
+                                    <Text style={styles.bannerSubtitle}>{item.subtitle}</Text>
+                                    <Text style={styles.bannerTitle}>{item.title}</Text>
+                                </View>
+                                <View style={styles.bannerPagination}>
+                                    {banners.map((_, i) => (
+                                        <View
+                                            key={i}
+                                            style={[styles.pagDot, i === currentBannerIndex && styles.pagDotActive]}
+                                        />
+                                    ))}
+                                </View>
+                            </LinearGradient>
+                        </View>
+                    )}
+                />
             </View>
         </View>
     );
@@ -262,7 +311,7 @@ export default function DashboardScreen({ navigation }) {
                         <View style={styles.gridContainer}>
                             <TouchableOpacity
                                 style={styles.gridItem}
-                                onPress={() => navigation.navigate('TestLibrary')}
+                                onPress={() => navigation.navigate('Tests')}
                             >
                                 <LinearGradient colors={['rgba(220, 38, 38, 0.2)', 'rgba(249, 115, 22, 0.2)']} style={styles.gridIconBg}>
                                     <Ionicons name="document-text" size={28} color="#dc2626" />
@@ -405,9 +454,8 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     logoMini: {
-        width: 40,
-        height: 40,
-        borderRadius: 10,
+        width: 120,
+        height: 35,
     },
     quickStatsRow: {
         flexDirection: 'row',
@@ -448,18 +496,19 @@ const styles = StyleSheet.create({
     },
     carouselContainer: {
         borderRadius: 28,
-        overflow: 'hidden',
-        height: 160,
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        marginBottom: 24,
+    },
+    bannerSlide: {
+        width: Dimensions.get('window').width - 40,
+        marginRight: 0,
     },
     bannerCard: {
-        flex: 1,
+        height: 160,
+        borderRadius: 24,
         padding: 24,
         justifyContent: 'space-between',
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     bannerTitle: {
         color: '#fff',

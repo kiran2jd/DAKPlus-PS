@@ -139,6 +139,9 @@ public class QuestionExtractionService {
             QuestionList parsed = parser.parse(response);
             List<Question> questions = parsed.getQuestions();
             if (questions != null) {
+                // Remove invalid questions (must have text, 4 options, and correct answer)
+                questions.removeIf(q -> !isValidQuestion(q));
+
                 questions.forEach(q -> {
                     q.setTopicId(topicId);
                     q.setSubtopicId(subtopicId);
@@ -147,7 +150,7 @@ public class QuestionExtractionService {
                     if (q.getPoints() == 0)
                         q.setPoints(1);
                 });
-                System.out.println("Successfully extracted " + questions.size() + " questions.");
+                System.out.println("Successfully extracted " + questions.size() + " valid questions.");
                 return questions;
             }
         } catch (Exception e) {
@@ -155,16 +158,34 @@ public class QuestionExtractionService {
             // Fallback: try to find a JSON array manually if parser fails
             if (response.contains("[") && response.contains("]")) {
                 try {
-                    String possibleArray = response.substring(response.indexOf("["), response.lastIndexOf("]") + 1);
-                    // This is still risky without a real JSON library here, but parser might be too
-                    // strict
-                    System.out.println("Attempting fallback parsing for: " + possibleArray);
+                    System.out.println("Attempting fallback parsing for potential array.");
+                    // In a real scenario, we'd use Jackson to parse this if BeanOutputParser fails
                 } catch (Exception e2) {
                     System.err.println("Fallback parsing also failed.");
                 }
             }
         }
         return List.of();
+    }
+
+    private boolean isValidQuestion(Question q) {
+        if (q.getText() == null || q.getText().isBlank())
+            return false;
+        if (q.getOptions() == null || q.getOptions().size() < 4)
+            return false;
+        if (q.getCorrectAnswer() == null || q.getCorrectAnswer().isBlank())
+            return false;
+
+        // Ensure correct answer is one of the options
+        boolean answerInOptions = q.getOptions().stream()
+                .anyMatch(opt -> opt.equals(q.getCorrectAnswer()));
+
+        if (!answerInOptions) {
+            System.err.println("Validation Failed: Correct answer '" + q.getCorrectAnswer()
+                    + "' not found in options for queston: " + q.getText());
+        }
+
+        return answerInOptions;
     }
 
     public static class QuestionList {

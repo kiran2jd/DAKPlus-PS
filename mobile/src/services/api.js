@@ -14,7 +14,8 @@ const getApiUrl = () => {
     } else if (Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL) {
         url = Constants.expoConfig.extra.EXPO_PUBLIC_API_URL;
     } else {
-        url = 'https://api-gateway-production-bb02.up.railway.app/api/';
+        // Primary custom domain (Fixes ISP blocking issues with Jio/Airtel)
+        url = 'https://api.dakplus.in/api/';
     }
 
     // Ensure it ends with / for consistent path joining
@@ -57,5 +58,28 @@ api.interceptors.request.use(async (config) => {
     }
     return config;
 });
+
+// Response interceptor for better error handling/logging
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.error('API Error Details:');
+        if (error.response) {
+            // The server responded with a status code out of the 2xx range
+            console.error('Status:', error.response.status);
+            console.error('Data:', error.response.data);
+            console.error('URL:', error.config.url);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('No response received. Possible network or DNS issue.');
+            console.error('Request info:', error.request);
+            console.error('Config URL:', error.config.url);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error Message:', error.message);
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default api;

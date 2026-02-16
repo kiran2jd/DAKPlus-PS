@@ -51,7 +51,12 @@ export default function LoginScreen({ navigation }) {
             await authService.login(identifier, password, persistent);
             navigation.replace('Main');
         } catch (err) {
-            Alert.alert('Login Failed', err.response?.data?.message || 'Invalid credentials');
+            const errorMsg = err.response?.data?.message || err.message || 'Check your internet connection';
+            const diagnosticInfo = `URL: ${err.config?.url || 'Unknown'}\nStatus: ${err.response?.status || 'No Response'}`;
+            Alert.alert(
+                'Login Failed',
+                `${errorMsg}\n\nTechnical Details:\n${diagnosticInfo}`
+            );
         } finally {
             setLoading(false);
         }
@@ -75,7 +80,12 @@ export default function LoginScreen({ navigation }) {
             await authService.sendOtp(phone);
             setStep('otp-verify');
         } catch (err) {
-            Alert.alert('Error', 'Failed to send OTP');
+            const errorMsg = err.message || 'Network Error';
+            const diagnosticInfo = `URL: ${err.config?.url || 'Unknown'}\nStatus: ${err.response?.status || 'No Response'}`;
+            Alert.alert(
+                'Error',
+                `Failed to send OTP: ${errorMsg}\n\nTechnical Details:\n${diagnosticInfo}`
+            );
         } finally {
             setLoading(false);
         }
@@ -243,8 +253,8 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     logoImage: {
-        width: 100,
-        height: 100,
+        width: 180,
+        height: 60,
         marginBottom: 10,
     },
     title: {

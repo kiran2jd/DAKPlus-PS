@@ -190,11 +190,10 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     profileImage: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        borderWidth: 2,
-        borderColor: '#94a3b8',
+        width: 140,
+        height: 45,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     onlineStatus: {
         position: 'absolute',

@@ -6,7 +6,7 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl tesseract-ocr
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8082

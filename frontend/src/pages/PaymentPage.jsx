@@ -28,10 +28,25 @@ export default function PaymentPage() {
     const [testDetails, setTestDetails] = useState(null);
 
     useEffect(() => {
+        const source = searchParams.get('source');
+        const token = searchParams.get('token');
+
+        // If coming from mobile and we have a token, restore it
+        if (source === 'mobile' && token && !localStorage.getItem('access_token')) {
+            localStorage.setItem('access_token', token);
+            // Optionally fetch profile if user object is missing
+            if (!localStorage.getItem('user')) {
+                authService.getProfile().then(profile => {
+                    localStorage.setItem('user', JSON.stringify(profile));
+                    setUser(profile);
+                });
+            }
+        }
+
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
-        } else {
+        } else if (!token) { // Only redirect to login if we don't have a token from mobile
             // Enforce login for payment
             navigate(`/login?redirect=/payment${testId ? `?testId=${testId}` : ''}`);
         }
@@ -39,7 +54,7 @@ export default function PaymentPage() {
         if (testId) {
             loadTestDetails(testId);
         }
-    }, [navigate, testId]);
+    }, [navigate, testId, searchParams]);
 
     const loadTestDetails = async (id) => {
         try {
@@ -129,7 +144,14 @@ export default function PaymentPage() {
                             }
 
                             setSuccess(true);
-                            setTimeout(() => navigate(testId ? `/dashboard/take-test/${testId}` : '/dashboard'), 3000);
+                            const source = searchParams.get('source');
+                            setTimeout(() => {
+                                if (source === 'mobile') {
+                                    window.location.href = testId ? `dakplus://take-test/${testId}` : 'dakplus://dashboard';
+                                } else {
+                                    navigate(testId ? `/dashboard/take-test/${testId}` : '/dashboard');
+                                }
+                            }, 3000);
                         } else {
                             alert('Payment verification failed. Please contact support.');
                         }

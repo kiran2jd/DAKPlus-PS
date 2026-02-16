@@ -10,6 +10,7 @@ import {
     ScrollView,
     Linking,
 } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
 import api from '../services/api';
@@ -23,28 +24,13 @@ export default function PaymentScreen({ navigation }) {
     const [method, setMethod] = useState('card');
 
     const handlePayment = async () => {
-        const webPaymentUrl = 'https://dakplus.in/payment';
+        const token = await SecureStore.getItemAsync('access_token');
+        const webPaymentUrl = `https://dakplus.in/payment?source=mobile&token=${token}`;
         setLoading(true);
         try {
-            // Redirect to secure web dashboard for payment
-            const supported = await Linking.canOpenURL(webPaymentUrl);
-            if (supported) {
-                Alert.alert(
-                    "Secure Web Checkout",
-                    "To ensure 100% security, payments are processed through our official web dashboard. You will be redirected now.",
-                    [
-                        {
-                            text: "Proceed to Web",
-                            onPress: async () => await Linking.openURL(webPaymentUrl)
-                        },
-                        { text: "Cancel", style: "cancel" }
-                    ]
-                );
-            } else {
-                Alert.alert('Error', "Could not open the secure payment link automatically.");
-            }
+            await WebBrowser.openBrowserAsync(webPaymentUrl);
         } catch (err) {
-            console.error("Link Error:", err);
+            console.error("Browser Error:", err);
             Alert.alert('Technical Error', 'Temporary failure in opening the secure portal.');
         } finally {
             setLoading(false);
