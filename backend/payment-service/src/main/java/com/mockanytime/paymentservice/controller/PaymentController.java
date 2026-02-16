@@ -70,7 +70,7 @@ public class PaymentController {
 
         boolean isValid = razorpayService.verifySignature(orderId, paymentId, signature);
         if (isValid) {
-            
+
             // Update Purchase record
             Purchase purchase = purchaseRepository.findByOrderId(orderId).orElse(null);
             if (purchase != null) {
@@ -78,13 +78,13 @@ public class PaymentController {
                 purchase.setStatus("PAID");
                 purchase.setUpdatedAt(LocalDateTime.now());
                 purchaseRepository.save(purchase);
-                
+
                 // If ItemType is SUBSCRIPTION, update user role
                 if ("SUBSCRIPTION".equals(purchase.getItemType())) {
-                     try {
+                    try {
                         // Call Auth Service to update tier
                         RestTemplate restTemplate = new RestTemplate();
-                        String authServiceUrl = "http://auth-service:8081/auth/internal/update-tier";
+                        String authServiceUrl = "http://auth-service.railway.internal:8081/auth/internal/update-tier";
                         System.out.println("Calling auth-service to upgrade tier for user: " + userId);
                         restTemplate.put(authServiceUrl, Map.of("userId", userId, "tier", "PREMIUM"));
                         System.out.println("User tier upgraded to PREMIUM for userId: " + userId);
@@ -93,23 +93,23 @@ public class PaymentController {
                     }
                 }
             }
-            
+
             return ResponseEntity
                     .ok(Map.of("status", "success", "message", "Payment verified"));
         } else {
             // Update Purchase as Failed
-             Purchase purchase = purchaseRepository.findByOrderId(orderId).orElse(null);
-             if (purchase != null) {
-                 purchase.setStatus("FAILED");
-                 purchase.setUpdatedAt(LocalDateTime.now());
-                 purchaseRepository.save(purchase);
-             }
-             
+            Purchase purchase = purchaseRepository.findByOrderId(orderId).orElse(null);
+            if (purchase != null) {
+                purchase.setStatus("FAILED");
+                purchase.setUpdatedAt(LocalDateTime.now());
+                purchaseRepository.save(purchase);
+            }
+
             return ResponseEntity.badRequest()
                     .body(Map.of("status", "failure", "message", "Invalid payment signature"));
         }
     }
-    
+
     @GetMapping("/check-access")
     public ResponseEntity<?> checkAccess(@RequestParam String userId, @RequestParam String itemId) {
         boolean hasAccess = purchaseRepository.existsByUserIdAndItemIdAndStatus(userId, itemId, "PAID");
@@ -119,8 +119,8 @@ public class PaymentController {
     @GetMapping("/user-purchases")
     public ResponseEntity<?> getUserPurchases(@RequestParam String userId) {
         return ResponseEntity.ok(purchaseRepository.findByUserId(userId)
-            .stream()
-            .filter(p -> "PAID".equals(p.getStatus()))
-            .toList());
+                .stream()
+                .filter(p -> "PAID".equals(p.getStatus()))
+                .toList());
     }
 }

@@ -1,5 +1,11 @@
 [phases.setup]
-nixPkgs = ["tesseract"]
+aptPkgs = ["tesseract-ocr", "libtesseract-dev", "tesseract-ocr-eng", "libtool"]
 
-# This ensures the tesseract binary and libraries are available in the path
-# Nixpacks will handle the installation and path configuration
+[phases.build]
+dependsOn = ["setup"]
+# Helper to check if libs are installed
+cmds = ["ls /usr/lib/x86_64-linux-gnu/libtesseract* || true"]
+
+[variables]
+LD_LIBRARY_PATH = "/usr/lib:/usr/local/lib:/usr/lib/x86_64-linux-gnu"
+TESSDATA_PREFIX = "/usr/share/tesseract-ocr/4.00/tessdata/"

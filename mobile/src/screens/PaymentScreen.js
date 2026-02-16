@@ -8,6 +8,7 @@ import {
     Alert,
     SafeAreaView,
     ScrollView,
+    Linking,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
@@ -22,33 +23,29 @@ export default function PaymentScreen({ navigation }) {
     const [method, setMethod] = useState('card');
 
     const handlePayment = async () => {
+        const webPaymentUrl = 'https://dakplus.in/payment';
         setLoading(true);
         try {
-            // Update tier in backend database
-            await api.put('/auth/profile/tier', { tier: 'PREMIUM' });
-
-            // Update tier locally
-            const userStr = await SecureStore.getItemAsync('user');
-            const user = JSON.parse(userStr);
-            user.subscriptionTier = 'PREMIUM';
-            await SecureStore.setItemAsync('user', JSON.stringify(user));
-
-            setSuccess(true);
-            setTimeout(() => {
-                Alert.alert('Congratulations', 'You are now a DAKPlus PRO member!', [
-                    {
-                        text: 'Great!',
-                        onPress: () => navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Main' }],
-                        })
-                    }
-                ]);
-            }, 1500);
+            // Redirect to secure web dashboard for payment
+            const supported = await Linking.canOpenURL(webPaymentUrl);
+            if (supported) {
+                Alert.alert(
+                    "Secure Web Checkout",
+                    "To ensure 100% security, payments are processed through our official web dashboard. You will be redirected now.",
+                    [
+                        {
+                            text: "Proceed to Web",
+                            onPress: async () => await Linking.openURL(webPaymentUrl)
+                        },
+                        { text: "Cancel", style: "cancel" }
+                    ]
+                );
+            } else {
+                Alert.alert('Error', "Could not open the secure payment link automatically.");
+            }
         } catch (err) {
-            console.error("Payment Error:", err);
-            const msg = err.response?.data?.message || err.message || 'Payment failed. Please try again.';
-            Alert.alert('Payment Error', msg);
+            console.error("Link Error:", err);
+            Alert.alert('Technical Error', 'Temporary failure in opening the secure portal.');
         } finally {
             setLoading(false);
         }
@@ -123,7 +120,7 @@ export default function PaymentScreen({ navigation }) {
                         onPress={handlePayment}
                         disabled={loading}
                     >
-                        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.payBtnText}>Pay Now</Text>}
+                        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.payBtnText}>Complete Upgrade on Web</Text>}
                     </TouchableOpacity>
                     <Text style={styles.secureText}>🔒 Secure SSL Encrypted Gateway</Text>
                 </View>

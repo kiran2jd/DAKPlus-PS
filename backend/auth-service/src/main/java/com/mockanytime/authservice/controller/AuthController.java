@@ -137,7 +137,7 @@ public class AuthController {
             user.setOffice(request.office());
             user.setCadre(request.cadre());
             user.setExamType(request.examType());
-            
+
             if (request.password() != null && !request.password().isEmpty()) {
                 user.setPassword(request.password());
             }
@@ -224,26 +224,6 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("user", updatedUser, "message", "Profile updated successfully"));
         } catch (RuntimeException e) {
             // Handle update errors
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
-    }
-
-    /**
-     * Updates the subscription tier for the authenticated user.
-     */
-    @PutMapping("/profile/tier")
-    public ResponseEntity<?> updateTier(
-            @RequestHeader(value = "X-User-Id", required = false) String userId,
-            @RequestBody Map<String, String> request) {
-        System.out.println("Updating Tier for User: " + userId + " to " + request.get("tier"));
-        try {
-            if (userId == null) {
-                return ResponseEntity.badRequest().body(Map.of("message", "User ID required"));
-            }
-            String tier = request.get("tier");
-            User updatedUser = authService.updateTier(userId, tier);
-            return ResponseEntity.ok(Map.of("user", updatedUser, "message", "Subscription updated successfully"));
-        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
