@@ -10,6 +10,10 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    Modal,
+    FlatList,
+    Keyboard,
+    TouchableWithoutFeedback,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { authService } from '../services/auth';
@@ -28,16 +32,56 @@ export default function RegisterScreen({ navigation, route }) {
     const [examType, setExamType] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [currentField, setCurrentField] = useState(''); // 'circle', 'cadre', 'exam'
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const idleTimeout = React.useRef(null);
+
+    const clearForm = () => {
+        setFullName('');
+        setEmail('');
+        setPassword('');
+        setPhone('');
+        setPostalCircle('');
+        setDivision('');
+        setOffice('');
+        setCadre('');
+        setExamType('');
+        Keyboard.dismiss();
+    };
+
+    const resetIdleTimer = () => {
+        if (idleTimeout.current) clearTimeout(idleTimeout.current);
+        idleTimeout.current = setTimeout(() => {
+            clearForm();
+            Alert.alert('Session Reset', 'Registration form cleared due to inactivity.');
+        }, 300000); // 5 minutes
+    };
+
+    // Handle navigation clearing
+    React.useEffect(() => {
+        const unsubscribe = navigation.addListener('blur', () => {
+            clearForm();
+        });
+        const unsubscribeFocus = navigation.addListener('focus', () => {
+            resetIdleTimer();
+        });
+        return () => {
+            unsubscribe();
+            unsubscribeFocus();
+            if (idleTimeout.current) clearTimeout(idleTimeout.current);
+        };
+    }, [navigation]);
+
+    const handleInteraction = () => resetIdleTimer();
 
     // Clear state on mount (but keep pre-filled data)
     React.useEffect(() => {
-        setFullName('');
+        // Initial setup only, clearForm handles hygiene
         if (identifier && identifier.includes('@')) {
             setEmail(identifier);
-        } else {
-            setEmail('');
         }
-        setPassword('');
     }, []);
 
     const handleRegister = async () => {
@@ -93,178 +137,233 @@ export default function RegisterScreen({ navigation, route }) {
         }
     };
 
-    return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={styles.container}
-        >
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <View style={styles.header}>
-                    <Text style={styles.title}>Welcome to DAKPlus</Text>
-                    <Text style={styles.subtitle}>Complete your profile to get started</Text>
-                </View>
+    const openPicker = (field) => {
+        setCurrentField(field);
+        setSearchQuery('');
+        setModalVisible(true);
+    };
 
-                <View style={styles.card}>
-                    <View style={styles.form}>
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Full Name</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter your full name"
-                                placeholderTextColor="#999"
-                                value={fullName}
-                                onChangeText={setFullName}
-                            />
-                        </View>
+    const handleSelect = (item) => {
+        if (currentField === 'circle') setPostalCircle(item);
+        else if (currentField === 'cadre') setCadre(item);
+        else if (currentField === 'exam') setExamType(item);
+        setModalVisible(false);
+    };
 
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Email Address</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="email@example.com"
-                                placeholderTextColor="#999"
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                            />
-                        </View>
+    const getItems = () => {
+        let baseItems = [];
+        if (currentField === 'circle') baseItems = circles;
+        else if (currentField === 'cadre') baseItems = cadres;
+        else if (currentField === 'exam') baseItems = exams;
 
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Phone Number</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="+91 00000 00000"
-                                placeholderTextColor="#999"
-                                value={phone}
-                                onChangeText={(text) => setPhone(text.replace(/[^0-9]/g, ''))}
-                                keyboardType="phone-pad"
-                                maxLength={15}
-                            />
-                        </View>
+        return baseItems.filter(item => item.toLowerCase().includes(searchQuery.toLowerCase()));
+    };
 
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Create Password</Text>
-                            <View style={styles.passwordContainer}>
-                                <TextInput
-                                    style={styles.passwordInput}
-                                    placeholder="Minimum 6 characters"
-                                    placeholderTextColor="#999"
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    secureTextEntry={!showPassword}
-                                />
-                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                                    <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="#64748b" />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        <TouchableOpacity
-                            style={styles.checkboxContainer}
-                            onPress={() => setNotificationsEnabled(!notificationsEnabled)}
-                        >
-                            <View style={[styles.checkbox, notificationsEnabled && styles.checkboxChecked]}>
-                                {notificationsEnabled && <Text style={styles.checkmark}>✓</Text>}
-                            </View>
-                            <Text style={styles.checkboxLabel}>I want to receive exam updates and study tips</Text>
-                        </TouchableOpacity>
-
-                        {/* Professional Details Section */}
-                        <View style={styles.divider} />
-                        <Text style={styles.sectionTitle}>Professional Details</Text>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Postal Circle</Text>
-                            <View style={styles.pickerContainer}>
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    {['Andhra Pradesh', 'Telangana', 'Karnataka', 'Tamil Nadu', 'Kerala', 'Others'].map(circle => (
-                                        <TouchableOpacity
-                                            key={circle}
-                                            style={[styles.chip, postalCircle === circle ? styles.chipSelected : null]}
-                                            onPress={() => setPostalCircle(circle)}
-                                        >
-                                            <Text style={[styles.chipText, postalCircle === circle ? styles.chipTextSelected : null]}>{circle}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </ScrollView>
-                            </View>
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Division</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter Division"
-                                placeholderTextColor="#999"
-                                value={division}
-                                onChangeText={setDivision}
-                            />
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Office</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter Office Name"
-                                placeholderTextColor="#999"
-                                value={office}
-                                onChangeText={setOffice}
-                            />
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Cadre</Text>
-                            <View style={styles.pickerContainer}>
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    {['GDS', 'MTS', 'Postman', 'Mail Guard', 'PA/SA', 'Others'].map(item => (
-                                        <TouchableOpacity
-                                            key={item}
-                                            style={[styles.chip, cadre === item ? styles.chipSelected : null]}
-                                            onPress={() => setCadre(item)}
-                                        >
-                                            <Text style={[styles.chipText, cadre === item ? styles.chipTextSelected : null]}>{item}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </ScrollView>
-                            </View>
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Target Exam</Text>
-                            <View style={styles.pickerContainer}>
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    {[
-                                        'GDS to MTS',
-                                        'GDS to Postman',
-                                        'MTS to Postman',
-                                        'GDS/MTS/Postman to PA/SA',
-                                        'IP Exam',
-                                        'Others'
-                                    ].map(type => (
-                                        <TouchableOpacity
-                                            key={type}
-                                            style={[styles.chip, examType === type ? styles.chipSelected : null]}
-                                            onPress={() => setExamType(type)}
-                                        >
-                                            <Text style={[styles.chipText, examType === type ? styles.chipTextSelected : null]}>{type}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </ScrollView>
-                            </View>
-                        </View>
-
-                        <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
-                            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Start Learning Now</Text>}
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.secondaryButton}>
-                            <Text style={styles.secondaryButtonText}>Already have an account? Sign In</Text>
+    const SelectionModal = () => (
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+            <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitle}>Select {currentField === 'circle' ? 'Postal Circle' : currentField === 'cadre' ? 'Cadre' : 'Target Exam'}</Text>
+                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                            <Ionicons name="close" size={28} color="#1e293b" />
                         </TouchableOpacity>
                     </View>
+
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Search..."
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+
+                    <FlatList
+                        data={getItems()}
+                        keyExtractor={(item) => item}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity style={styles.modalItem} onPress={() => handleSelect(item)}>
+                                <Text style={styles.modalItemText}>{item}</Text>
+                                {(currentField === 'circle' && postalCircle === item) ||
+                                    (currentField === 'cadre' && cadre === item) ||
+                                    (currentField === 'exam' && examType === item) ? (
+                                    <Ionicons name="checkmark-circle" size={20} color="#dc2626" />
+                                ) : null}
+                            </TouchableOpacity>
+                        )}
+                        ItemSeparatorComponent={() => <View style={styles.modalSeparator} />}
+                    />
                 </View>
-            </ScrollView>
-        </KeyboardAvoidingView>
+            </View>
+        </Modal>
+    );
+
+    return (
+        <TouchableWithoutFeedback onPress={handleInteraction}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={styles.container}
+            >
+                <ScrollView
+                    contentContainerStyle={styles.scrollContainer}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={styles.header}>
+                        <Text style={styles.title}>Welcome to DAK Plus</Text>
+                        <Text style={styles.subtitle}>Complete your profile to get started</Text>
+                    </View>
+
+                    <View style={styles.card}>
+                        <View style={styles.form}>
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Full Name</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Enter your full name"
+                                    placeholderTextColor="#999"
+                                    value={fullName}
+                                    onChangeText={(text) => {
+                                        setFullName(text);
+                                        handleInteraction();
+                                    }}
+                                />
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Email Address</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="email@example.com"
+                                    placeholderTextColor="#999"
+                                    value={email}
+                                    onChangeText={(text) => {
+                                        setEmail(text);
+                                        handleInteraction();
+                                    }}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                />
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Phone Number</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="+91 00000 00000"
+                                    placeholderTextColor="#999"
+                                    value={phone}
+                                    onChangeText={(text) => {
+                                        setPhone(text.replace(/[^0-9]/g, ''));
+                                        handleInteraction();
+                                    }}
+                                    keyboardType="phone-pad"
+                                    maxLength={15}
+                                />
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Create Password</Text>
+                                <View style={styles.passwordContainer}>
+                                    <TextInput
+                                        style={styles.passwordInput}
+                                        placeholder="Minimum 6 characters"
+                                        placeholderTextColor="#999"
+                                        value={password}
+                                        onChangeText={(text) => {
+                                            setPassword(text);
+                                            handleInteraction();
+                                        }}
+                                        secureTextEntry={!showPassword}
+                                    />
+                                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                                        <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="#64748b" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.checkboxContainer}
+                                onPress={() => setNotificationsEnabled(!notificationsEnabled)}
+                            >
+                                <View style={[styles.checkbox, notificationsEnabled && styles.checkboxChecked]}>
+                                    {notificationsEnabled && <Text style={styles.checkmark}>✓</Text>}
+                                </View>
+                                <Text style={styles.checkboxLabel}>I want to receive exam updates and study tips</Text>
+                            </TouchableOpacity>
+
+                            {/* Professional Details Section */}
+                            <View style={styles.divider} />
+                            <Text style={styles.sectionTitle}>Professional Details</Text>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Postal Circle</Text>
+                                <TouchableOpacity style={styles.selector} onPress={() => openPicker('circle')}>
+                                    <Text style={[styles.selectorText, !postalCircle && styles.placeholder]}>
+                                        {postalCircle || "Select Postal Circle"}
+                                    </Text>
+                                    <Ionicons name="chevron-down" size={20} color="#64748b" />
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Division</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Enter Division"
+                                    placeholderTextColor="#999"
+                                    value={division}
+                                    onChangeText={setDivision}
+                                />
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Office</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Enter Office Name"
+                                    placeholderTextColor="#999"
+                                    value={office}
+                                    onChangeText={setOffice}
+                                />
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Cadre</Text>
+                                <TouchableOpacity style={styles.selector} onPress={() => openPicker('cadre')}>
+                                    <Text style={[styles.selectorText, !cadre && styles.placeholder]}>
+                                        {cadre || "Select Cadre"}
+                                    </Text>
+                                    <Ionicons name="chevron-down" size={20} color="#64748b" />
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Target Exam</Text>
+                                <TouchableOpacity style={styles.selector} onPress={() => openPicker('exam')}>
+                                    <Text style={[styles.selectorText, !examType && styles.placeholder]}>
+                                        {examType || "Select Target Exam"}
+                                    </Text>
+                                    <Ionicons name="chevron-down" size={20} color="#64748b" />
+                                </TouchableOpacity>
+                            </View>
+
+                            <SelectionModal />
+
+                            <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
+                                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Start Learning Now</Text>}
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={clearForm} style={styles.clearBtn}>
+                                <Text style={styles.clearBtnText}>Clear Form</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.secondaryButton}>
+                                <Text style={styles.secondaryButtonText}>Already have an account? Sign In</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
     );
 }
 
@@ -435,5 +534,76 @@ const styles = StyleSheet.create({
     chipTextSelected: {
         color: '#fff',
         fontWeight: 'bold',
+    },
+    selector: {
+        backgroundColor: '#f8fafc',
+        borderRadius: 12,
+        padding: 14,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+    },
+    selectorText: {
+        fontSize: 16,
+        color: '#1e293b',
+    },
+    placeholder: {
+        color: '#999',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+        maxHeight: '80%',
+        padding: 24,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#1e293b',
+    },
+    searchInput: {
+        backgroundColor: '#f1f5f9',
+        borderRadius: 12,
+        padding: 12,
+        fontSize: 16,
+        color: '#1e293b',
+        marginBottom: 20,
+    },
+    modalItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 16,
+    },
+    modalItemText: {
+        fontSize: 16,
+        color: '#475569',
+    },
+    modalSeparator: {
+        height: 1,
+        backgroundColor: '#f1f5f9',
+    },
+    clearBtn: {
+        padding: 12,
+        alignItems: 'center',
+    },
+    clearBtnText: {
+        color: '#94a3b8',
+        fontSize: 14,
+        fontWeight: '600',
     },
 });

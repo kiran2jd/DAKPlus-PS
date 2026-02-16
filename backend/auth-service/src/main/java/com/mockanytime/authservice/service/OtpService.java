@@ -9,6 +9,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import java.security.SecureRandom;
 import java.util.Optional;
@@ -155,19 +157,34 @@ public class OtpService {
         }
 
         try {
-            String url = "https://control.msg91.com/api/v5/otp?template_id=" + msg91TemplateId +
-                    "&mobile=" + phoneNumber + "&authkey=" + msg91AuthKey + "&otp=" + code;
+            // Add country code if missing (default to 91 for India)
+            String mobile = phoneNumber.replace("+", "").replace(" ", "").replace("-", "");
+            if (mobile.length() == 10) {
+                mobile = "91" + mobile;
+            }
+
+            String encodedAuthKey = URLEncoder.encode(msg91AuthKey, StandardCharsets.UTF_8);
+            String encodedTemplateId = URLEncoder.encode(msg91TemplateId, StandardCharsets.UTF_8);
+            String encodedMobile = URLEncoder.encode(mobile, StandardCharsets.UTF_8);
+            String encodedOtp = URLEncoder.encode(code, StandardCharsets.UTF_8);
+
+            String url = "https://control.msg91.com/api/v5/otp?template_id=" + encodedTemplateId +
+                    "&mobile=" + encodedMobile + "&authkey=" + encodedAuthKey + "&otp=" + encodedOtp;
+
+            System.out.println("Sending MSG91 OTP to: " + mobile + " using template: " + msg91TemplateId);
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("MSG91 OTP sent successfully to " + phoneNumber);
+                System.out.println("MSG91 OTP sent successfully to " + mobile + ". Response: " + response.getBody());
             } else {
-                System.err.println("Failed to send MSG91 OTP: " + response.getBody());
+                System.err.println("Failed to send MSG91 OTP to " + mobile + ". Status: " + response.getStatusCode()
+                        + " Body: " + response.getBody());
             }
         } catch (Exception e) {
             System.err.println("Error sending MSG91 OTP: " + e.getMessage());
+            e.printStackTrace();
             System.out.println("FALLBACK LOG OTP for " + phoneNumber + ": " + code);
         }
     }
@@ -250,6 +267,7 @@ public class OtpService {
 
     private void sendEmailViaSmtp(String to, String subject, String htmlContent) {
         try {
+            System.out.println("Attempting to send SMTP email to: " + to + " via host: " + mailHost);
             jakarta.mail.internet.MimeMessage message = mailSender.createMimeMessage();
             org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(
                     message, true, "UTF-8");
@@ -262,8 +280,10 @@ public class OtpService {
             mailSender.send(message);
             System.out.println("SMTP Email sent successfully to " + to);
         } catch (Exception e) {
-            System.err.println("Error sending SMTP Email: " + e.getMessage());
+            System.err.println("Error sending SMTP Email to " + to + ": " + e.getMessage());
+            e.printStackTrace();
             // Fallback to Resend if SMTP fails
+            System.out.println("Falling back to Resend API for: " + to);
             sendEmailViaResend(to, subject, htmlContent);
         }
     }
@@ -292,13 +312,15 @@ public class OtpService {
             body.put("subject", subject);
             body.put("html", htmlContent);
 
+            System.out.println("Sending Resend email to: " + to + " from: " + mailFrom);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
             ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("Resend Email sent successfully to " + to);
+                System.out.println("Resend Email sent successfully to " + to + ". Response: " + response.getBody());
             } else {
-                System.err.println("Failed to send Resend Email: " + response.getBody());
+                System.err.println("Failed to send Resend Email to " + to + ". Status: " + response.getStatusCode()
+                        + " Body: " + response.getBody());
             }
         } catch (Exception e) {
             System.err.println("Error sending Resend Email: " + e.getMessage());

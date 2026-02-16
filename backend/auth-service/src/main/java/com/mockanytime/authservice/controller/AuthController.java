@@ -260,4 +260,19 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
+
+    /**
+     * Internal endpoint to unlock a specific exam (called by payment-service)
+     */
+    @PutMapping("/internal/unlock-exam")
+    public ResponseEntity<?> unlockExam(@RequestBody Map<String, String> request) {
+        String userId = request.get("userId");
+        String examId = request.get("examId");
+        try {
+            User updatedUser = authService.unlockExam(userId, examId);
+            return ResponseEntity.ok(Map.of("user", updatedUser, "message", "Exam unlocked successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
 }

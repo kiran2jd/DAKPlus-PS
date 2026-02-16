@@ -10,9 +10,9 @@ export default function Footer() {
                     {/* Brand Section */}
                     <div className="col-span-1 md:col-span-1">
                         <div className="flex items-center space-x-2 mb-4">
-                            <img src={logo} alt="DAKPlus Logo" className="h-8 w-auto" />
+                            <img src={logo} alt="DAK Plus Logo" className="h-8 w-auto" />
                             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-orange-600 dark:from-red-400 dark:to-orange-400">
-                                DAKPlus
+                                DAK Plus
                             </span>
                         </div>
                         <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
@@ -69,7 +69,7 @@ export default function Footer() {
                 </div>
                 <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-700 text-center">
                     <p className="text-gray-400 text-xs">
-                        &copy; {new Date().getFullYear()} DAKPlus. All rights reserved.
+                        &copy; {new Date().getFullYear()} DAK Plus. All rights reserved.
                     </p>
                 </div>
             </div>

@@ -11,7 +11,7 @@ export default function LandingPage() {
                     <div className="flex items-center space-x-2">
                         <img src={logo} alt="DAKPlus Logo" className="h-10 w-auto" />
                         <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-orange-600">
-                            DAKPlus
+                            DAK Plus
                         </span>
                     </div>
                     <div className="hidden md:flex space-x-8 text-gray-600 font-medium">
@@ -44,7 +44,7 @@ export default function LandingPage() {
                     <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight mb-8 tracking-tight">
                         Ace Your Postal Exams <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-500 to-red-600">
-                            With DAKPlus
+                            With DAK Plus
                         </span>
                     </h1>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -87,9 +87,9 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row items-center justify-between">
                         <div className="text-center md:text-left mb-8 md:mb-0 md:max-w-xl">
-                            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">Take DAKPlus Anywhere</h2>
+                            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">Take DAK Plus Anywhere</h2>
                             <p className="text-red-100 text-lg mb-6 leading-relaxed">
-                                Join thousands of postal aspirants who are preparing on the go. Get the DAKPlus mobile app for a seamless offline experience and real-time notifications.
+                                Join thousands of postal aspirants who are preparing on the go. Get the DAK Plus mobile app for a seamless offline experience and real-time notifications.
                             </p>
                             <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-4">
                                 <a href="#" className="flex items-center bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-900 transition border border-gray-800">
@@ -256,7 +256,7 @@ export default function LandingPage() {
                             <div className="flex text-yellow-400 mb-4 space-x-1">
                                 {[1, 2, 3, 4, 5].map(i => <Star key={i} className="h-5 w-5 fill-current" />)}
                             </div>
-                            <p className="text-xl italic text-gray-300 mb-6">"DAKPlus helped me crack my AWS certification. The analytics are a game changer! I knew exactly where to focus."</p>
+                            <p className="text-xl italic text-gray-300 mb-6">"DAK Plus helped me crack my AWS certification. The analytics are a game changer! I knew exactly where to focus."</p>
                             <div className="flex items-center justify-center space-x-4">
                                 <div className="h-12 w-12 bg-indigo-500 rounded-full flex items-center justify-center font-bold text-xl">S</div>
                                 <div className="text-left">
@@ -298,7 +298,7 @@ export default function LandingPage() {
                         <div className="lg:w-1/2">
                             <h2 className="text-4xl font-extrabold text-gray-900 mb-6">About Us</h2>
                             <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                                Founded in 2026, DAKPlus was born from a simple idea: Preparation should be smarter, not harder.
+                                Founded in 2026, DAK Plus was born from a simple idea: Preparation should be smarter, not harder.
                             </p>
                             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
                                 We are a team of educators and engineers dedicated to democratizing quality education. Our mission is to empower students worldwide with the tools they need to achieve their academic and professional goals.
@@ -350,7 +350,7 @@ export default function LandingPage() {
             <footer className="bg-gray-900 py-12 text-gray-400 border-t border-gray-800">
                 <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
                     <div className="mb-4 md:mb-0">
-                        <span className="text-2xl font-bold text-white">DAKPlus</span>
+                        <span className="text-2xl font-bold text-white">DAK Plus</span>
                         <p className="text-sm mt-2">Empowering learners worldwide.</p>
                     </div>
                     <div className="flex space-x-8 text-sm">
@@ -359,7 +359,7 @@ export default function LandingPage() {
                         <a href="#" className="hover:text-white transition">Contact Support</a>
                     </div>
                     <div className="mt-8 md:mt-0 text-sm">
-                        &copy; 2026 DAKPlus. All rights reserved.
+                        &copy; 2026 DAK Plus. All rights reserved.
                     </div>
                 </div>
             </footer>

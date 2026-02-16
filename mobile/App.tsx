@@ -57,7 +57,8 @@ export default function App() {
     }
   };
 
-  // 3. Inactivity Timer
+  // 3. Inactivity Timer (Removed to maintain long-term session as per user request)
+  /*
   const resetInactivityTimer = () => {
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     inactivityTimer.current = setTimeout(async () => {
@@ -65,7 +66,6 @@ export default function App() {
       if (isAuthenticated) {
         Alert.alert('Session Expired', 'Logged out due to inactivity.');
         await authService.logout();
-        // Trigger re-render or navigation to login
       }
     }, INACTIVITY_LIMIT);
   };
@@ -76,11 +76,12 @@ export default function App() {
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     };
   }, []);
+  */
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => {
-        resetInactivityTimer();
+        // resetInactivityTimer();
         return false;
       },
     })

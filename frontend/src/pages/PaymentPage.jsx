@@ -77,11 +77,25 @@ export default function PaymentPage() {
         }
 
         try {
-            // 2. Create Order on Backend (Professional Approach)
-            // If testId is present, it's a single test purchase (e.g., ₹49), else Subscription (₹299)
-            const amount = testId ? 49 : 299;
-            const itemId = testId || 'SUBSCRIPTION_PRO';
-            const itemType = testId ? 'TEST' : 'SUBSCRIPTION';
+            // 2. Map pricing based on user's exam choice
+            const pricing = {
+                'GDS to MTS': { amount: 199, id: 'MTS_EXAM', label: 'MTS Exam Prep' },
+                'MTS': { amount: 199, id: 'MTS_EXAM', label: 'MTS Exam Prep' },
+                'GDS to Postman': { amount: 299, id: 'PM_MG_EXAM', label: 'Postman/MG Prep' },
+                'MTS to Postman': { amount: 299, id: 'PM_MG_EXAM', label: 'Postman/MG Prep' },
+                'PM MG Exam': { amount: 299, id: 'PM_MG_EXAM', label: 'Postman/MG Prep' },
+                'GDS/MTS/Postman to PA/SA': { amount: 499, id: 'PA_SA_EXAM', label: 'PA/SA Exam Prep' },
+                'PA SA Exam': { amount: 499, id: 'PA_SA_EXAM', label: 'PA/SA Exam Prep' },
+                'IP Exam': { amount: 999, id: 'IP_EXAM', label: 'IP Exam Prep' }
+            };
+
+            const userExam = user?.examType || 'Others';
+            const selectedPlan = pricing[userExam] || { amount: 299, id: 'GENERAL_PRO', label: 'DAK Plus Pro' };
+
+            // If testId is present, it's a individual test purchase (₹49), else specific Exam or Pro Subscription
+            const amount = testId ? 49 : selectedPlan.amount;
+            const itemId = testId || selectedPlan.id;
+            const itemType = testId ? 'TEST' : 'EXAM';
 
             const orderData = await paymentService.createOrder(amount, itemId, itemType);
 
@@ -122,8 +136,8 @@ export default function PaymentPage() {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID,
                 amount: orderData.amount * 100, // Amount in paise
                 currency: "INR",
-                name: "DAKPlus App",
-                description: testId ? `Unlock Test: ${testDetails?.title || 'Premium Test'}` : "Upgrade to Pro Subscription",
+                name: "DAK Plus App",
+                description: testId ? `Unlock Test: ${testDetails?.title || 'Premium Test'}` : `Unlock ${selectedPlan.label}`,
                 image: "/logo.png", // Replace with your actual logo path
                 order_id: orderData.orderId,
                 handler: async function (response) {
@@ -166,7 +180,7 @@ export default function PaymentPage() {
                     contact: user?.phoneNumber || ""
                 },
                 notes: {
-                    address: "DAKPlus Corporate Office"
+                    address: "DAK Plus Corporate Office"
                 },
                 theme: {
                     color: "#4F46E5" // Indigo-600 to match your design
@@ -199,7 +213,7 @@ export default function PaymentPage() {
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
                         <p className="text-gray-600 mb-6">
-                            {testId ? "You have successfully unlocked the test." : "Welcome to DAKPlus Pro."}
+                            {testId ? "You have successfully unlocked the test." : "Your exam content is now unlocked!"}
                             Redirecting...
                         </p>
                         <div className="flex justify-center">
@@ -218,7 +232,7 @@ export default function PaymentPage() {
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-10">
                         <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
-                            {testId ? 'Unlock Premium Test' : 'Upgrade to DAKPlus Pro'}
+                            {testId ? 'Unlock Premium Test' : 'Unlock Your Exam Content'}
                         </h1>
                         <p className="text-xl text-gray-600">
                             {testId
@@ -289,7 +303,7 @@ export default function PaymentPage() {
 
                             <div className="mb-8 text-center">
                                 <span className="text-xs text-indigo-600 uppercase tracking-widest font-black">
-                                    {testId ? 'Single Test Access' : 'Pro Annual Access'}
+                                    {testId ? 'Single Test Access' : `${user?.examType || 'Exam'} Prep Access`}
                                 </span>
                                 {testId && testDetails && (
                                     <p className="text-gray-900 font-bold mt-2">{testDetails.title}</p>

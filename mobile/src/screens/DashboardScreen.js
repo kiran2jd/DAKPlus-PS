@@ -158,7 +158,7 @@ export default function DashboardScreen({ navigation }) {
 
             <View style={styles.welcomeTextSection}>
                 <Text style={styles.greetingText}>Welcome back,</Text>
-                <Text style={styles.nameHeader}>{user?.fullName || 'Dak Plus Aspirant'}</Text>
+                <Text style={styles.nameHeader}>{user?.fullName || 'DAK Plus Aspirant'}</Text>
             </View>
 
             <View style={styles.carouselContainer}>

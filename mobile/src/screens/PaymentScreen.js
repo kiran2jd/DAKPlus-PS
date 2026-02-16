@@ -19,9 +19,33 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 
 export default function PaymentScreen({ navigation }) {
     // usePreventScreenCapture(); // Temporarily disabled for client demo
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
-    const [method, setMethod] = useState('card');
+    const [user, setUser] = useState(null);
+
+    React.useEffect(() => {
+        loadProfile();
+    }, []);
+
+    const loadProfile = async () => {
+        try {
+            const data = await api.get('/auth/profile');
+            setUser(data.user);
+        } catch (err) {
+            console.error("Failed to load profile", err);
+        }
+    };
+
+    const pricing = {
+        'GDS to MTS': 199,
+        'MTS': 199,
+        'GDS to Postman': 299,
+        'MTS to Postman': 299,
+        'PM MG Exam': 299,
+        'GDS/MTS/Postman to PA/SA': 499,
+        'PA SA Exam': 499,
+        'IP Exam': 999
+    };
+
+    const currentPrice = pricing[user?.examType] || 299;
 
     const handlePayment = async () => {
         const token = await SecureStore.getItemAsync('access_token');
@@ -52,22 +76,22 @@ export default function PaymentScreen({ navigation }) {
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
                         <Text style={styles.backText}>← Back</Text>
                     </TouchableOpacity>
-                    <Text style={styles.title}>DAKPlus Pro</Text>
-                    <Text style={styles.subtitle}>Unlock your full academic potential</Text>
+                    <Text style={styles.title}>Unlock Exam</Text>
+                    <Text style={styles.subtitle}>{user?.examType || 'Professional Exam'} Preparation</Text>
                 </LinearGradient>
 
                 <View style={styles.content}>
                     <View style={styles.planCard}>
                         <Text style={styles.planLabel}>PRO MEMBERSHIP</Text>
                         <View style={styles.priceRow}>
-                            <Text style={styles.price}>$29</Text>
-                            <Text style={styles.period}>/month</Text>
+                            <Text style={styles.price}>₹{currentPrice}</Text>
+                            <Text style={styles.period}>/exam</Text>
                         </View>
                         <View style={styles.benefits}>
-                            <Text style={styles.benefit}>✓ Unlimited Mock Exams</Text>
-                            <Text style={styles.benefit}>✓ Detailed AI Explanations</Text>
-                            <Text style={styles.benefit}>✓ Performance Analytics</Text>
-                            <Text style={styles.benefit}>✓ Priority Support</Text>
+                            <Text style={styles.benefit}>✓ Complete Paper 1 & 2 Syllabus</Text>
+                            <Text style={styles.benefit}>✓ Detailed AI Training Access</Text>
+                            <Text style={styles.benefit}>✓ Unlimited Practice Tests</Text>
+                            <Text style={styles.benefit}>✓ One-time Payment</Text>
                         </View>
                     </View>
 

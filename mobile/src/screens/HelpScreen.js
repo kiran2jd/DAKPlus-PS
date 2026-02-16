@@ -16,11 +16,11 @@ export default function HelpScreen({ navigation }) {
     const supportEmail = "support@dakplus.in";
 
     const openWhatsApp = () => {
-        Linking.openURL(`whatsapp://send?phone=${supportPhone}&text=Hello DAKPlus Support, I need help with...`);
+        Linking.openURL(`whatsapp://send?phone=${supportPhone}&text=Hello DAK Plus Support, I need help with...`);
     };
 
     const openEmail = () => {
-        Linking.openURL(`mailto:${supportEmail}?subject=DAKPlus Support Request`);
+        Linking.openURL(`mailto:${supportEmail}?subject=DAK Plus Support Request`);
     };
 
     const faqs = [
@@ -70,7 +70,7 @@ export default function HelpScreen({ navigation }) {
                     </View>
 
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>DAKPlus v1.0.0</Text>
+                        <Text style={styles.footerText}>DAK Plus v1.0.0</Text>
                         <Text style={styles.footerSub}>Made for Postmen & Aspirants</Text>
                     </View>
                 </ScrollView>

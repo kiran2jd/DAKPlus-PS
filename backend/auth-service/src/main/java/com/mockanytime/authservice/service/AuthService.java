@@ -7,6 +7,7 @@ import com.mockanytime.authservice.util.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -169,6 +170,24 @@ public class AuthService {
         }
         User user = userOpt.get();
         user.setSubscriptionTier(tier);
+        return userRepository.save(user);
+    }
+
+    /**
+     * Unlock a specific exam for a user
+     */
+    public User unlockExam(String userId, String examId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        User user = userOpt.get();
+        if (user.getUnlockedExams() == null) {
+            user.setUnlockedExams(new ArrayList<>());
+        }
+        if (!user.getUnlockedExams().contains(examId)) {
+            user.getUnlockedExams().add(examId);
+        }
         return userRepository.save(user);
     }
 

@@ -5,7 +5,7 @@ import axios from 'axios';
 export default function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'bot', content: 'Namaste! I am your DAKPlus AI Assistant. How can I help you ace your postal exams today?' }
+        { role: 'bot', content: 'Namaste! I am your DAK Plus AI Assistant. How can I help you ace your postal exams today?' }
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -30,7 +30,8 @@ export default function ChatWidget() {
 
         try {
             // Updated to use the api-gateway route
-            const response = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/chat`, {
+            const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+            const response = await axios.post(`${apiUrl}/chat`, {
                 message: input
             });
 
@@ -69,7 +70,7 @@ export default function ChatWidget() {
                                 <Bot size={20} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-sm">DAKPlus Assistant</h3>
+                                <h3 className="font-bold text-sm">DAK Plus Assistant</h3>
                                 <div className="flex items-center text-[10px] opacity-80">
                                     <span className="h-1.5 w-1.5 bg-green-400 rounded-full mr-1.5"></span>
                                     Online

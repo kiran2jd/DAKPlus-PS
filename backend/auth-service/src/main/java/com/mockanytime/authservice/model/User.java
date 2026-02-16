@@ -4,6 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -51,12 +53,15 @@ public class User {
     private String office;
     private String cadre;
     private String examType;
+    private List<String> unlockedExams;
 
     public User() {
         this.createdAt = LocalDateTime.now();
         this.subscriptionTier = "FREE";
         this.emailVerified = false;
+        this.emailVerified = false;
         this.notificationsEnabled = true;
+        this.unlockedExams = new ArrayList<>();
     }
 
     public User(String fullName, String email, String phoneNumber, String role) {
@@ -241,5 +246,13 @@ public class User {
 
     public void setExamType(String examType) {
         this.examType = examType;
+    }
+
+    public List<String> getUnlockedExams() {
+        return unlockedExams;
+    }
+
+    public void setUnlockedExams(List<String> unlockedExams) {
+        this.unlockedExams = unlockedExams;
     }
 }
