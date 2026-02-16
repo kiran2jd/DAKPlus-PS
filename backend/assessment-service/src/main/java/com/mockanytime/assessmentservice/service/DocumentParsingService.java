@@ -58,8 +58,9 @@ public class DocumentParsingService {
                             + e.getMessage());
                 } catch (NoClassDefFoundError | UnsatisfiedLinkError e) {
                     // Special handling for missing system dependencies (common in Railway/Docker)
-                    System.err.println(
-                            "CRITICAL: Tesseract native library or class not found. OCR disabled for this request.");
+                    System.err.println("CRITICAL: Tesseract native library or class not found.");
+                    System.err.println("Error details: " + e.toString());
+                    System.err.println("java.library.path: " + System.getProperty("java.library.path"));
                     break; // stop trying OCR for this doc if library is missing
                 }
             }

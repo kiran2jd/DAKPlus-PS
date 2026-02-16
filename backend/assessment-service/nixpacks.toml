@@ -1,0 +1,5 @@
+[phases.setup]
+nixPkgs = ["tesseract"]
+
+# This ensures the tesseract binary and libraries are available in the path
+# Nixpacks will handle the installation and path configuration
