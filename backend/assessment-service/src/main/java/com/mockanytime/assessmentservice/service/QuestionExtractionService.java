@@ -28,13 +28,21 @@ public class QuestionExtractionService {
         System.out.println("AI Extraction Service Initialized.");
         System.out.println("Base URL: " + baseUrl);
         if (apiKey == null || apiKey.isEmpty()) {
-            System.err.println("WARNING: AI API Key is MISSING!");
+            System.err.println("CRITICAL: AI API Key is MISSING! Extraction will fail.");
         } else {
             String maskedKey = apiKey.length() > 8
                     ? apiKey.substring(0, 5) + "..." + apiKey.substring(apiKey.length() - 3)
                     : "***";
-            System.out.println(
-                    "AI API Key is present. Key hint: " + maskedKey + " (Total Length: " + apiKey.length() + ")");
+
+            // Log verification hints
+            System.out.println("AI API Key Info:");
+            System.out.println("- Hint: " + maskedKey);
+            System.out.println("- Length: " + apiKey.length());
+            System.out.println("- Starts with 'gsk_': " + apiKey.startsWith("gsk_"));
+
+            if (!apiKey.startsWith("gsk_") && baseUrl.contains("groq")) {
+                System.err.println("WARNING: Using Groq URL but API key does not have standard 'gsk_' prefix!");
+            }
         }
     }
 
