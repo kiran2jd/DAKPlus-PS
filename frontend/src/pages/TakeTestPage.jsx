@@ -169,6 +169,16 @@ export default function TakeTestPage() {
                     <div className="flex-1">
                         <h2 className="text-xl font-medium text-gray-900 mb-6">{question.text}</h2>
 
+                        {question.imageUrl && (
+                            <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 flex justify-center">
+                                <img
+                                    src={question.imageUrl}
+                                    alt="Question Diagram"
+                                    className="max-h-[400px] object-contain"
+                                />
+                            </div>
+                        )}
+
                         <div className="space-y-3">
                             {question.type === 'mcq' && question.options.map((option, idx) => (
                                 <button

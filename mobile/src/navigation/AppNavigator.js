@@ -21,7 +21,8 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import SideMenu from '../components/SideMenu';
-import HelpScreen from '../screens/HelpScreen'; // New screen
+import HelpScreen from '../screens/HelpScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -125,6 +126,7 @@ export default function AppNavigator() {
                 <Stack.Screen name="TopicManagement" component={TopicManagementScreen} />
                 <Stack.Screen name="CreateTest" component={CreateTestScreen} />
                 <Stack.Screen name="EditTest" component={EditTestScreen} />
+                <Stack.Screen name="Notifications" component={NotificationsScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

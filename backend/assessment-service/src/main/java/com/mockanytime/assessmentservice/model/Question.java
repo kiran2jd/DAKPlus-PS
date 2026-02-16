@@ -13,6 +13,7 @@ public class Question {
     private int points;
     private String topicId;
     private String subtopicId;
+    private String imageUrl; // Base64 encoded image string for diagrams
 
     public Question() {
         this.id = UUID.randomUUID().toString();
@@ -99,5 +100,13 @@ public class Question {
 
     public void setSubtopicId(String subtopicId) {
         this.subtopicId = subtopicId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

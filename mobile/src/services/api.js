@@ -14,7 +14,8 @@ const getApiUrl = () => {
     } else if (Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL) {
         url = Constants.expoConfig.extra.EXPO_PUBLIC_API_URL;
     } else {
-        // Primary custom domain (Fixes ISP blocking issues with Jio/Airtel)
+        // Primary custom domain (api.dakplus.in)
+        // Fallback to Railway direct URL if custom domain is blocked by DNS/ISP
         url = 'https://api.dakplus.in/api/';
     }
 
@@ -22,17 +23,20 @@ const getApiUrl = () => {
     return url.endsWith('/') ? url : `${url}/`;
 };
 
+// Secondary fallback for robust connectivity on mobile data
+const RAILWAY_BACKUP_URL = 'https://api-gateway-production-bb02.up.railway.app/api/';
+
 const API_BASE_URL = getApiUrl();
 
 console.log('Mobile App API Configuration:');
-console.log('Using API_BASE_URL:', API_BASE_URL);
+console.log('Primary API_BASE_URL:', API_BASE_URL);
 
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
-    timeout: 30000, // 30 second timeout
+    timeout: 60000, // 60 second timeout for mobile data resilience
 });
 
 // Interceptor to add JWT token and User ID

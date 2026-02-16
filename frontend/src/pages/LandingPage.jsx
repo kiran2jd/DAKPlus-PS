@@ -41,13 +41,13 @@ export default function LandingPage() {
                         </span>
                         <span>New: Updated Postal Syllabus</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight mb-8 tracking-tight">
-                        Ace Your Postal Exams <br />
+                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight mb-6 md:mb-8 tracking-tight px-2">
+                        Ace Your Postal Exams <br className="hidden sm:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-500 to-red-600">
                             With DAK Plus
                         </span>
                     </h1>
-                    <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+                    <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed px-4">
                         Join 50,000+ students acing their tests. Experience real-time simulations, detailed analytics, and a user interface designed for success.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">

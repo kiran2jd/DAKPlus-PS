@@ -58,13 +58,21 @@ const SideMenu = (props) => {
     };
 
     const menuItems = [
-        { label: 'Dashboard', icon: 'grid-outline', route: 'Dashboard', type: 'ion' },
-        { label: 'My Learning', icon: 'book-open-outline', route: 'TestLibrary', type: 'ion' },
-        { label: 'Performance', icon: 'analytics-outline', route: 'Analytics', type: 'ion' },
+        { label: 'Dashboard', icon: 'grid-outline', route: 'Home', type: 'ion' },
+        { label: 'My Learning', icon: 'book-open-outline', route: 'Tests', type: 'ion' },
+        { label: 'Performance', icon: 'analytics-outline', route: 'Performance', type: 'ion' },
         { label: 'Transactions', icon: 'card-outline', route: 'Payment', type: 'ion' },
-        { label: 'Preferences', icon: 'settings-outline', route: 'Settings', type: 'ion' },
         { label: 'Support Center', icon: 'help-circle-outline', route: 'Help', type: 'ion' },
     ];
+
+    const handleNavigation = (route) => {
+        // If it's a tab route, navigate via the Tabs navigator
+        if (['Home', 'Tests', 'Performance', 'Help'].includes(route)) {
+            navigation.navigate('Tabs', { screen: route });
+        } else {
+            navigation.navigate(route);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -96,7 +104,7 @@ const SideMenu = (props) => {
                             styles.menuItem,
                             activeRouteName === item.route && styles.activeMenuItem
                         ]}
-                        onPress={() => navigation.navigate(item.route)}
+                        onPress={() => handleNavigation(item.route)}
                     >
                         {activeRouteName === item.route && (
                             <LinearGradient
@@ -129,7 +137,7 @@ const SideMenu = (props) => {
                             styles.menuItem,
                             activeRouteName === item.route && styles.activeMenuItem
                         ]}
-                        onPress={() => navigation.navigate(item.route)}
+                        onPress={() => handleNavigation(item.route)}
                     >
                         <Ionicons
                             name={item.icon}

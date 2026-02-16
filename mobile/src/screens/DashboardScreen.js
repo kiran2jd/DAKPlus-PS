@@ -151,7 +151,7 @@ export default function DashboardScreen({ navigation }) {
                 <View style={[styles.logoContainer, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
                     <Image source={logo} style={styles.logoMini} resizeMode="contain" />
                 </View>
-                <TouchableOpacity style={styles.headerIconButton} onPress={() => navigation.navigate('Analytics')}>
+                <TouchableOpacity style={styles.headerIconButton} onPress={() => navigation.navigate('Notifications')}>
                     <Ionicons name="notifications-outline" size={24} color="#fff" />
                 </TouchableOpacity>
             </View>
@@ -454,8 +454,8 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     logoMini: {
-        width: 120,
-        height: 35,
+        width: 150,
+        height: 45,
     },
     quickStatsRow: {
         flexDirection: 'row',

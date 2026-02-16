@@ -77,33 +77,51 @@ public class DocumentParsingService {
     }
 
     private String performOcr(byte[] imageData) {
+        java.io.File tempFile = null;
         try {
             net.sourceforge.tess4j.ITesseract instance = new net.sourceforge.tess4j.Tesseract();
 
-            // Standard Alpine/Linux tessdata location
-            java.io.File tessDataFolder = new java.io.File("/usr/share/tessdata");
-            if (tessDataFolder.exists()) {
-                instance.setDatapath(tessDataFolder.getAbsolutePath());
+            // Check common Linux tessdata locations (Ubuntu/Debian vs Alpine)
+            String[] commonPaths = {
+                    "/usr/share/tesseract-ocr/4.00/tessdata",
+                    "/usr/share/tesseract-ocr/5/tessdata",
+                    "/usr/share/tessdata"
+            };
+
+            for (String path : commonPaths) {
+                java.io.File folder = new java.io.File(path);
+                if (folder.exists()) {
+                    System.out.println("Tessdata found at: " + folder.getAbsolutePath());
+                    instance.setDatapath(folder.getAbsolutePath());
+                    break;
+                }
             }
 
             // Create a temp file for the image
-            java.io.File tempFile = java.io.File.createTempFile("ocr_image", ".png");
+            tempFile = java.io.File.createTempFile("ocr_chunk_", ".png");
             java.nio.file.Files.write(tempFile.toPath(), imageData);
 
             System.out
                     .println("Executing Tesseract OCR on " + tempFile.getName() + " (" + imageData.length + " bytes)");
             String result = instance.doOCR(tempFile);
-            tempFile.delete();
 
             if (result == null || result.isBlank()) {
                 System.out.println("Warning: OCR returned empty result for image.");
                 return "";
             }
             return result;
-        } catch (Exception e) {
-            System.err.println("OCR Error: " + e.getMessage());
+        } catch (Throwable e) {
+            // JVM level errors like SIGSEGV or UnsatisfiedLinkError should be caught to
+            // prevent service death
+            System.err.println("OCR Error (Critical): " + e.getMessage());
             e.printStackTrace();
             return "";
+        } finally {
+            if (tempFile != null && tempFile.exists()) {
+                boolean deleted = tempFile.delete();
+                if (!deleted)
+                    tempFile.deleteOnExit();
+            }
         }
     }
 }

@@ -1,23 +1,32 @@
 package com.mockanytime.scoringservice.service;
 
 import com.mockanytime.scoringservice.client.AssessmentClient;
+import com.mockanytime.scoringservice.dto.ReportSummaryDto;
 import com.mockanytime.scoringservice.dto.TestDto;
 import com.mockanytime.scoringservice.model.Result;
 import com.mockanytime.scoringservice.repository.ResultRepository;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
 
 @Service
 public class ResultService {
 
     private final ResultRepository resultRepository;
     private final AssessmentClient assessmentClient;
+    private final com.mockanytime.scoringservice.client.AuthClient authClient;
+    private final MongoTemplate mongoTemplate;
 
-    public ResultService(ResultRepository resultRepository, AssessmentClient assessmentClient) {
+    public ResultService(ResultRepository resultRepository, AssessmentClient assessmentClient,
+            com.mockanytime.scoringservice.client.AuthClient authClient, MongoTemplate mongoTemplate) {
         this.resultRepository = resultRepository;
         this.assessmentClient = assessmentClient;
+        this.authClient = authClient;
+        this.mongoTemplate = mongoTemplate;
     }
 
     public Result submitTest(String testId, String userId, Map<String, String> answers) {
@@ -26,6 +35,15 @@ public class ResultService {
 
     public Result submitTest(String testId, String userId, Map<String, String> answers, long timeTakenSeconds) {
         TestDto test = assessmentClient.getTestById(testId);
+
+        // Fetch User profile for metadata
+        com.mockanytime.scoringservice.dto.UserDto user = null;
+        try {
+            Map<String, Object> userResponse = authClient.getUserProfile(userId);
+            user = com.mockanytime.scoringservice.dto.UserDto.fromResponse(userResponse);
+        } catch (Exception e) {
+            System.err.println("Failed to fetch user profile for metadata: " + e.getMessage());
+        }
 
         int score = 0;
         int totalPoints = 0;
@@ -78,10 +96,32 @@ public class ResultService {
         result.setWrongAnswers(wrongCount);
         result.setDetailedAnswers(detailedAnswers);
 
+        // Set metadata from user profile
+        if (user != null) {
+            result.setPostalCircle(user.postalCircle());
+            result.setDivision(user.division());
+            result.setCadre(user.cadre());
+            result.setExamType(user.examType());
+        }
+
         Result savedResult = resultRepository.save(result);
 
         // Calculate rank (leaderboard position for this test)
         calculateRank(savedResult);
+
+        // Trigger Notification
+        try {
+            Map<String, Object> notif = new HashMap<>();
+            notif.put("userId", userId);
+            notif.put("title", "Exam Completed: " + test.title());
+            notif.put("message",
+                    "You scored " + score + "/" + totalPoints + " (" + savedResult.getAccuracy() + "% accuracy).");
+            notif.put("type", "EXAM_COMPLETION");
+            notif.put("link", "/dashboard/results/" + savedResult.getId());
+            authClient.createNotification(notif);
+        } catch (Exception e) {
+            System.err.println("Failed to trigger notification: " + e.getMessage());
+        }
 
         return savedResult;
     }
@@ -125,14 +165,15 @@ public class ResultService {
     public Iterable<Result> getResultsByTestId(String testId) {
         return resultRepository.findByTestIdOrderByScoreDesc(testId);
     }
+
     public record LeaderboardEntry(
-        String userId,
-        String name,
-        int totalScore,
-        int testsTaken,
-        double averageAccuracy,
-        int rank
-    ) {}
+            String userId,
+            String name,
+            int totalScore,
+            int testsTaken,
+            double averageAccuracy,
+            int rank) {
+    }
 
     public List<LeaderboardEntry> getLeaderboard(String period) {
         Date startDate;
@@ -172,12 +213,12 @@ public class ResultService {
             String name = "User " + userId.substring(0, Math.min(userId.length(), 6));
 
             leaderboard.add(new LeaderboardEntry(
-                userId,
-                name,
-                totalScore,
-                testsTaken,
-                Math.round(avgAcc * 100.0) / 100.0,
-                0 // Rank set later
+                    userId,
+                    name,
+                    totalScore,
+                    testsTaken,
+                    Math.round(avgAcc * 100.0) / 100.0,
+                    0 // Rank set later
             ));
         }
 
@@ -189,15 +230,74 @@ public class ResultService {
         for (int i = 0; i < leaderboard.size(); i++) {
             LeaderboardEntry e = leaderboard.get(i);
             rankedBoard.add(new LeaderboardEntry(
-                e.userId(),
-                e.name(),
-                e.totalScore(),
-                e.testsTaken(),
-                e.averageAccuracy(),
-                i + 1
-            ));
+                    e.userId(),
+                    e.name(),
+                    e.totalScore(),
+                    e.testsTaken(),
+                    e.averageAccuracy(),
+                    i + 1));
         }
 
         return rankedBoard;
+    }
+
+    public ReportSummaryDto getSummaryReport(String circle, String division, String cadre, String examType) {
+        Criteria criteria = new Criteria();
+        List<Criteria> filters = new ArrayList<>();
+
+        if (circle != null && !circle.isEmpty())
+            filters.add(Criteria.where("postalCircle").is(circle));
+        if (division != null && !division.isEmpty())
+            filters.add(Criteria.where("division").is(division));
+        if (cadre != null && !cadre.isEmpty())
+            filters.add(Criteria.where("cadre").is(cadre));
+        if (examType != null && !examType.isEmpty())
+            filters.add(Criteria.where("examType").is(examType));
+
+        if (!filters.isEmpty()) {
+            criteria.andOperator(filters.toArray(new Criteria[0]));
+        }
+
+        // Global stats
+        Aggregation globalAgg = Aggregation.newAggregation(
+                Aggregation.match(criteria),
+                Aggregation.group()
+                        .count().as("totalTests")
+                        .avg("score").as("averageScore")
+                        .avg("accuracy").as("averageAccuracy"));
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> globalStats = mongoTemplate.aggregate(globalAgg, "results", Map.class)
+                .getUniqueMappedResult();
+
+        long totalTests = globalStats != null ? ((Number) globalStats.get("totalTests")).longValue() : 0;
+        double avgScore = globalStats != null ? ((Number) globalStats.get("averageScore")).doubleValue() : 0.0;
+        double avgAccuracy = globalStats != null ? ((Number) globalStats.get("averageAccuracy")).doubleValue() : 0.0;
+
+        return new ReportSummaryDto(
+                totalTests,
+                Math.round(avgScore * 100.0) / 100.0,
+                Math.round(avgAccuracy * 100.0) / 100.0,
+                getGroupedStats("postalCircle", criteria),
+                getGroupedStats("division", criteria),
+                getGroupedStats("cadre", criteria),
+                getGroupedStats("examType", criteria));
+    }
+
+    private List<ReportSummaryDto.CountEntry> getGroupedStats(String field, Criteria criteria) {
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(criteria),
+                Aggregation.match(Criteria.where(field).ne(null)),
+                Aggregation.group(field)
+                        .count().as("count")
+                        .avg("accuracy").as("averageAccuracy"),
+                Aggregation.project("count", "averageAccuracy").and("_id").as("name"),
+                Aggregation.sort(org.springframework.data.domain.Sort.Direction.DESC, "count"),
+                Aggregation.limit(10));
+
+        AggregationResults<ReportSummaryDto.CountEntry> results = mongoTemplate.aggregate(agg, "results",
+                ReportSummaryDto.CountEntry.class);
+
+        return results.getMappedResults();
     }
 }

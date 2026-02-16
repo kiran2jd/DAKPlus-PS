@@ -148,7 +148,7 @@ export default function LoginScreen({ navigation }) {
             const diagnosticInfo = `URL: ${err.config?.url || 'Unknown'}\nStatus: ${err.response?.status || 'No Response'}`;
             Alert.alert(
                 'Error',
-                `Failed to send OTP: ${errorMsg}\n\nTechnical Details:\n${diagnosticInfo}`
+                `Failed to send OTP. Please check your internet/mobile data or try a VPN if on restricted networks.\n\nTechnical Details:\n${diagnosticInfo}`
             );
         } finally {
             setLoading(false);
@@ -342,8 +342,8 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     logoImage: {
-        width: 180,
-        height: 60,
+        width: 240,
+        height: 80,
         marginBottom: 10,
     },
     title: {

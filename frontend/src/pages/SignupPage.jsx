@@ -113,13 +113,13 @@ export default function SignupPage() {
                 </div>
 
                 {error && (
-                    <div className={`p-4 rounded-md text-sm text-center ${existingUser ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-red-50 text-red-700'}`}>
+                    <div className={`p-4 rounded-xl text-sm text-center ${existingUser ? 'bg-amber-50 text-amber-800 border border-amber-200 shadow-sm' : 'bg-red-50 text-red-700 border border-red-100 shadow-sm'}`}>
                         {error}
                         {existingUser && (
-                            <div className="mt-2">
+                            <div className="mt-2 pt-2 border-t border-amber-100">
                                 <button
                                     onClick={() => navigate('/login')}
-                                    className="font-bold underline text-amber-900 hover:text-amber-700"
+                                    className="font-bold underline text-amber-900 hover:text-amber-700 decoration-2 underline-offset-4"
                                 >
                                     Go to Login Page
                                 </button>

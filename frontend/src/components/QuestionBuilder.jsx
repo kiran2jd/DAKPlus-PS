@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Image as ImageIcon, X } from 'lucide-react';
 
 export default function QuestionBuilder({ questions, setQuestions }) {
     const addQuestion = () => {
@@ -11,7 +11,8 @@ export default function QuestionBuilder({ questions, setQuestions }) {
                 options: ['', '', '', ''],
                 correctAnswer: '', // stored as string for simplicity: option text or index
                 points: 1,
-                explanation: ''
+                explanation: '',
+                imageUrl: '' // manual image upload support
             }
         ]);
     };
@@ -25,6 +26,26 @@ export default function QuestionBuilder({ questions, setQuestions }) {
         const newQuestions = [...questions];
         newQuestions[index][field] = value;
         setQuestions(newQuestions);
+    };
+
+    const handleImageUpload = (index, e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert("Image size should be less than 2MB");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            updateQuestion(index, 'imageUrl', reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const removeImage = (index) => {
+        updateQuestion(index, 'imageUrl', '');
     };
 
     const updateOption = (qIndex, oIndex, value) => {
@@ -46,15 +67,49 @@ export default function QuestionBuilder({ questions, setQuestions }) {
                     </button>
 
                     <div className="grid grid-cols-1 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Question {qIndex + 1}</label>
-                            <input
-                                type="text"
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 bg-white text-gray-900"
-                                value={q.text}
-                                onChange={(e) => updateQuestion(qIndex, 'text', e.target.value)}
-                                placeholder="Enter question text here"
-                            />
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700">Question {qIndex + 1}</label>
+                                <input
+                                    type="text"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 bg-white text-gray-900"
+                                    value={q.text}
+                                    onChange={(e) => updateQuestion(qIndex, 'text', e.target.value)}
+                                    placeholder="Enter question text here"
+                                />
+                            </div>
+                            <div className="md:w-48">
+                                <label className="block text-sm font-medium text-gray-700">Image / Diagram</label>
+                                {!q.imageUrl ? (
+                                    <div className="mt-1 flex items-center">
+                                        <label className="cursor-pointer bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-3 flex items-center justify-center text-sm text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 w-full shadow-sm">
+                                            <ImageIcon size={16} className="mr-2" />
+                                            Upload
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={(e) => handleImageUpload(qIndex, e)}
+                                            />
+                                        </label>
+                                    </div>
+                                ) : (
+                                    <div className="mt-1 relative group">
+                                        <img
+                                            src={q.imageUrl}
+                                            alt="Question"
+                                            className="h-20 w-full object-contain border rounded-md"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(qIndex)}
+                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">

@@ -27,6 +27,12 @@ public class Result {
     private Map<String, AnswerDetail> detailedAnswers = new HashMap<>();
     private Integer rank; // Leaderboard rank
 
+    // Metadata for reporting
+    private String postalCircle;
+    private String division;
+    private String cadre;
+    private String examType;
+
     public Result() {
     }
 
@@ -221,5 +227,37 @@ public class Result {
 
     public void setRank(Integer rank) {
         this.rank = rank;
+    }
+
+    public String getPostalCircle() {
+        return postalCircle;
+    }
+
+    public void setPostalCircle(String postalCircle) {
+        this.postalCircle = postalCircle;
+    }
+
+    public String getDivision() {
+        return division;
+    }
+
+    public void setDivision(String division) {
+        this.division = division;
+    }
+
+    public String getCadre() {
+        return cadre;
+    }
+
+    public void setCadre(String cadre) {
+        this.cadre = cadre;
+    }
+
+    public String getExamType() {
+        return examType;
+    }
+
+    public void setExamType(String examType) {
+        this.examType = examType;
     }
 }

@@ -54,4 +54,13 @@ public class ResultController {
             @RequestParam(value = "period", defaultValue = "weekly") String period) {
         return ResponseEntity.ok(resultService.getLeaderboard(period));
     }
+
+    @GetMapping("/admin/summary")
+    public ResponseEntity<com.mockanytime.scoringservice.dto.ReportSummaryDto> getAdminSummary(
+            @RequestParam(required = false) String circle,
+            @RequestParam(required = false) String division,
+            @RequestParam(required = false) String cadre,
+            @RequestParam(required = false) String examType) {
+        return ResponseEntity.ok(resultService.getSummaryReport(circle, division, cadre, examType));
+    }
 }

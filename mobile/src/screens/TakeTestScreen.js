@@ -9,6 +9,7 @@ import {
     SafeAreaView,
     ScrollView,
     Platform,
+    Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { usePreventScreenCapture } from 'expo-screen-capture';
@@ -152,6 +153,14 @@ export default function TakeTestScreen({ navigation, route }) {
 
             <ScrollView contentContainerStyle={styles.questionContainer}>
                 <Text style={styles.questionText}>{question.text}</Text>
+
+                {question.imageUrl && (
+                    <Image
+                        source={{ uri: question.imageUrl }}
+                        style={styles.questionImage}
+                        resizeMode="contain"
+                    />
+                )}
 
                 <View style={styles.optionsList}>
                     {question.options.map((option, index) => (
@@ -352,5 +361,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#ffffff',
+    },
+    questionImage: {
+        width: '100%',
+        height: 250,
+        borderRadius: 12,
+        marginBottom: 20,
+        backgroundColor: '#f8fafc',
     },
 });

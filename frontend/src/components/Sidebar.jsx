@@ -38,17 +38,19 @@ export default function Sidebar({ isOpen, onClose }) {
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
                 flex flex-col
             `}>
-                <div className="p-6 border-b flex justify-between items-center">
-                    <Link to="/dashboard" onClick={onClose} className="flex items-center space-x-2">
-                        <img src={logo} alt="DAK Plus Logo" className="h-10 w-auto object-contain flex-shrink-0" />
-                        <span className="text-2xl font-extrabold text-gray-900 tracking-tight">
-                            DAK <span className="text-red-600">Plus</span>
-                        </span>
-                        {isStudent && user?.subscriptionTier === 'PREMIUM' && (
-                            <span className="bg-amber-400 text-amber-900 text-[10px] font-black px-1.5 py-0.5 rounded ml-1 animate-pulse">
-                                PRO
+                <div className="p-4 border-b flex justify-between items-center">
+                    <Link to="/dashboard" onClick={onClose} className="flex flex-col items-center space-y-2 w-full">
+                        <img src={logo} alt="DAK Plus Logo" className="h-20 w-auto object-contain flex-shrink-0" />
+                        <div className="flex items-center space-x-1">
+                            <span className="text-2xl font-extrabold text-gray-900 tracking-tight">
+                                DAK <span className="text-red-600">Plus</span>
                             </span>
-                        )}
+                            {isStudent && user?.subscriptionTier === 'PREMIUM' && (
+                                <span className="bg-amber-400 text-amber-900 text-[10px] font-black px-1.5 py-0.5 rounded animate-pulse">
+                                    PRO
+                                </span>
+                            )}
+                        </div>
                     </Link>
                     <button onClick={onClose} className="lg:hidden p-2 text-gray-500 hover:text-red-600">
                         <X size={24} />
