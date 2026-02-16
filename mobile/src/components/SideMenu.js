@@ -79,6 +79,7 @@ const SideMenu = (props) => {
                     <Image
                         source={require('../../assets/logo.jpg')}
                         style={styles.profileImage}
+                        resizeMode="contain"
                     />
                     <View style={styles.onlineStatus} />
                 </View>

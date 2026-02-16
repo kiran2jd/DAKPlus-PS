@@ -164,6 +164,39 @@ export default function DashboardScreen({ navigation }) {
                     {renderHeader()}
 
                     <View style={styles.content}>
+                        {/* Quick Stats Row */}
+                        <View style={styles.quickStatsRow}>
+                            <View style={styles.quickStatCard}>
+                                <View style={styles.statIconBg}>
+                                    <Ionicons name="trending-up" size={20} color="#22c55e" />
+                                </View>
+                                <View>
+                                    <Text style={styles.statLabel}>Avg Accuracy</Text>
+                                    <Text style={styles.statValue}>
+                                        {results.length > 0
+                                            ? Math.round(results.reduce((acc, curr) => acc + (curr.percentage || 0), 0) / results.length)
+                                            : 0}%
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={styles.quickStatCard}>
+                                <View style={[styles.statIconBg, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
+                                    <Ionicons name="time-outline" size={20} color="#3b82f6" />
+                                </View>
+                                <View>
+                                    <Text style={styles.statLabel}>Tests This Week</Text>
+                                    <Text style={styles.statValue}>
+                                        {results.filter(r => {
+                                            const date = new Date(r.createdAt);
+                                            const now = new Date();
+                                            const diff = (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24);
+                                            return diff <= 7;
+                                        }).length}
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
+
                         {user?.role === 'STUDENT' && (
                             <View style={styles.progressSection}>
                                 <Text style={styles.sectionTitle}>Course Progress</Text>
@@ -375,6 +408,43 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 10,
+    },
+    quickStatsRow: {
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        gap: 12,
+        marginBottom: 20,
+    },
+    quickStatCard: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        padding: 12,
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.05)',
+        gap: 12,
+    },
+    statIconBg: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    statLabel: {
+        color: '#64748b',
+        fontSize: 10,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+    },
+    statValue: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '900',
+        marginTop: 1,
     },
     carouselContainer: {
         borderRadius: 28,

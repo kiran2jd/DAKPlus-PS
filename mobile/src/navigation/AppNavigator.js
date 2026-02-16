@@ -18,10 +18,46 @@ import TopicManagementScreen from '../screens/TopicManagementScreen';
 import { authService } from '../services/auth';
 
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import SideMenu from '../components/SideMenu';
+import HelpScreen from '../screens/HelpScreen'; // New screen
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+const Tab = createBottomTabNavigator();
+
+function MainTabNavigator() {
+    return (
+        <Tab.Navigator
+            screenOptions={({ route }) => ({
+                headerShown: false,
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
+                    if (route.name === 'Home') iconName = focused ? 'home' : 'home-outline';
+                    else if (route.name === 'Tests') iconName = focused ? 'book' : 'book-outline';
+                    else if (route.name === 'Performance') iconName = focused ? 'stats-chart' : 'stats-chart-outline';
+                    else if (route.name === 'Help') iconName = focused ? 'help-circle' : 'help-circle-outline';
+                    return <Ionicons name={iconName} size={size} color={color} />;
+                },
+                tabBarActiveTintColor: '#dc2626',
+                tabBarInactiveTintColor: '#64748b',
+                tabBarStyle: {
+                    backgroundColor: '#0f172a',
+                    borderTopWidth: 1,
+                    borderTopColor: 'rgba(255,255,255,0.05)',
+                    height: 65,
+                    paddingBottom: 10,
+                },
+            })}
+        >
+            <Tab.Screen name="Home" component={DashboardScreen} />
+            <Tab.Screen name="Tests" component={TestLibraryScreen} />
+            <Tab.Screen name="Performance" component={AnalyticsScreen} />
+            <Tab.Screen name="Help" component={HelpScreen} />
+        </Tab.Navigator>
+    );
+}
 
 function StudentDrawer() {
     return (
@@ -34,9 +70,7 @@ function StudentDrawer() {
                 },
             }}
         >
-            <Drawer.Screen name="Dashboard" component={DashboardScreen} />
-            <Drawer.Screen name="TestLibrary" component={TestLibraryScreen} />
-            <Drawer.Screen name="Analytics" component={AnalyticsScreen} />
+            <Drawer.Screen name="Tabs" component={MainTabNavigator} />
         </Drawer.Navigator>
     );
 }
@@ -80,7 +114,7 @@ export default function AppNavigator() {
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Register" component={RegisterScreen} />
 
-                {/* Main Student App Flow */}
+                {/* Main Student App Flow - Drawer contains Tabs */}
                 <Stack.Screen name="Main" component={StudentDrawer} />
 
                 {/* Other Screens */}
