@@ -12,10 +12,10 @@ import jakarta.annotation.PostConstruct;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class QuestionExtractionService {
 
-    private final ChatClient chatClient;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private ChatClient chatClient;
 
     @Value("${spring.ai.openai.api-key:}")
     private String apiKey;
