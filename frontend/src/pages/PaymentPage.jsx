@@ -65,6 +65,21 @@ export default function PaymentPage() {
         }
     };
 
+    // 2. Map pricing based on user's exam choice
+    const pricing = {
+        'GDS to MTS': { amount: 199, id: 'MTS_EXAM', label: 'MTS Exam Prep' },
+        'MTS': { amount: 199, id: 'MTS_EXAM', label: 'MTS Exam Prep' },
+        'GDS to Postman': { amount: 299, id: 'PM_MG_EXAM', label: 'Postman/MG Prep' },
+        'MTS to Postman': { amount: 299, id: 'PM_MG_EXAM', label: 'Postman/MG Prep' },
+        'PM MG Exam': { amount: 299, id: 'PM_MG_EXAM', label: 'Postman/MG Prep' },
+        'GDS/MTS/Postman to PA/SA': { amount: 499, id: 'PA_SA_EXAM', label: 'PA/SA Exam Prep' },
+        'PA SA Exam': { amount: 499, id: 'PA_SA_EXAM', label: 'PA/SA Exam Prep' },
+        'IP Exam': { amount: 999, id: 'IP_EXAM', label: 'IP Exam Prep' }
+    };
+
+    const userExam = user?.examType || 'Others';
+    const selectedPlan = pricing[userExam] || { amount: 299, id: 'GENERAL_PRO', label: 'DAK Plus Pro' };
+
     const handlePayment = async () => {
         setProcessing(true);
 
@@ -77,22 +92,8 @@ export default function PaymentPage() {
         }
 
         try {
-            // 2. Map pricing based on user's exam choice
-            const pricing = {
-                'GDS to MTS': { amount: 199, id: 'MTS_EXAM', label: 'MTS Exam Prep' },
-                'MTS': { amount: 199, id: 'MTS_EXAM', label: 'MTS Exam Prep' },
-                'GDS to Postman': { amount: 299, id: 'PM_MG_EXAM', label: 'Postman/MG Prep' },
-                'MTS to Postman': { amount: 299, id: 'PM_MG_EXAM', label: 'Postman/MG Prep' },
-                'PM MG Exam': { amount: 299, id: 'PM_MG_EXAM', label: 'Postman/MG Prep' },
-                'GDS/MTS/Postman to PA/SA': { amount: 499, id: 'PA_SA_EXAM', label: 'PA/SA Exam Prep' },
-                'PA SA Exam': { amount: 499, id: 'PA_SA_EXAM', label: 'PA/SA Exam Prep' },
-                'IP Exam': { amount: 999, id: 'IP_EXAM', label: 'IP Exam Prep' }
-            };
+            // Logic moved to component scope above
 
-            const userExam = user?.examType || 'Others';
-            const selectedPlan = pricing[userExam] || { amount: 299, id: 'GENERAL_PRO', label: 'DAK Plus Pro' };
-
-            // If testId is present, it's a individual test purchase (₹49), else specific Exam or Pro Subscription
             // If testId is present, it's a individual test purchase (₹49), else specific Exam or Pro Subscription
             // TEST OVERRIDE: 50 INR for Plan
             const amount = testId ? 49 : 50; // selectedPlan.amount;
