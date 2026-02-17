@@ -93,7 +93,9 @@ export default function PaymentPage() {
             const selectedPlan = pricing[userExam] || { amount: 299, id: 'GENERAL_PRO', label: 'DAK Plus Pro' };
 
             // If testId is present, it's a individual test purchase (₹49), else specific Exam or Pro Subscription
-            const amount = testId ? 49 : selectedPlan.amount;
+            // If testId is present, it's a individual test purchase (₹49), else specific Exam or Pro Subscription
+            // TEST OVERRIDE: 50 INR for Plan
+            const amount = testId ? 49 : 50; // selectedPlan.amount;
             const itemId = testId || selectedPlan.id;
             const itemType = testId ? 'TEST' : 'EXAM';
 
@@ -138,7 +140,7 @@ export default function PaymentPage() {
                 currency: "INR",
                 name: "DAK Plus App",
                 description: testId ? `Unlock Test: ${testDetails?.title || 'Premium Test'}` : `Unlock ${selectedPlan.label}`,
-                image: "/logo.png", // Replace with your actual logo path
+                image: "/logo.jpg", // DAKPlus Logo
                 order_id: orderData.orderId,
                 handler: async function (response) {
                     // 4. Verify Payment on Backend
@@ -309,7 +311,7 @@ export default function PaymentPage() {
                                     <p className="text-gray-900 font-bold mt-2">{testDetails.title}</p>
                                 )}
                                 <div className="mt-4 flex items-center justify-center">
-                                    <span className="text-5xl font-black text-gray-900">₹{testId ? '49' : '299'}</span>
+                                    <span className="text-5xl font-black text-gray-900">₹{testId ? '49' : selectedPlan.amount}</span>
                                     {!testId && <span className="text-gray-400 ml-2 font-medium">/ year</span>}
                                 </div>
                                 <p className="mt-2 text-sm text-gray-500">{testId ? 'One-time payment.' : 'Billed annually. Cancel anytime.'}</p>

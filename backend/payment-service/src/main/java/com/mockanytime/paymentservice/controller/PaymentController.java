@@ -59,6 +59,9 @@ public class PaymentController {
         }
     }
 
+    @org.springframework.beans.factory.annotation.Value("${auth.service.url:http://auth-service.railway.internal:8081}")
+    private String authServiceUrl;
+
     @PostMapping("/verify-payment")
     public ResponseEntity<?> verifyPayment(@RequestBody Map<String, String> request) {
         String orderId = request.get("razorpay_order_id");
@@ -84,21 +87,24 @@ public class PaymentController {
                     try {
                         // Call Auth Service to update tier
                         RestTemplate restTemplate = new RestTemplate();
-                        String authServiceUrl = "http://auth-service.railway.internal:8081/auth/internal/update-tier";
-                        System.out.println("Calling auth-service to upgrade tier for user: " + userId);
-                        restTemplate.put(authServiceUrl, Map.of("userId", userId, "tier", "PREMIUM"));
+                        String updateUrl = authServiceUrl + "/auth/internal/update-tier";
+                        System.out.println(
+                                "Calling auth-service to upgrade tier for user: " + userId + " at " + updateUrl);
+                        restTemplate.put(updateUrl, Map.of("userId", userId, "tier", "PREMIUM"));
                         System.out.println("User tier upgraded to PREMIUM for userId: " + userId);
                     } catch (Exception e) {
                         System.err.println("Failed to update user tier automatically: " + e.getMessage());
+                        // TODO: Implement retry mechanism or alert admin
                     }
                 } else if ("EXAM".equals(purchase.getItemType())) {
                     try {
                         // Call Auth Service to unlock specific exam
                         RestTemplate restTemplate = new RestTemplate();
-                        String authServiceUrl = "http://auth-service.railway.internal:8081/auth/internal/unlock-exam";
+                        String unlockUrl = authServiceUrl + "/auth/internal/unlock-exam";
                         System.out.println(
-                                "Calling auth-service to unlock exam " + purchase.getItemId() + " for user: " + userId);
-                        restTemplate.put(authServiceUrl, Map.of("userId", userId, "examId", purchase.getItemId()));
+                                "Calling auth-service to unlock exam " + purchase.getItemId() + " for user: " + userId
+                                        + " at " + unlockUrl);
+                        restTemplate.put(unlockUrl, Map.of("userId", userId, "examId", purchase.getItemId()));
                         System.out.println("Exam unlocked for userId: " + userId);
                     } catch (Exception e) {
                         System.err.println("Failed to unlock exam automatically: " + e.getMessage());
