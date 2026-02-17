@@ -86,10 +86,15 @@ export default function AppNavigator() {
 
     const checkAuth = async () => {
         try {
-            const authenticated = await authService.isAuthenticated();
+            // Add a timeout to prevent infinite loading screen if SecureStore hangs
+            const authPromise = authService.isAuthenticated();
+            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(false), 5000));
+
+            const authenticated = await Promise.race([authPromise, timeoutPromise]);
             setIsAuthenticated(authenticated);
         } catch (error) {
             console.error('Auth check failed:', error);
+            setIsAuthenticated(false);
         } finally {
             setIsLoading(false);
         }

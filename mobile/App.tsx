@@ -14,13 +14,21 @@ export default function App() {
   // 1. Prevent Screen Capture
   useEffect(() => {
     const enableProtection = async () => {
-      await ScreenCapture.preventScreenCaptureAsync();
+      try {
+        await ScreenCapture.preventScreenCaptureAsync();
+      } catch (err) {
+        console.log('Screen capture protection failed:', err);
+      }
     };
     enableProtection();
 
     // Cleanup not strictly necessary for root app, but good practice
     return () => {
-      ScreenCapture.allowScreenCaptureAsync();
+      try {
+        ScreenCapture.allowScreenCaptureAsync();
+      } catch (err) {
+        // Ignore cleanup errors
+      }
     };
   }, []);
 
@@ -44,16 +52,21 @@ export default function App() {
   }, []);
 
   const checkSession = async () => {
-    const isValid = await authService.validateSession();
-    // If isValid is false (and we are logged in), we should logout
-    // For now, if validateSession returns false, it means either not logged in OR invalid.
-    // We should only force logout if we WERE logged in.
-    const isAuthenticated = await authService.isAuthenticated();
-    if (isAuthenticated && isValid === false) {
-      Alert.alert('Session Expired', 'You have been logged out because you logged in on another device.');
-      await authService.logout();
-      // Navigation reset is tricky from here without a ref, but subsequent API calls will fail 401
-      // Ideally we use a navigation ref to reset to Login
+    try {
+      const isValid = await authService.validateSession();
+      // If isValid is false (and we are logged in), we should logout
+      // For now, if validateSession returns false, it means either not logged in OR invalid.
+      // We should only force logout if we WERE logged in.
+      const isAuthenticated = await authService.isAuthenticated();
+      if (isAuthenticated && isValid === false) {
+        Alert.alert('Session Expired', 'You have been logged out because you logged in on another device.');
+        await authService.logout();
+        // Navigation reset is tricky from here without a ref, but subsequent API calls will fail 401
+        // Ideally we use a navigation ref to reset to Login
+      }
+    } catch (err) {
+      console.log('Session check validation failed:', err);
+      // Do not crash the app for background session check failures
     }
   };
 
