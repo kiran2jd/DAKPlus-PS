@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { AppState, View, PanResponder, Alert } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as ScreenCapture from 'expo-screen-capture';
 import AppNavigator from './src/navigation/AppNavigator';
 import { authService } from './src/services/auth';
@@ -103,9 +104,9 @@ export default function App() {
   */
 
   return (
-    <View style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="light" />
       <AppNavigator />
-    </View>
+    </GestureHandlerRootView>
   );
 }
