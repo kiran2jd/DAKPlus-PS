@@ -3,6 +3,7 @@ import { useNavigate, Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { Menu, Bell, X, Check } from 'lucide-react';
 import api from '../services/api';
+import { authService } from '../services/auth';
 
 export default function DashboardLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -25,8 +26,24 @@ export default function DashboardLayout() {
     };
 
     useEffect(() => {
+        // Force refresh user profile to check for status updates (e.g. after payment)
+        const syncUserProfile = async () => {
+            try {
+                const user = await authService.getProfile();
+                // Update local storage is handled inside authService.getProfile
+                // Dispatch a custom event to update other components if needed
+                window.dispatchEvent(new Event('storage'));
+            } catch (error) {
+                console.error("Failed to sync user profile:", error);
+            }
+        };
+
+        syncUserProfile();
         fetchNotifications();
-        const interval = setInterval(fetchNotifications, 60000); // Poll every minute
+        const interval = setInterval(() => {
+            fetchNotifications();
+            // syncUserProfile(); // Optional: Poll profile too?
+        }, 60000); // Poll every minute
         return () => clearInterval(interval);
     }, []);
 

@@ -91,6 +91,7 @@ export default function App() {
   }, []);
   */
 
+  /*
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => {
@@ -99,9 +100,10 @@ export default function App() {
       },
     })
   ).current;
+  */
 
   return (
-    <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+    <View style={{ flex: 1 }}>
       <StatusBar style="light" />
       <AppNavigator />
     </View>

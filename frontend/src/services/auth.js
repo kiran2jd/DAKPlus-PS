@@ -59,10 +59,14 @@ export const authService = {
         if (response.data.user) {
             const localUser = JSON.parse(localStorage.getItem('user') || '{}');
             // If local is PREMIUM, keep it even if backend says FREE (prevents flickering during upgrade)
+            // This is a safety measure if payment-service -> auth-service update lags or fails
             if (localUser.subscriptionTier === 'PREMIUM' && response.data.user.subscriptionTier !== 'PREMIUM') {
+                console.warn("Backend still reports FREE but local is PREMIUM. Keeping PREMIUM optimistically.");
                 response.data.user.subscriptionTier = 'PREMIUM';
             }
+            // Update local storage with fresh data
             localStorage.setItem('user', JSON.stringify(response.data.user));
+            return response.data.user;
         }
         return response.data;
     },
