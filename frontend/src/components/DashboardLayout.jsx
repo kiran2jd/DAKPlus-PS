@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { Menu, Bell, X, Check } from 'lucide-react';
 import api from '../services/api';
