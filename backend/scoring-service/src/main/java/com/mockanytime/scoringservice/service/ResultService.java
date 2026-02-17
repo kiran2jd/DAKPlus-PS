@@ -117,7 +117,7 @@ public class ResultService {
             notif.put("message",
                     "You scored " + score + "/" + totalPoints + " (" + savedResult.getAccuracy() + "% accuracy).");
             notif.put("type", "EXAM_COMPLETION");
-            notif.put("link", "/dashboard/results/" + savedResult.getId());
+            notif.put("link", "/dashboard/result/" + savedResult.getId());
             authClient.createNotification(notif);
         } catch (Exception e) {
             System.err.println("Failed to trigger notification: " + e.getMessage());

@@ -96,6 +96,7 @@ export default function AppNavigator() {
             console.error('Auth check failed:', error);
             setIsAuthenticated(false);
         } finally {
+            console.log('AppNavigator: checkAuth finished, isAuthenticated:', isAuthenticated);
             setIsLoading(false);
         }
     };

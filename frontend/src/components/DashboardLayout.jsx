@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { Menu, Bell, X, Check } from 'lucide-react';
 import api from '../services/api';
@@ -9,6 +9,7 @@ export default function DashboardLayout() {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const navigate = useNavigate();
 
     const fetchNotifications = async () => {
         try {
@@ -29,12 +30,23 @@ export default function DashboardLayout() {
         return () => clearInterval(interval);
     }, []);
 
-    const markAsRead = async (id) => {
+    const deleteNotification = async (id, link) => {
         try {
-            await api.put(`/auth/notifications/${id}/read`);
-            fetchNotifications();
+            // Optimistic update to remove from UI immediately
+            setNotifications(prev => prev.filter(n => n.id !== id));
+            setUnreadCount(prev => Math.max(0, prev - 1));
+
+            // Call API to delete permanently
+            await api.delete(`/auth/notifications/${id}`);
+
+            // Navigate if link exists
+            if (link) {
+                navigate(link);
+                setIsNotifOpen(false);
+            }
         } catch (error) {
-            console.error('Failed to mark as read:', error);
+            console.error('Failed to delete notification:', error);
+            fetchNotifications(); // Revert on error
         }
     };
 
@@ -86,10 +98,7 @@ export default function DashboardLayout() {
                                             <div
                                                 key={n.id}
                                                 className={`p-4 border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer ${!n.read ? 'bg-blue-50/30 dark:bg-blue-900/20' : ''}`}
-                                                onClick={() => {
-                                                    if (!n.read) markAsRead(n.id);
-                                                    if (n.link) window.location.href = n.link;
-                                                }}
+                                                onClick={() => deleteNotification(n.id, n.link)}
                                             >
                                                 <div className="flex justify-between items-start mb-1">
                                                     <span className={`text-xs font-bold uppercase tracking-wider ${n.type === 'EXAM_COMPLETION' ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>

@@ -12,6 +12,9 @@ import logo from '../../assets/logo.jpg';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function WelcomeScreen({ navigation }) {
+    React.useEffect(() => {
+        console.log('WelcomeScreen mounted');
+    }, []);
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" />
@@ -73,7 +76,7 @@ const styles = StyleSheet.create({
     },
     logoText: {
         fontSize: 40,
-        fontWeight: '900',
+        fontWeight: 'bold',
         color: '#fff',
         letterSpacing: 4,
     },
