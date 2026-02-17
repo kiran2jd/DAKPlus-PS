@@ -67,7 +67,9 @@ public class PaymentController {
         String orderId = request.get("razorpay_order_id");
         String paymentId = request.get("razorpay_payment_id");
         String signature = request.get("razorpay_signature");
-        String userId = request.get("userId");
+        String signature = request.get("razorpay_signature");
+        // userId from request is often null in callbacks, we fetch it from DB (purchase
+        // record) instead.
 
         System.out.println("Verifying payment: orderId=" + orderId + ", paymentId=" + paymentId);
 

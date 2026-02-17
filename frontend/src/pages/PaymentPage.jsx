@@ -98,7 +98,8 @@ export default function PaymentPage() {
             // TEST OVERRIDE: 50 INR for Plan
             const amount = testId ? 49 : 50; // selectedPlan.amount;
             const itemId = testId || selectedPlan.id;
-            const itemType = testId ? 'TEST' : 'EXAM';
+            // FIX: Plans should be treated as SUBSCRIPTIONS to trigger Tier Upgrade in backend
+            const itemType = testId ? 'TEST' : 'SUBSCRIPTION';
 
             const orderData = await paymentService.createOrder(amount, itemId, itemType);
 
