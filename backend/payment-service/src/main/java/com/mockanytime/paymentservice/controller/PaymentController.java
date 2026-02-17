@@ -87,27 +87,45 @@ public class PaymentController {
                     try {
                         // Call Auth Service to update tier
                         RestTemplate restTemplate = new RestTemplate();
-                        String updateUrl = authServiceUrl + "/auth/internal/update-tier";
+                        // Use the configured URL + endpoint
+                        String updateUrl = authServiceUrl + (authServiceUrl.endsWith("/") ? "" : "/")
+                                + "auth/internal/update-tier";
+
+                        // Use userId from the purchase record, as it might be missing in the callback
+                        // request
+                        String targetUserId = purchase.getUserId();
+
                         System.out.println(
-                                "Calling auth-service to upgrade tier for user: " + userId + " at " + updateUrl);
-                        restTemplate.put(updateUrl, Map.of("userId", userId, "tier", "PREMIUM"));
-                        System.out.println("User tier upgraded to PREMIUM for userId: " + userId);
+                                "Calling auth-service to upgrade tier for user: " + targetUserId + " at " + updateUrl);
+
+                        // Send PUT request
+                        restTemplate.put(updateUrl, Map.of("userId", targetUserId, "tier", "PREMIUM"));
+
+                        System.out.println("User tier upgraded to PREMIUM for userId: " + targetUserId);
                     } catch (Exception e) {
                         System.err.println("Failed to update user tier automatically: " + e.getMessage());
-                        // TODO: Implement retry mechanism or alert admin
+                        e.printStackTrace();
                     }
-                } else if ("EXAM".equals(purchase.getItemType())) {
+                } else if ("EXAM".equals(purchase.getItemType()) || "TEST".equals(purchase.getItemType())) {
                     try {
                         // Call Auth Service to unlock specific exam
                         RestTemplate restTemplate = new RestTemplate();
-                        String unlockUrl = authServiceUrl + "/auth/internal/unlock-exam";
+                        String unlockUrl = authServiceUrl + (authServiceUrl.endsWith("/") ? "" : "/")
+                                + "auth/internal/unlock-exam";
+
+                        String targetUserId = purchase.getUserId();
+                        String itemId = purchase.getItemId();
+
                         System.out.println(
-                                "Calling auth-service to unlock exam " + purchase.getItemId() + " for user: " + userId
+                                "Calling auth-service to unlock exam " + itemId + " for user: " + targetUserId
                                         + " at " + unlockUrl);
-                        restTemplate.put(unlockUrl, Map.of("userId", userId, "examId", purchase.getItemId()));
-                        System.out.println("Exam unlocked for userId: " + userId);
+
+                        restTemplate.put(unlockUrl, Map.of("userId", targetUserId, "examId", itemId));
+
+                        System.out.println("Exam unlocked for userId: " + targetUserId);
                     } catch (Exception e) {
                         System.err.println("Failed to unlock exam automatically: " + e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             }

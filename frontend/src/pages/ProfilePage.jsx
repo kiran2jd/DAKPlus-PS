@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { User, Mail, Shield, BookOpen, Award, Settings, Camera, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { resultService } from '../services/result';
+import { paymentService } from '../services/payment';
 import logo from '../assets/logo.jpg';
 
 export default function ProfilePage() {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [results, setResults] = useState([]);
+    const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
         totalTests: 0,
@@ -28,9 +30,13 @@ export default function ProfilePage() {
 
     const loadHistory = async (userId) => {
         try {
-            const data = await resultService.getResultsByUser(userId);
-            setResults(data);
-            calculateStats(data);
+            const [resultsData, transactionsData] = await Promise.all([
+                resultService.getResultsByUser(userId),
+                paymentService.getUserPurchases()
+            ]);
+            setResults(resultsData);
+            setTransactions(transactionsData);
+            calculateStats(resultsData);
         } catch (err) {
             console.error("Failed to load history", err);
         } finally {
@@ -121,8 +127,9 @@ export default function ProfilePage() {
 
                 {/* Right Column: Activity / Content */}
                 <div className="md:col-span-2 space-y-8">
+                    {/* Recent Test Activity */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                        <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+                        <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Test Activity</h2>
 
                         {results.length === 0 ? (
                             <p className="text-gray-500 text-center py-8">No tests taken yet.</p>
@@ -158,6 +165,53 @@ export default function ProfilePage() {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Purchase History Section */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                        <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                            <Shield className="h-5 w-5 text-green-600 mr-2" /> Purchase History
+                        </h2>
+                        {transactions.length === 0 ? (
+                            <p className="text-gray-500 text-center py-8">No transactions found.</p>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full text-left text-sm">
+                                    <thead>
+                                        <tr className="border-b border-gray-100 text-gray-500">
+                                            <th className="pb-3 font-medium">Date</th>
+                                            <th className="pb-3 font-medium">Item</th>
+                                            <th className="pb-3 font-medium">Amount</th>
+                                            <th className="pb-3 font-medium">Status</th>
+                                            <th className="pb-3 font-medium text-right">Order ID</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {transactions.map((tx) => (
+                                            <tr key={tx.orderId || tx.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition">
+                                                <td className="py-4 text-gray-600">
+                                                    {new Date(tx.createdAt || Date.now()).toLocaleDateString()}
+                                                </td>
+                                                <td className="py-4 font-medium text-gray-900">
+                                                    {tx.itemType === 'SUBSCRIPTION' ? 'Premium Plan' : 'Individual Test'}
+                                                </td>
+                                                <td className="py-4 text-gray-900 font-bold">
+                                                    ₹{tx.amount}
+                                                </td>
+                                                <td className="py-4">
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${tx.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                        {tx.status?.toUpperCase() || 'SUCCESS'}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 text-right text-gray-400 text-xs font-mono">
+                                                    {tx.orderId}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
