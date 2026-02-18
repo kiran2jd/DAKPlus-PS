@@ -16,6 +16,8 @@ spring:
             allowedOriginPatterns: 
               - "*"
               - "https://dak-plus-ps-u7bo.vercel.app"
+              - "https://www.dakplus.in"
+              - "https://dakplus.in"
               - "${ALLOWED_ORIGINS:*}"
             allowedMethods: "*"
             allowedHeaders: "*"

@@ -12,5 +12,12 @@
   "exclude": [
     "node_modules",
     ".expo"
-  ]
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
 }

@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "icon": "./assets/logo.jpg",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/logo.jpg",
       "resizeMode": "contain",
@@ -28,10 +28,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "c031d2ba-fdb6-4649-9aae-92343fb383af"
+        "projectId": "5731bb79-2d75-4c6f-8e7c-01e9274f6cf1"
       }
     },
-    "owner": "kiranjavatechie",
     "plugins": [
       "expo-web-browser"
     ]

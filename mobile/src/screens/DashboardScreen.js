@@ -47,29 +47,76 @@ export default function DashboardScreen({ navigation }) {
         if (!force && user && results.length > 0) return;
         setLoading(true);
         try {
+            // 1. Load User Profile (Critical)
             let userData;
             try {
                 userData = await authService.getProfile();
             } catch (err) {
+                console.log("Profile load failed, falling back to local user");
                 userData = await authService.getUser();
+            }
+
+            if (!userData) {
+                // If we still don't have a user, we can't do much.
+                setLoading(false);
+                setRefreshing(false);
+                return;
             }
             setUser(userData);
 
+            // 2. Load Dashboard Data (Resilient)
             if (userData.role === 'STUDENT') {
-                if (userData.id || userData._id) {
-                    const userId = userData.id || userData._id;
-                    const [userResults, availableTests, lbData] = await Promise.all([
-                        resultService.getResultsByUser(userId),
-                        testService.getAvailableTests(),
-                        resultService.getLeaderboard('weekly')
-                    ]);
-                    setResults(userResults);
-                    setTests(availableTests);
-                    setLeaderboard(lbData);
+                const userId = userData.id || userData._id;
+
+                // Helper to safely get data or return default
+                const safePromise = (promise, fallback) =>
+                    promise.catch(err => {
+                        console.log("SafePromise caught error:", err.message);
+                        return fallback;
+                    });
+
+                // Create a timeout promise
+                const timeoutPromise = new Promise((resolve) => {
+                    setTimeout(() => {
+                        console.log("Dashboard data load timed out, returning partial data");
+                        resolve('TIMEOUT');
+                    }, 10000); // 10 second timeout for UX
+                });
+
+                // The actual data fetch
+                const fetchDataPromise = Promise.allSettled([
+                    resultService.getResultsByUser(userId),
+                    testService.getAvailableTests(),
+                    resultService.getLeaderboard('weekly')
+                ]);
+
+                // Race against timeout
+                const result = await Promise.race([fetchDataPromise, timeoutPromise]);
+
+                if (result === 'TIMEOUT') {
+                    // We timed out, but we might still get data later. 
+                    // For now, stop the loading spinner so user can see the UI.
+                    // The requests will complete in background but won't update state here 
+                    // unless we track mounted state or use a more complex effect.
+                    // Simple approach: just let the user interact with what we have (or empty states).
+                    console.log("Dashboard load timed out - showing empty/cached state");
+                } else {
+                    // We got results!
+                    const [resultsResult, testsResult, lbResult] = result;
+
+                    if (resultsResult.status === 'fulfilled') setResults(resultsResult.value);
+                    else console.log("Failed to load results:", resultsResult.reason);
+
+                    if (testsResult.status === 'fulfilled') setTests(testsResult.value);
+                    else console.log("Failed to load tests:", testsResult.reason);
+
+                    if (lbResult.status === 'fulfilled') setLeaderboard(lbResult.value);
+                    else console.log("Failed to load leaderboard:", lbResult.reason);
                 }
             }
         } catch (err) {
-            console.error("Dashboard load error:", err);
+            console.error("Dashboard load critical error:", err);
+            Alert.alert("Connection Issue", "Could not load latest data. Please pull to refresh.");
         } finally {
             setLoading(false);
             setRefreshing(false);
